@@ -1,0 +1,41 @@
+﻿#include "UserInfo.h"
+#include "ControlConsole.h"
+#include "GameStatus.h"
+#include <iostream>
+
+using namespace std;
+
+#define LEFT 60
+#define TOP 2
+
+void DrawPlayerInfo() {
+    setColor(0, 15);
+    GotoXY(LEFT, TOP);     cout << "===============================";
+    GotoXY(LEFT, TOP + 1); cout << "|        THONG TIN GAME       |";
+    GotoXY(LEFT, TOP + 2); cout << "===============================";
+
+    GotoXY(LEFT, TOP + 4); cout << "Player 1 (X) : Nguoi choi 1";
+    GotoXY(LEFT, TOP + 5); cout << "Player 2 (O) : Nguoi choi 2";
+
+    GotoXY(LEFT, TOP + 9); cout << "===============================";
+    GotoXY(LEFT, TOP + 10); cout << "Phim dieu khien:";
+    GotoXY(LEFT, TOP + 11); cout << "W, A, S, D : Di chuyen";
+    GotoXY(LEFT, TOP + 12); cout << "Enter      : Danh co";
+    GotoXY(LEFT, TOP + 13); cout << "L          : Luu game (Save)";
+    GotoXY(LEFT, TOP + 14); cout << "T          : Tai game (Load)";
+    GotoXY(LEFT, TOP + 15); cout << "ESC        : Thoat";
+}
+
+void UpdateTurnInfo() {
+    GotoXY(LEFT, TOP + 7);
+    if (_TURN) {
+        setColor(12, 15);
+        cout << "=> LUOT DI: PLAYER 1 (X)   ";
+    }
+    else {
+        setColor(10, 15);
+        cout << "=> LUOT DI: PLAYER 2 (O)   ";
+    }
+    setColor(0, 15);
+    GotoXY(_X, _Y);
+}
