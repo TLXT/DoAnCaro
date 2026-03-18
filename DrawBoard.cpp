@@ -1,7 +1,6 @@
 ﻿#include "DrawBoard.h"
 #include "ControlConsole.h"
 #include "GameStatus.h"
-#include <iostream>
 
 using namespace std;
 

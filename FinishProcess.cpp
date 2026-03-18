@@ -2,8 +2,6 @@
 #include "GameStatus.h"
 #include "ControlConsole.h"
 #include "UserInfo.h"
-#include <iostream>
-#include <conio.h>
 
 using namespace std;
 

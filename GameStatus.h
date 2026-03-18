@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <iostream>
+#include <vector>
 
 #define BOARD_SIZE 12
 #define LEFT 3

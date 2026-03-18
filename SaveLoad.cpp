@@ -4,11 +4,6 @@
 #include "DrawBoard.h"
 #include "GamePlay.h"
 #include "UserInfo.h"
-#include <iostream>
-#include <fstream>
-#include <conio.h>
-#include <windows.h> 
-#include <vector>
 
 using namespace std;
 

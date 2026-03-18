@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+#include <conio.h>
 
 void GabageCollect();
 void ExitGame();

@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 void StartGame();
 int CheckBoard(int pX, int pY);
