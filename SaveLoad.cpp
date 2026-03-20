@@ -38,17 +38,17 @@ void SaveGame() {
         cout << "                                                                    ";
 
         GotoXY(5, 27);
-        setColor(12, 15);
+        SetColor(12, 15);
         cout << "Nhap ten file de luu: ";
 
-        unhideCursor();
+        UnhideCursor();
         filename = TypeFileName();
-        hideCursor();
+        HideCursor();
 
         if (filename == "") {
             GotoXY(5, 27); cout << "                                                                    ";
             GotoXY(5, 28); cout << "                                                                    ";
-            setColor(0, 15);
+            SetColor(0, 15);
             GotoXY(_X, _Y);
             return;
         }
@@ -58,7 +58,7 @@ void SaveGame() {
             checkFile.close();
 
             GotoXY(5, 28);
-            setColor(12, 15); // Màu đỏ
+            SetColor(12, 15); // Màu đỏ
             cout << "Ten file da ton tai! Vui long nhap ten khac... (Nhan phim bat ky)";
             _getch();
 
@@ -82,12 +82,12 @@ void SaveGame() {
         outFile.close();
 
         GotoXY(5, 28);
-        setColor(10, 15);
+        SetColor(10, 15);
         cout << "Luu thanh cong! Nhan phim bat ky de tiep tuc...";
     }
     else {
         GotoXY(5, 28);
-        setColor(12, 15);
+        SetColor(12, 15);
         cout << "Loi tao file! Nhan phim bat ky...";
     }
 
@@ -95,7 +95,7 @@ void SaveGame() {
 
     GotoXY(5, 27); cout << "                                                                    ";
     GotoXY(5, 28); cout << "                                                                    ";
-    setColor(0, 15);
+    SetColor(0, 15);
     GotoXY(_X, _Y);
 }
 
@@ -153,7 +153,7 @@ bool LoadGame() {
     else {
         system("cls");
         GotoXY(40, 15);
-        setColor(12, 15);
+        SetColor(12, 15);
         cout << "Loi doc file! Nhan phim bat ky de thoat...";
         _getch();
         return false;
@@ -167,7 +167,7 @@ string ChooseFileMenu() {
         if (files.empty()) {
             system("cls");
             GotoXY(40, 15);
-            setColor(12, 15);
+            SetColor(12, 15);
             cout << "Chua co du lieu Save! Nhan phim bat ky de quay lai...";
             _getch();
             return "";
@@ -181,23 +181,23 @@ string ChooseFileMenu() {
             system("cls");
             system("color F0");
             GotoXY(40, 5);
-            setColor(12, 15);
+            SetColor(12, 15);
             cout << "=== DANH SACH CAC VAN DA LUU ===";
 
             for (int i = 0; i < displayCount; i++) {
                 GotoXY(45, 8 + i * 2);
                 if (i == currentSelect) {
-                    setColor(0, 11);
+                    SetColor(0, 11);
                     cout << ">> " << files[i] << " <<";
                 }
                 else {
-                    setColor(0, 15);
+                    SetColor(0, 15);
                     cout << "   " << files[i] << "   ";
                 }
             }
 
             GotoXY(30, 8 + displayCount * 2 + 2);
-            setColor(8, 15);
+            SetColor(8, 15);
             cout << "(W/S: Chon | Enter: Tai game | X: Xoa file | ESC: Huy)";
 
             int key = toupper(_getch());
@@ -231,7 +231,7 @@ void ClearAllData() {
     if (files.empty()) {
         system("cls");
         GotoXY(40, 15);
-        setColor(12, 15);
+        SetColor(12, 15);
         cout << "Khong co du lieu luu nao de xoa!";
         _getch();
         return;
@@ -240,7 +240,7 @@ void ClearAllData() {
     system("cls");
     system("color F0");
     GotoXY(35, 15);
-    setColor(12, 15);
+    SetColor(12, 15);
     cout << "Ban co chac muon xoa TOAN BO " << files.size() << " file luu? (Y/N): ";
 
     char confirm = toupper(_getch());
@@ -250,12 +250,12 @@ void ClearAllData() {
             DeleteFileA(fullPath.c_str());
         }
         GotoXY(35, 17);
-        setColor(10, 15);
+        SetColor(10, 15);
         cout << "Da xoa thanh cong toan bo du lieu! Nhan phim bat ky...";
     }
     else {
         GotoXY(35, 17);
-        setColor(8, 15);
+        SetColor(8, 15);
         cout << "Da huy thao tac xoa. Nhan phim bat ky...";
     }
     _getch();

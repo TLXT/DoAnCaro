@@ -3,6 +3,8 @@
 #include <conio.h>
 #include <string>
 
+using namespace std;
+
 int GenericMenu(string options[], int size, string title);
 int MainMenu();
 int PlayGameMenu();

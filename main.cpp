@@ -14,8 +14,8 @@ using namespace std;
 
 int main() {
     FixConsoleWindow();
-    setConsoleWindow(1000, 600);
-    hideCursor();
+    SetConsoleWindow(1000, 600);
+    HideCursor();
 
     while (true) {
         int choice = MainMenu();
@@ -74,7 +74,7 @@ int main() {
                 if (_BOT_MODE == true && _TURN == false) {
 
                     GotoXY(60, 18);
-                    setColor(12, 15);
+                    SetColor(12, 15);
                     cout << "Bot dang suy nghi...         ";
 
                     _POINT botMove = FindBotMove(1, _BOT_DIFFICULTY);
@@ -88,7 +88,7 @@ int main() {
                         DrawCell(_X, _Y, 11);
 
                         GotoXY(60, 18);
-                        setColor(0, 15);
+                        SetColor(0, 15);
                         cout << "                             ";
 
                         switch (ProcessFinish(TestBoard())) {

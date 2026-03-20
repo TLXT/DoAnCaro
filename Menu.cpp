@@ -10,7 +10,7 @@ int GenericMenu(string options[], int size, string title) {
         system("cls");
         system("color F0");
 
-        setColor(12, 15);
+        SetColor(12, 15);
         GotoXY(40, 5); cout << "==============================";
         GotoXY(40, 6);
         int padding = (26 - title.length()) / 2;
@@ -19,17 +19,17 @@ int GenericMenu(string options[], int size, string title) {
 
         for (int i = 0; i < size; i++) {
             if (i == currentSelect) {
-                setColor(0, 11); // Nền Cyan
+                SetColor(0, 11); // Nền Cyan
                 GotoXY(45, 11 + i * 2);
                 cout << ">> " << options[i] << " <<";
             }
             else {
-                setColor(0, 15); // Nền trắng
+                SetColor(0, 15); // Nền trắng
                 GotoXY(45, 11 + i * 2);
                 cout << "   " << options[i] << "   ";
             }
         }
-        setColor(0, 15);
+        SetColor(0, 15);
 
         int key = toupper(_getch());
         if (key == 'W' || key == 72) {

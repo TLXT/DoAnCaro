@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void GabageCollect() {
+void GarbageCollect() {
     // Giải phóng bộ nhớ cho ma trận bàn cờ
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
@@ -16,14 +16,14 @@ void GabageCollect() {
 
 void ExitGame() {
     system("cls");
-    GabageCollect();
+    GarbageCollect();
 }
 
 int ProcessFinish(int pWhoWin) {
     GotoXY(0, _A[BOARD_SIZE - 1][BOARD_SIZE - 1].y + 2);
 
     // chữ xanh dương (1) nền trắng (15)
-    setColor(1, 15);
+    SetColor(1, 15);
 
     switch (pWhoWin) {
     case -1: cout << "Nguoi choi X da thang va nguoi choi O da thua!\n"; break;
@@ -35,14 +35,14 @@ int ProcessFinish(int pWhoWin) {
         break;
     }
 
-    setColor(0, 15);
+    SetColor(0, 15);
     GotoXY(_X, _Y);
     return pWhoWin;
 }
 
 int AskContinue() {
     GotoXY(0, _A[BOARD_SIZE - 1][BOARD_SIZE - 1].y + 4);
-    setColor(0, 15);
+    SetColor(0, 15);
     cout << "Nhan 'y/n' de tiep tuc/dung: ";
     return toupper(_getch());
 }

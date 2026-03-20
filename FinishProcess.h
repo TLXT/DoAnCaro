@@ -2,7 +2,7 @@
 #include <iostream>
 #include <conio.h>
 
-void GabageCollect();
+void GarbageCollect();
 void ExitGame();
 int ProcessFinish(int pWhoWin);
 int AskContinue();

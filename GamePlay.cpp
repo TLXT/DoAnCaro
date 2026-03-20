@@ -19,25 +19,25 @@ void DrawCell(int x, int y, int bg_color) {
 
     GotoXY(x, y);
     if (c == 0) {
-        setColor(0, bg_color);
+        SetColor(0, bg_color);
         cout << " ";
     }
     else if (c == -1) {
-        setColor(12, bg_color); // X màu đỏ
+        SetColor(12, bg_color); // X màu đỏ
         cout << "X";
     }
     else if (c == 1) {
-        setColor(10, bg_color); // O màu xanh lá
+        SetColor(10, bg_color); // O màu xanh lá
         cout << "O";
     }
 
-    setColor(0, 15); // chữ đen, nền trắng
+    SetColor(0, 15); // chữ đen, nền trắng
 }
 void StartGame() {
     system("color F0");
     system("cls");
-    setConsoleWindow(1000, 600);
-    hideCursor();
+    SetConsoleWindow(1000, 600);
+    HideCursor();
     ResetData();
     DrawBoard(BOARD_SIZE);
 

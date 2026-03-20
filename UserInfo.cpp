@@ -9,7 +9,7 @@ using namespace std;
 #define TOP 2
 
 void DrawPlayerInfo() {
-    setColor(0, 15);
+    SetColor(0, 15);
     GotoXY(LEFT, TOP);     cout << "===============================";
     GotoXY(LEFT, TOP + 1); cout << "|        THONG TIN GAME       |";
     GotoXY(LEFT, TOP + 2); cout << "===============================";
@@ -29,13 +29,13 @@ void DrawPlayerInfo() {
 void UpdateTurnInfo() {
     GotoXY(LEFT, TOP + 7);
     if (_TURN) {
-        setColor(12, 15);
+        SetColor(12, 15);
         cout << "=> LUOT DI: PLAYER 1 (X)   ";
     }
     else {
-        setColor(10, 15);
+        SetColor(10, 15);
         cout << "=> LUOT DI: PLAYER 2 (O)   ";
     }
-    setColor(0, 15);
+    SetColor(0, 15);
     GotoXY(_X, _Y);
 }

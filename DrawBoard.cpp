@@ -5,7 +5,7 @@
 using namespace std;
 
 void DrawBoard(int pSize) {
-    setColor(0, 15); // Chữ đen, nền trắng
+    SetColor(0, 15); // Chữ đen, nền trắng
 
     for (int i = 0; i <= pSize; i++) {
         for (int j = 0; j <= pSize; j++) {

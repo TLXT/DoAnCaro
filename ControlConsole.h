@@ -8,9 +8,9 @@ using namespace std;
 extern std::mutex consoleMutex;
 
 void GotoXY(int x, int y);
-void hideCursor();
-void unhideCursor();
-void setColor(int color, int bgColor);
-void setBgColor(int color, int bgColor);
+void HideCursor();
+void UnhideCursor();
+void SetColor(int color, int bgColor);
+void SetBgColor(int color, int bgColor);
 void FixConsoleWindow();
-void setConsoleWindow(int width, int height);
+void SetConsoleWindow(int width, int height);
