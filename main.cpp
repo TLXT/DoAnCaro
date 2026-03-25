@@ -1,5 +1,8 @@
 ﻿#include <iostream>
 #include <conio.h>
+#include <Windows.h>
+#include<future>
+
 #include "GameStatus.h"
 #include "ControlConsole.h"
 #include "GamePlay.h"
@@ -9,6 +12,7 @@
 #include "UserInfo.h"
 #include "DrawBoard.h"
 #include "CaroBot.h"
+
 
 using namespace std;
 
@@ -99,24 +103,31 @@ int main() {
                             else {
                                 StartGame();
                             }
+
                         }
                     }
                     continue;
                 }
 
                 _COMMAND = toupper(_getch());
-
-                if (_COMMAND == 27) { // Phím ESC
-                    isPlaying = false;
-                }
-                else if (_COMMAND == 'L') { SaveGame(); }
-                else if (_COMMAND == 'T') {
-                    if (LoadGame() == false) {
-                        system("cls"); DrawBoard(BOARD_SIZE); DrawPlayerInfo(); UpdateTurnInfo();
-                        for (int i = 0; i < BOARD_SIZE; i++)
-                            for (int j = 0; j < BOARD_SIZE; j++)
-                                DrawCell(_A[i][j].x, _A[i][j].y, 15);
-                        DrawCell(_X, _Y, 11);
+                if (_COMMAND == 'M' || _COMMAND == 77) {
+                    future<int> SecondThreadchoice = async (launch::async, GameMenu);
+                    int gamechoice = SecondThreadchoice.get();
+                    if (gamechoice == 0) { // thoat
+                        isPlaying = false;
+                    }
+                    else if (gamechoice == 1) {
+                        string temp=SaveGame();
+                        LoadGame(temp);
+                    }
+                    else if (gamechoice == 2) {
+                        if (LoadGame() == false) {
+                            system("cls"); DrawBoard(BOARD_SIZE); DrawPlayerInfo(); UpdateTurnInfo();
+                            for (int i = 0; i < BOARD_SIZE; i++)
+                                for (int j = 0; j < BOARD_SIZE; j++)
+                                    DrawCell(_A[i][j].x, _A[i][j].y, 15);
+                            DrawCell(_X, _Y, 11);
+                        }
                     }
                 }
                 else {
