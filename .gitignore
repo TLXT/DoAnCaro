@@ -32,3 +32,5 @@ bin/
 obj/
 Debug/
 Release/
+*.json
+*.db
