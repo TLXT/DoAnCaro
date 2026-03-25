@@ -66,6 +66,6 @@ int SettingsMenu() {
     return GenericMenu(options, 2, "CAI DAT");
 }
 int GameMenu() {
-    string options[4] = { "1. luu game","2. Tai game","3.settings","4. Exit"};
+    string options[4] = { "1. thoat","2. Luu game","3.Tai game","4.Setting"};
     return GenericMenu(options, 4, "MENU");
 }

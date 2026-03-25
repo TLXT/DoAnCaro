@@ -9,8 +9,9 @@
 using namespace std;
 
 string TypeFileName();
-void SaveGame();
+string SaveGame();
 vector<string> GetSaveFiles();
 string ChooseFileMenu();
-bool LoadGame();
+bool LoadGame();//tao lai ban cu
 void ClearAllData();
+bool LoadGame(string filename);

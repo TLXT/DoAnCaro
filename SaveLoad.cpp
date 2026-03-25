@@ -31,7 +31,7 @@ string TypeFileName() {
     }
     return res;
 }
-void SaveGame() {
+string SaveGame() {
     string filename;
     while (true) {
         GotoXY(5, 27);
@@ -50,7 +50,7 @@ void SaveGame() {
             GotoXY(5, 28); cout << "                                                                    ";
             SetColor(0, 15);
             GotoXY(_X, _Y);
-            return;
+            return"";
         }
 
         ifstream checkFile(filename + ".caro");
@@ -84,6 +84,7 @@ void SaveGame() {
         GotoXY(5, 28);
         SetColor(10, 15);
         cout << "Luu thanh cong! Nhan phim bat ky de tiep tuc...";
+        return filename;
     }
     else {
         GotoXY(5, 28);
@@ -119,6 +120,48 @@ vector<string> GetSaveFiles() {
 bool LoadGame() {
     string filename = ChooseFileMenu();
 
+    if (filename == "") {
+        return false;
+    }
+
+    ifstream inFile(filename + ".caro");
+    if (inFile.is_open()) {
+        inFile >> _TURN >> _X >> _Y;
+
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                _A[i][j].x = 4 * j + LEFT + 2;
+                _A[i][j].y = 2 * i + TOP + 1;
+                inFile >> _A[i][j].c;
+            }
+        }
+        inFile.close();
+
+        system("cls");
+        DrawBoard(BOARD_SIZE);
+        DrawPlayerInfo();
+        UpdateTurnInfo();
+
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                DrawCell(_A[i][j].x, _A[i][j].y, 15);
+            }
+        }
+        DrawCell(_X, _Y, 11);
+
+        return true;
+    }
+    else {
+        system("cls");
+        GotoXY(40, 15);
+        SetColor(12, 15);
+        cout << "Loi doc file! Nhan phim bat ky de thoat...";
+        _getch();
+        return false;
+    }
+}
+
+bool LoadGame(string filename) {
     if (filename == "") {
         return false;
     }
