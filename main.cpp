@@ -9,6 +9,7 @@
 #include "UserInfo.h"
 #include "DrawBoard.h"
 #include "CaroBot.h"
+#include "Replay.h"
 
 using namespace std;
 
@@ -84,8 +85,14 @@ int main() {
                         _X = botMove.x;
                         _Y = botMove.y;
 
-                        CheckBoard(_X, _Y);
+                        int checkRes = CheckBoard(_X, _Y); //lưu giá trị c
                         DrawCell(_X, _Y, 11);
+
+                        //lưu lịch sử di chuyển của bot
+                        int r = (_Y - TOP - 1) / 2;
+                        int c = (_X - LEFT - 2) / 4;
+                        moveHistory.push_back({ r, c, checkRes });
+                        currentStep++;
 
                         GotoXY(60, 18);
                         SetColor(0, 15);
@@ -93,6 +100,15 @@ int main() {
 
                         switch (ProcessFinish(TestBoard())) {
                         case -1: case 1: case 0:
+                            //nhấn enter xong sẽ xuất hiện replay
+                            char ch;
+                            do {
+                                ch = _getch();
+                                if (ch == -32 || ch == 0) _getch();
+                            } while (ch != 13);
+                            
+
+                            HandleReplayOption();
                             if (AskContinue() != 'Y') {
                                 isPlaying = false;
                             }
@@ -125,15 +141,32 @@ int main() {
                     else if (_COMMAND == 'S' || _COMMAND == 80) MoveDown();
                     else if (_COMMAND == 'D' || _COMMAND == 77) MoveRight();
                     else if (_COMMAND == 13) {
-                        switch (CheckBoard(_X, _Y)) {
+                        int checkRes = CheckBoard(_X, _Y);
+                        switch (checkRes) {
                         case -1: DrawCell(_X, _Y, 11); break;
                         case 1:  DrawCell(_X, _Y, 11); break;
                         case 0:  validEnter = false;
                         }
 
                         if (validEnter == true) {
+                            //lưu lịch sử di chuyển của người chơi
+                            int r = (_Y - TOP - 1) / 2;
+                            int c = (_X - LEFT - 2) / 4;
+                            moveHistory.push_back({ r, c, checkRes });
+                            currentStep++;
+
                             switch (ProcessFinish(TestBoard())) {
                             case -1: case 1: case 0:
+                                //nhấn enter tới menu replay
+                                char ch_player;
+                                do {
+                                    ch_player = _getch();
+                                    if (ch_player == -32 || ch_player == 0) _getch();
+                                } while (ch_player != 13);
+
+                                HandleReplayOption();
+                                
+
                                 if (AskContinue() != 'Y') {
                                     isPlaying = false;
                                 }
