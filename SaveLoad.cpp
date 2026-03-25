@@ -218,7 +218,6 @@ string ChooseFileMenu() {
             else if (key == 'X') {
                 string fileToDelete = files[currentSelect] + ".caro";
                 DeleteFileA(fileToDelete.c_str());
-
                 isLooping = false;
             }
         }

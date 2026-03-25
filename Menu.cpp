@@ -65,3 +65,7 @@ int SettingsMenu() {
     string options[2] = { "1. Clear Data (Xoa toan bo Save)", "2. Quay lai" };
     return GenericMenu(options, 2, "CAI DAT");
 }
+int GameMenu() {
+    string options[4] = { "1. luu game","2. Tai game","3.settings","4. Exit"};
+    return GenericMenu(options, 4, "MENU");
+}
