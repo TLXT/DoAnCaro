@@ -11,7 +11,7 @@ void GarbageCollect() {
         for (int j = 0; j < BOARD_SIZE; j++) {
             _A[i][j].c = 0;
         }
-	}
+    }
 }
 
 void ExitGame() {
@@ -29,7 +29,7 @@ int ProcessFinish(int pWhoWin) {
     case -1: cout << "Nguoi choi X da thang va nguoi choi O da thua!\n"; break;
     case 1:  cout << "Nguoi choi O da thang va nguoi choi X da thua!\n"; break;
     case 0:  cout << "Hai ben hoa nhau! Ban co da full o.          \n"; break;
-    case 2:  
+    case 2:
         _TURN = !_TURN;
         UpdateTurnInfo();
         break;

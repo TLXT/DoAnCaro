@@ -5,6 +5,7 @@
 using namespace std;
 
 void DrawBoard(int pSize) {
+    lock_guard<std::mutex> lock(consoleMutex); //Cập nhật dòng khóa đảm bảo tránh xong đột khi dùng hàm GotoXY
     SetColor(0, 15); // Chữ đen, nền trắng
 
     for (int i = 0; i <= pSize; i++) {

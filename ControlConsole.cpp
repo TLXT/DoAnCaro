@@ -14,8 +14,8 @@ void HideCursor() {
     DWORD mode;
     GetConsoleMode(hIn, &mode);
     mode &= ~ENABLE_QUICK_EDIT_MODE;
-	mode &= ~ENABLE_ECHO_INPUT;
-	mode &= ~ENABLE_LINE_INPUT;
+    mode &= ~ENABLE_ECHO_INPUT;
+    mode &= ~ENABLE_LINE_INPUT;
     mode |= ENABLE_EXTENDED_FLAGS;
     SetConsoleMode(hIn, mode);
 

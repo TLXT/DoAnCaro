@@ -23,10 +23,12 @@ void DrawPlayerInfo() {
     GotoXY(LEFT, TOP + 12); cout << "Enter      : Danh co";
     GotoXY(LEFT, TOP + 13); cout << "L          : Luu game (Save)";
     GotoXY(LEFT, TOP + 14); cout << "T          : Tai game (Load)";
-    GotoXY(LEFT, TOP + 15); cout << "ESC        : Thoat";
+    GotoXY(LEFT, TOP + 15); cout << "P          : Tam dung/Tiep tuc (Pause/Play)";
+    GotoXY(LEFT, TOP + 16); cout << "ESC        : Thoat";
 }
 
 void UpdateTurnInfo() {
+    lock_guard<std::mutex> lock(consoleMutex); //Cập nhật dòng khóa đảm bảo tránh xong đột khi dùng hàm GotoXY
     GotoXY(LEFT, TOP + 7);
     if (_TURN) {
         SetColor(12, 15);

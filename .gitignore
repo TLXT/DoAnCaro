@@ -1,0 +1,20 @@
+# Visual Studio rác
+.vs/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.user
+*.aps
+*.opendb
+*.pdb
+
+# File biên dịch
+*.exe
+*.obj
+*.lib
+*.dll
+
+# Backup của hệ thống
+Thumbs.db
+Desktop.ini

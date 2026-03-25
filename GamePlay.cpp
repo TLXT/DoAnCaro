@@ -7,6 +7,7 @@
 using namespace std;
 
 void DrawCell(int x, int y, int bg_color) {
+    lock_guard<std::mutex> lock(consoleMutex); //Cập nhật dòng khóa đảm bảo tránh xong đột khi dùng hàm GotoXY
     int c = 0;
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
@@ -44,11 +45,12 @@ void StartGame() {
     DrawPlayerInfo();
     UpdateTurnInfo();
 
-	GotoXY(_X, _Y);
+    GotoXY(_X, _Y);
     DrawCell(_X, _Y, 11);
 }
 
 void MoveRight() {
+    //lock_guard<std::mutex> lock(consoleMutex); //Cập nhật dòng khóa đảm bảo tránh xong đột khi dùng hàm GotoXY
     if (_X < _A[BOARD_SIZE - 1][BOARD_SIZE - 1].x) {
         DrawCell(_X, _Y, 15);
         _X += 4;
@@ -56,6 +58,7 @@ void MoveRight() {
     }
 }
 void MoveLeft() {
+    //lock_guard<std::mutex> lock(consoleMutex); //Cập nhật dòng khóa đảm bảo tránh xong đột khi dùng hàm GotoXY
     if (_X > _A[0][0].x) {
         DrawCell(_X, _Y, 15);
         _X -= 4;
@@ -63,6 +66,7 @@ void MoveLeft() {
     }
 }
 void MoveDown() {
+    //lock_guard<std::mutex> lock(consoleMutex); //Cập nhật dòng khóa đảm bảo tránh xong đột khi dùng hàm GotoXY
     if (_Y < _A[BOARD_SIZE - 1][BOARD_SIZE - 1].y) {
         DrawCell(_X, _Y, 15);
         _Y += 2;
@@ -70,6 +74,7 @@ void MoveDown() {
     }
 }
 void MoveUp() {
+    //lock_guard<std::mutex> lock(consoleMutex); //Cập nhật dòng khóa đảm bảo tránh xong đột khi dùng hàm GotoXY
     if (_Y > _A[0][0].y) {
         DrawCell(_X, _Y, 15);
         _Y -= 2;
@@ -87,4 +92,30 @@ int CheckBoard(int pX, int pY) {
         }
     }
     return 0;
+}
+
+//Dùng để thực hiện đánh ngẫu nhiên khi hết thời gian
+void PlayRandomMove() {
+    vector<pair<int, int>> emptyCells;
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if (_A[i][j].c == 0) {
+                emptyCells.push_back({ i, j });
+            }
+        }
+    }
+
+    if (!emptyCells.empty()) {
+        srand(time(NULL));
+        int index = rand() % emptyCells.size();
+        int r = emptyCells[index].first;
+        int c = emptyCells[index].second;
+
+        // Cập nhật tọa độ toàn cục để đồng bộ với hàm CheckBoard
+        _X = _A[r][c].x;
+        _Y = _A[r][c].y;
+
+        CheckBoard(_X, _Y);
+        DrawCell(_X, _Y, 11);
+    }
 }
