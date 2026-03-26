@@ -15,3 +15,4 @@ string ChooseFileMenu();
 bool LoadGame();//tao lai ban cu
 void ClearAllData();
 bool LoadGame(string filename);
+void loadPresent();

@@ -302,3 +302,14 @@ void ClearAllData() {
     }
     _getch();
 }
+void loadPresent() {
+    system("cls");
+    DrawBoard(BOARD_SIZE);
+    DrawPlayerInfo();
+    UpdateTurnInfo();
+    for (int i = 0; i < BOARD_SIZE; i++)
+        for (int j = 0; j < BOARD_SIZE; j++)
+            DrawCell(_A[i][j].x, _A[i][j].y, 15);
+    DrawCell(_X, _Y, 11);
+
+}
