@@ -128,30 +128,7 @@ int main() {
                     }
                 }
                 else {
-                    if (_COMMAND == 'A' || _COMMAND == 75) MoveLeft();
-                    else if (_COMMAND == 'W' || _COMMAND == 72) MoveUp();
-                    else if (_COMMAND == 'S' || _COMMAND == 80) MoveDown();
-                    else if (_COMMAND == 'D' || _COMMAND == 77) MoveRight();
-                    else if (_COMMAND == 13) {
-                        switch (CheckBoard(_X, _Y)) {
-                        case -1: DrawCell(_X, _Y, 11); break;
-                        case 1:  DrawCell(_X, _Y, 11); break;
-                        case 0:  validEnter = false;
-                        }
-
-                        if (validEnter == true) {
-                            switch (ProcessFinish(TestBoard())) {
-                            case -1: case 1: case 0:
-                                if (AskContinue() != 'Y') {
-                                    isPlaying = false;
-                                }
-                                else {
-                                    StartGame();
-                                }
-                            }
-                        }
-                        validEnter = true;
-                    }
+                    ProcessMove(_COMMAND, validEnter, isPlaying);
                 }
             }
         }

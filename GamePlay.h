@@ -8,3 +8,4 @@ void MoveLeft();
 void MoveDown();
 void MoveUp();
 void DrawCell(int x, int y, int bg_color);
+void ProcessMove(int _COMMAND,bool validEnter, bool& isPlaying);
