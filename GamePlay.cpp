@@ -88,3 +88,58 @@ int CheckBoard(int pX, int pY) {
     }
     return 0;
 }
+
+void UndoMove() {
+    if (currentStep <= 0) return;
+
+    // Nếu Bot Mode: undo 2 nước (nước bot + nước người)
+    int undoCount = (_BOT_MODE) ? 2 : 1;
+
+    for (int k = 0; k < undoCount; k++) {
+        if (currentStep <= 0) break;
+
+        currentStep--;
+        MoveNode& move = moveHistory[currentStep];
+
+        _A[move.row][move.col].c = 0;
+        DrawCell(_A[move.row][move.col].x, _A[move.row][move.col].y, 15);
+
+        _TURN = !_TURN;
+    }
+
+    UpdateTurnInfo();
+
+    // Di chuyển con trỏ về ô vừa undo
+    MoveNode& lastUndo = moveHistory[currentStep];
+    DrawCell(_X, _Y, 15);
+    _X = _A[lastUndo.row][lastUndo.col].x;
+    _Y = _A[lastUndo.row][lastUndo.col].y;
+    DrawCell(_X, _Y, 11);
+}
+
+
+void RedoMove() {
+    if (currentStep >= (int)moveHistory.size()) return;
+
+    int redoCount = (_BOT_MODE) ? 2 : 1;
+
+    for (int k = 0; k < redoCount; k++) {
+        if (currentStep >= (int)moveHistory.size()) break;
+
+        MoveNode& move = moveHistory[currentStep];
+        _A[move.row][move.col].c = move.c;
+        DrawCell(_A[move.row][move.col].x, _A[move.row][move.col].y, 15);
+
+        currentStep++;
+        _TURN = !_TURN;
+    }
+
+    UpdateTurnInfo();
+
+    // Di chuyển con trỏ về ô vừa redo
+    MoveNode& lastRedo = moveHistory[currentStep - 1];
+    DrawCell(_X, _Y, 15);
+    _X = _A[lastRedo.row][lastRedo.col].x;
+    _Y = _A[lastRedo.row][lastRedo.col].y;
+    DrawCell(_X, _Y, 11);
+}

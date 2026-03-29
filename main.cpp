@@ -89,8 +89,14 @@ int main() {
                         DrawCell(_X, _Y, 11);
 
                         //lưu lịch sử di chuyển của bot
+                        // int r = (_Y - TOP - 1) / 2;
+                        // int c = (_X - LEFT - 2) / 4;
+                        // moveHistory.push_back({ r, c, checkRes });
+                        // currentStep++;
                         int r = (_Y - TOP - 1) / 2;
                         int c = (_X - LEFT - 2) / 4;
+                        if (currentStep < (int)moveHistory.size())
+                            moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end());
                         moveHistory.push_back({ r, c, checkRes });
                         currentStep++;
 
@@ -135,6 +141,12 @@ int main() {
                         DrawCell(_X, _Y, 11);
                     }
                 }
+                // else if (_COMMAND == 'Z') { UndoMove(); }
+                // else if (_COMMAND == 'Y') { RedoMove(); }
+
+                else if (_COMMAND == 'Z') { if (!_BOT_MODE || _TURN) UndoMove(); }
+                else if (_COMMAND == 'Y') { if (!_BOT_MODE || _TURN) RedoMove(); }
+
                 else {
                     if (_COMMAND == 'A' || _COMMAND == 75) MoveLeft();
                     else if (_COMMAND == 'W' || _COMMAND == 72) MoveUp();
@@ -150,8 +162,15 @@ int main() {
 
                         if (validEnter == true) {
                             //lưu lịch sử di chuyển của người chơi
+                            // int r = (_Y - TOP - 1) / 2;
+                            // int c = (_X - LEFT - 2) / 4;
+                            // moveHistory.push_back({ r, c, checkRes });
+                            // currentStep++;
+
                             int r = (_Y - TOP - 1) / 2;
                             int c = (_X - LEFT - 2) / 4;
+                            if (currentStep < (int)moveHistory.size())          // thêm
+                                moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end());  // thêm
                             moveHistory.push_back({ r, c, checkRes });
                             currentStep++;
 
