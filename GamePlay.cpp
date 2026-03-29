@@ -50,7 +50,6 @@ void StartGame() {
 }
 
 void MoveRight() {
-    //lock_guard<std::mutex> lock(consoleMutex); //Cập nhật dòng khóa đảm bảo tránh xong đột khi dùng hàm GotoXY
     if (_X < _A[BOARD_SIZE - 1][BOARD_SIZE - 1].x) {
         DrawCell(_X, _Y, 15);
         _X += 4;
@@ -58,7 +57,6 @@ void MoveRight() {
     }
 }
 void MoveLeft() {
-    //lock_guard<std::mutex> lock(consoleMutex); //Cập nhật dòng khóa đảm bảo tránh xong đột khi dùng hàm GotoXY
     if (_X > _A[0][0].x) {
         DrawCell(_X, _Y, 15);
         _X -= 4;
@@ -66,7 +64,6 @@ void MoveLeft() {
     }
 }
 void MoveDown() {
-    //lock_guard<std::mutex> lock(consoleMutex); //Cập nhật dòng khóa đảm bảo tránh xong đột khi dùng hàm GotoXY
     if (_Y < _A[BOARD_SIZE - 1][BOARD_SIZE - 1].y) {
         DrawCell(_X, _Y, 15);
         _Y += 2;
@@ -74,7 +71,6 @@ void MoveDown() {
     }
 }
 void MoveUp() {
-    //lock_guard<std::mutex> lock(consoleMutex); //Cập nhật dòng khóa đảm bảo tránh xong đột khi dùng hàm GotoXY
     if (_Y > _A[0][0].y) {
         DrawCell(_X, _Y, 15);
         _Y -= 2;

@@ -75,13 +75,6 @@ int main() {
             while (isPlaying) {
                 // Xử lý timeout
                 if (timeLeft <= 0) {
-                    /*{
-                        lock_guard<mutex> lock(consoleMutex);
-                        GotoXY(LEFT, TOP + 20);
-                        SetColor(12, 15);
-                        cout << "HET GIO! DANG TU DONG DANH...   ";
-                    }*/
-
                     PlayRandomMove();
 
                     // Kiểm tra thắng thua sau khi hệ thống tự đánh
