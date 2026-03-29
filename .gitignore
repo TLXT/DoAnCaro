@@ -1,4 +1,4 @@
-# Visual Studio rác
+# --- Nhóm 1: Các file rác của Visual Studio (Cực kỳ quan trọng) ---
 .vs/
 [Dd]ebug/
 [Rr]elease/
@@ -8,13 +8,28 @@ x86/
 *.aps
 *.opendb
 *.pdb
+*.suo
 
-# File biên dịch
+# --- Nhóm 2: Các file biên dịch và thư viện ---
 *.exe
 *.obj
 *.lib
 *.dll
+*.o
+*.so
+*.dylib
+*.out
+*.app
+*.pch
+*.gch
 
-# Backup của hệ thống
+# --- Nhóm 3: Các thư mục build chung ---
+build/
+bin/
+obj/
+
+# --- Nhóm 4: Các file dữ liệu và hệ thống ---
+*.db
+*.json
 Thumbs.db
 Desktop.ini
