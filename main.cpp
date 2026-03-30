@@ -135,49 +135,51 @@ int main() {
                     continue;
                 }
 
-                _COMMAND = toupper(_getch());
-                if (_COMMAND == 'M' || _COMMAND == 77) {
-                    isPaused = true;
-                    future<int> SecondThreadchoice = async (launch::async, GameMenu);
-                    int gamechoice = SecondThreadchoice.get();
-                    if (gamechoice == 0) { // thoat
-                        isPlaying = false;
-                    }
-                    else if (gamechoice == 1) {
-                        string temp=SaveGame();
-                        LoadGame(temp);
-                    }
-                    else if (gamechoice == 2) {
-                        string filename=ChooseFileMenu();
-                        LoadGame(filename);
-                    }
-                    else if (gamechoice == 3) {
-                        //setting;
-                    }
-                    else if (gamechoice == 4) {
-                        loadPresent();
-                    }
-                    isPaused = false;
-                }
-                else if (_COMMAND == 'P') { // Tạm dừng/Tiếp tục
-                    isPaused = !isPaused;
-                    {
-                        lock_guard<mutex> lock(consoleMutex);
-                        int oldX = _X, oldY = _Y;
-                        GotoXY(60, TOP + 19); // Tọa độ dòng trạng thái
-                        if (isPaused) {
-                            SetColor(14, 0);
-                            cout << " >>> DANG TAM DUNG (PAUSED) <<< ";
+                if (_kbhit()) {
+                    _COMMAND = toupper(_getch());
+                    if (_COMMAND == 'M' || _COMMAND == 77) {
+                        isPaused = true;
+                        future<int> SecondThreadchoice = async(launch::async, GameMenu);
+                        int gamechoice = SecondThreadchoice.get();
+                        if (gamechoice == 0) { // thoat
+                            isPlaying = false;
                         }
-                        else {
-                            SetColor(10, 15);
-                            cout << "      DANG CHOI (PLAYING)       ";
+                        else if (gamechoice == 1) {
+                            string temp = SaveGame();
+                            LoadGame(temp);
                         }
-                        GotoXY(oldX, oldY);
+                        else if (gamechoice == 2) {
+                            string filename = ChooseFileMenu();
+                            LoadGame(filename);
+                        }
+                        else if (gamechoice == 3) {
+                            //setting;
+                        }
+                        else if (gamechoice == 4) {
+                            loadPresent();
+                        }
+                        isPaused = false;
                     }
-                }
-                else if(!isPaused) {
-                    ProcessMove(_COMMAND, validEnter, isPlaying);
+                    else if (_COMMAND == 'P') { // Tạm dừng/Tiếp tục
+                        isPaused = !isPaused;
+                        {
+                            lock_guard<mutex> lock(consoleMutex);
+                            int oldX = _X, oldY = _Y;
+                            GotoXY(60, TOP + 19); // Tọa độ dòng trạng thái
+                            if (isPaused) {
+                                SetColor(14, 0);
+                                cout << " >>> DANG TAM DUNG (PAUSED) <<< ";
+                            }
+                            else {
+                                SetColor(10, 15);
+                                cout << "      DANG CHOI (PLAYING)       ";
+                            }
+                            GotoXY(oldX, oldY);
+                        }
+                    }
+                    else if (!isPaused) {
+                        ProcessMove(_COMMAND, validEnter, isPlaying);
+                    }
                 }
 
             }

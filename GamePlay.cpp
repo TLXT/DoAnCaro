@@ -130,16 +130,15 @@ void PlayRandomMove() {
     }
 
     if (!emptyCells.empty()) {
+        DrawCell(_X, _Y, 15);
         srand(time(NULL));
         int index = rand() % emptyCells.size();
         int r = emptyCells[index].first;
         int c = emptyCells[index].second;
-
-        // Cập nhật tọa độ toàn cục để đồng bộ với hàm CheckBoard
         _X = _A[r][c].x;
         _Y = _A[r][c].y;
-
         CheckBoard(_X, _Y);
         DrawCell(_X, _Y, 11);
+        GotoXY(_X, _Y);
     }
 }
