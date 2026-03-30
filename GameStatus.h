@@ -25,6 +25,4 @@ extern vector<MoveNode> moveHistory; //lưu lịch sử nước đi
 extern int currentStep; //nước đi hiện tại
 
 void ResetData();
-void UndoMove();
-void RedoMove();
 

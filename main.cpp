@@ -74,7 +74,7 @@ int main() {
             while (isPlaying) {
                 if (_BOT_MODE == true && _TURN == false) {
 
-                    GotoXY(60, 18);
+                    GotoXY(60, 20);
                     SetColor(12, 15);
                     cout << "Bot dang suy nghi...         ";
 
@@ -88,19 +88,15 @@ int main() {
                         int checkRes = CheckBoard(_X, _Y); //lưu giá trị c
                         DrawCell(_X, _Y, 11);
 
-                        //lưu lịch sử di chuyển của bot
-                        // int r = (_Y - TOP - 1) / 2;
-                        // int c = (_X - LEFT - 2) / 4;
-                        // moveHistory.push_back({ r, c, checkRes });
-                        // currentStep++;
+                        //lưu lịch sử di chuyển của bot. Edit: thêm xóa lịch sử cũ khi đã đánh nước mới
                         int r = (_Y - TOP - 1) / 2;
                         int c = (_X - LEFT - 2) / 4;
-                        if (currentStep < (int)moveHistory.size())
-                            moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end());
-                        moveHistory.push_back({ r, c, checkRes });
+                        if (currentStep < (int)moveHistory.size()) 
+                            moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end()); // thêm
+                        moveHistory.push_back({ r, c, checkRes }); 
                         currentStep++;
 
-                        GotoXY(60, 18);
+                        GotoXY(60, 20);
                         SetColor(0, 15);
                         cout << "                             ";
 
@@ -141,8 +137,6 @@ int main() {
                         DrawCell(_X, _Y, 11);
                     }
                 }
-                // else if (_COMMAND == 'Z') { UndoMove(); }
-                // else if (_COMMAND == 'Y') { RedoMove(); }
 
                 else if (_COMMAND == 'Z') { if (!_BOT_MODE || _TURN) UndoMove(); }
                 else if (_COMMAND == 'Y') { if (!_BOT_MODE || _TURN) RedoMove(); }
@@ -161,15 +155,10 @@ int main() {
                         }
 
                         if (validEnter == true) {
-                            //lưu lịch sử di chuyển của người chơi
-                            // int r = (_Y - TOP - 1) / 2;
-                            // int c = (_X - LEFT - 2) / 4;
-                            // moveHistory.push_back({ r, c, checkRes });
-                            // currentStep++;
-
+                            //lưu lịch sử di chuyển của người chơi. Edit: thêm xóa lịch sử cũ sau khi đã đánh nước mới 
                             int r = (_Y - TOP - 1) / 2;
                             int c = (_X - LEFT - 2) / 4;
-                            if (currentStep < (int)moveHistory.size())          // thêm
+                            if (currentStep < (int)moveHistory.size())         
                                 moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end());  // thêm
                             moveHistory.push_back({ r, c, checkRes });
                             currentStep++;

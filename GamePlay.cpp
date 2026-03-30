@@ -90,11 +90,12 @@ int CheckBoard(int pX, int pY) {
 }
 
 void UndoMove() {
-    if (currentStep <= 0) return;
+    if (currentStep <= 0) return; // Không còn nước nào để undo thì thoát luôn
 
     // Nếu Bot Mode: undo 2 nước (nước bot + nước người)
     int undoCount = (_BOT_MODE) ? 2 : 1;
 
+    // Phòng trường hợp Bot Mode chỉ có 1 nước nhưng lại cố undo 2 nước
     for (int k = 0; k < undoCount; k++) {
         if (currentStep <= 0) break;
 
@@ -119,7 +120,7 @@ void UndoMove() {
 
 
 void RedoMove() {
-    if (currentStep >= (int)moveHistory.size()) return;
+    if (currentStep >= (int)moveHistory.size()) return; 
 
     int redoCount = (_BOT_MODE) ? 2 : 1;
 
