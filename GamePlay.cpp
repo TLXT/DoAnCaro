@@ -4,6 +4,7 @@
 #include "ControlConsole.h"
 #include "UserInfo.h"
 #include "FinishProcess.h"
+#include"GameTimer.h"
 using namespace std;
 
 void DrawCell(int x, int y, int bg_color) {
@@ -102,6 +103,7 @@ void ProcessMove(int _COMMAND,bool validEnter,bool& isPlaying) {
         }
 
         if (validEnter == true) {
+            timeLeft = TURN_TIME_LIMIT;
             switch (ProcessFinish(TestBoard())) {
             case -1: case 1: case 0:
                 if (AskContinue() != 'Y') {
@@ -109,6 +111,7 @@ void ProcessMove(int _COMMAND,bool validEnter,bool& isPlaying) {
                 }
                 else {
                     StartGame();
+                    timeLeft = TURN_TIME_LIMIT;
                 }
             }
         }
