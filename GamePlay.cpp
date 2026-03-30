@@ -7,6 +7,7 @@
 using namespace std;
 
 void DrawCell(int x, int y, int bg_color) {
+    lock_guard<std::mutex> lock(consoleMutex);
     int c = 0;
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
@@ -112,5 +113,30 @@ void ProcessMove(int _COMMAND,bool validEnter,bool& isPlaying) {
             }
         }
         validEnter = true;
+    }
+}
+//Dùng để thực hiện đánh ngẫu nhiên khi hết thời gian
+void PlayRandomMove() {
+    vector<pair<int, int>> emptyCells;
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if (_A[i][j].c == 0) {
+                emptyCells.push_back({ i, j });
+            }
+        }
+    }
+
+    if (!emptyCells.empty()) {
+        srand(time(NULL));
+        int index = rand() % emptyCells.size();
+        int r = emptyCells[index].first;
+        int c = emptyCells[index].second;
+
+        // Cập nhật tọa độ toàn cục để đồng bộ với hàm CheckBoard
+        _X = _A[r][c].x;
+        _Y = _A[r][c].y;
+
+        CheckBoard(_X, _Y);
+        DrawCell(_X, _Y, 11);
     }
 }
