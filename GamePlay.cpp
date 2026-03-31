@@ -3,10 +3,12 @@
 #include "DrawBoard.h"
 #include "ControlConsole.h"
 #include "UserInfo.h"
-
+#include "FinishProcess.h"
+#include"GameTimer.h"
 using namespace std;
 
 void DrawCell(int x, int y, int bg_color) {
+    lock_guard<std::mutex> lock(consoleMutex);
     int c = 0;
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
@@ -87,6 +89,58 @@ int CheckBoard(int pX, int pY) {
         }
     }
     return 0;
+}
+void ProcessMove(int _COMMAND,bool validEnter,bool& isPlaying) {
+    if (_COMMAND == 'A' || _COMMAND == 75) MoveLeft();
+    else if (_COMMAND == 'W' || _COMMAND == 72) MoveUp();
+    else if (_COMMAND == 'S' || _COMMAND == 80) MoveDown();
+    else if (_COMMAND == 'D' || _COMMAND == 77) MoveRight();
+    else if (_COMMAND == 13) {
+        switch (CheckBoard(_X, _Y)) {
+        case -1: DrawCell(_X, _Y, 11); break;
+        case 1:  DrawCell(_X, _Y, 11); break;
+        case 0:  validEnter = false;
+        }
+
+        if (validEnter == true) {
+            timeLeft = TURN_TIME_LIMIT;
+            switch (ProcessFinish(TestBoard())) {
+            case -1: case 1: case 0:
+                if (AskContinue() != 'Y') {
+                    isPlaying = false;
+                }
+                else {
+                    StartGame();
+                    timeLeft = TURN_TIME_LIMIT;
+                }
+            }
+        }
+        validEnter = true;
+    }
+}
+//Dùng để thực hiện đánh ngẫu nhiên khi hết thời gian
+void PlayRandomMove() {
+    vector<pair<int, int>> emptyCells;
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if (_A[i][j].c == 0) {
+                emptyCells.push_back({ i, j });
+            }
+        }
+    }
+
+    if (!emptyCells.empty()) {
+        DrawCell(_X, _Y, 15);
+        srand(time(NULL));
+        int index = rand() % emptyCells.size();
+        int r = emptyCells[index].first;
+        int c = emptyCells[index].second;
+        _X = _A[r][c].x;
+        _Y = _A[r][c].y;
+        CheckBoard(_X, _Y);
+        DrawCell(_X, _Y, 11);
+        GotoXY(_X, _Y);
+    }
 }
 
 void UndoMove() {

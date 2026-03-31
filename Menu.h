@@ -10,3 +10,4 @@ int MainMenu();
 int PlayGameMenu();
 int DifficultyMenu();
 int SettingsMenu();
+int GameMenu();

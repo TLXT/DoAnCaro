@@ -1,5 +1,8 @@
-﻿#include <iostream>
+#include <iostream>
 #include <conio.h>
+#include <Windows.h>
+#include<future>
+
 #include "GameStatus.h"
 #include "ControlConsole.h"
 #include "GamePlay.h"
@@ -9,6 +12,7 @@
 #include "UserInfo.h"
 #include "DrawBoard.h"
 #include "CaroBot.h"
+#include"GameTimer.h"
 #include "Replay.h"
 
 using namespace std;
@@ -70,14 +74,37 @@ int main() {
 
         if (isPlaying) {
             bool validEnter = true;
-
+            StartTimerThread();//kích hoạt luồng đếm ngược 
             while (isPlaying) {
+                // Xử lý timeout
+                if (timeLeft <= 0) {
+                    PlayRandomMove();
+
+                    // Kiểm tra thắng thua sau khi hệ thống tự đánh
+                    int finish = ProcessFinish(TestBoard());
+                    if (finish != 2) {
+                        if (AskContinue() != 'Y') {
+                            isPlaying = false;
+                        }
+                        else {
+                            StartGame();
+                            timeLeft = TURN_TIME_LIMIT;
+                        }
+                    }
+                    else {
+                        timeLeft = TURN_TIME_LIMIT;
+                    }
+                    continue;
+                }
                 if (_BOT_MODE == true && _TURN == false) {
 
-                    GotoXY(60, 20);
-                    SetColor(12, 15);
-                    cout << "Bot dang suy nghi...         ";
-
+                    isPaused = true;
+                    {
+                        lock_guard<mutex>lock(consoleMutex);
+                        GotoXY(60, 20);
+                        SetColor(12, 15);
+                        cout << "Bot dang suy nghi...         ";
+                    }
                     _POINT botMove = FindBotMove(1, _BOT_DIFFICULTY);
 
                     if (botMove.x != -1) {
@@ -87,6 +114,8 @@ int main() {
 
                         int checkRes = CheckBoard(_X, _Y); //lưu giá trị c
                         DrawCell(_X, _Y, 11);
+                        {
+                            lock_guard<mutex>lock(consoleMutex);
 
                         //lưu lịch sử di chuyển của bot. Edit: thêm xóa lịch sử cũ khi đã đánh nước mới
                         int r = (_Y - TOP - 1) / 2;
@@ -117,13 +146,48 @@ int main() {
                             else {
                                 StartGame();
                             }
+
                         }
                     }
+                    isPaused = false;
+                    timeLeft = TURN_TIME_LIMIT;
                     continue;
                 }
 
-                _COMMAND = toupper(_getch());
-
+                if (_kbhit()) {
+                    _COMMAND = toupper(_getch());
+                    if (_COMMAND == 'M' || _COMMAND == 77) {
+                        isPaused = true;
+                        future<int> SecondThreadchoice = async(launch::async, GameMenu);
+                        int gamechoice = SecondThreadchoice.get();
+                        if (gamechoice == 0) { // thoat
+                            isPlaying = false;
+                        }
+                        else if (gamechoice == 1) {
+                            string temp = SaveGame();
+                            LoadGame(temp);
+                        }
+                        else if (gamechoice == 2) {
+                            string filename = ChooseFileMenu();
+                            LoadGame(filename);
+                        }
+                        else if (gamechoice == 3) {
+                            //setting;
+                        }
+                        else if (gamechoice == 4) {
+                            loadPresent();
+                        }
+                        isPaused = false;
+                    }
+                    else if (_COMMAND == 'P') { // Tạm dừng/Tiếp tục
+                        isPaused = !isPaused;
+                        {
+                            lock_guard<mutex> lock(consoleMutex);
+                            int oldX = _X, oldY = _Y;
+                            GotoXY(60, TOP + 19); // Tọa độ dòng trạng thái
+                            if (isPaused) {
+                                SetColor(14, 0);
+                                cout << " >>> DANG TAM DUNG (PAUSED) <<< ";
                 if (_COMMAND == 27) { // Phím ESC
                     isPlaying = false;
                 }
@@ -182,11 +246,20 @@ int main() {
                                     StartGame();
                                 }
                             }
+                            else {
+                                SetColor(10, 15);
+                                cout << "      DANG CHOI (PLAYING)       ";
+                            }
+                            GotoXY(oldX, oldY);
                         }
-                        validEnter = true;
+                    }
+                    else if (!isPaused) {
+                        ProcessMove(_COMMAND, validEnter, isPlaying);
                     }
                 }
+
             }
+            StopTimerThread();
         }
     }
     return 0;
