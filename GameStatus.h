@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <iostream>
 #include <vector>
+using namespace std;
 
 #define BOARD_SIZE 12
 #define LEFT 3
@@ -16,4 +17,12 @@ extern int _X, _Y;
 extern bool _BOT_MODE;
 extern int _BOT_DIFFICULTY;
 
+struct MoveNode {
+    int row, col, c;
+};
+
+extern vector<MoveNode> moveHistory; //lưu lịch sử nước đi
+extern int currentStep; //nước đi hiện tại
+
 void ResetData();
+

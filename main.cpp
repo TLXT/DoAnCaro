@@ -9,6 +9,7 @@
 #include "UserInfo.h"
 #include "DrawBoard.h"
 #include "CaroBot.h"
+#include "Replay.h"
 
 using namespace std;
 
@@ -73,7 +74,7 @@ int main() {
             while (isPlaying) {
                 if (_BOT_MODE == true && _TURN == false) {
 
-                    GotoXY(60, 18);
+                    GotoXY(60, 20);
                     SetColor(12, 15);
                     cout << "Bot dang suy nghi...         ";
 
@@ -84,15 +85,32 @@ int main() {
                         _X = botMove.x;
                         _Y = botMove.y;
 
-                        CheckBoard(_X, _Y);
+                        int checkRes = CheckBoard(_X, _Y); //lưu giá trị c
                         DrawCell(_X, _Y, 11);
 
-                        GotoXY(60, 18);
+                        //lưu lịch sử di chuyển của bot. Edit: thêm xóa lịch sử cũ khi đã đánh nước mới
+                        int r = (_Y - TOP - 1) / 2;
+                        int c = (_X - LEFT - 2) / 4;
+                        if (currentStep < (int)moveHistory.size()) 
+                            moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end()); // thêm
+                        moveHistory.push_back({ r, c, checkRes }); 
+                        currentStep++;
+
+                        GotoXY(60, 20);
                         SetColor(0, 15);
                         cout << "                             ";
 
                         switch (ProcessFinish(TestBoard())) {
                         case -1: case 1: case 0:
+                            //nhấn enter xong sẽ xuất hiện replay
+                            char ch;
+                            do {
+                                ch = _getch();
+                                if (ch == -32 || ch == 0) _getch();
+                            } while (ch != 13);
+                            
+
+                            HandleReplayOption();
                             if (AskContinue() != 'Y') {
                                 isPlaying = false;
                             }
@@ -119,21 +137,44 @@ int main() {
                         DrawCell(_X, _Y, 11);
                     }
                 }
+
+                else if (_COMMAND == 'Z') { if (!_BOT_MODE || _TURN) UndoMove(); }
+                else if (_COMMAND == 'Y') { if (!_BOT_MODE || _TURN) RedoMove(); }
+
                 else {
                     if (_COMMAND == 'A' || _COMMAND == 75) MoveLeft();
                     else if (_COMMAND == 'W' || _COMMAND == 72) MoveUp();
                     else if (_COMMAND == 'S' || _COMMAND == 80) MoveDown();
                     else if (_COMMAND == 'D' || _COMMAND == 77) MoveRight();
                     else if (_COMMAND == 13) {
-                        switch (CheckBoard(_X, _Y)) {
+                        int checkRes = CheckBoard(_X, _Y);
+                        switch (checkRes) {
                         case -1: DrawCell(_X, _Y, 11); break;
                         case 1:  DrawCell(_X, _Y, 11); break;
                         case 0:  validEnter = false;
                         }
 
                         if (validEnter == true) {
+                            //lưu lịch sử di chuyển của người chơi. Edit: thêm xóa lịch sử cũ sau khi đã đánh nước mới 
+                            int r = (_Y - TOP - 1) / 2;
+                            int c = (_X - LEFT - 2) / 4;
+                            if (currentStep < (int)moveHistory.size())         
+                                moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end());  // thêm
+                            moveHistory.push_back({ r, c, checkRes });
+                            currentStep++;
+
                             switch (ProcessFinish(TestBoard())) {
                             case -1: case 1: case 0:
+                                //nhấn enter tới menu replay
+                                char ch_player;
+                                do {
+                                    ch_player = _getch();
+                                    if (ch_player == -32 || ch_player == 0) _getch();
+                                } while (ch_player != 13);
+
+                                HandleReplayOption();
+                                
+
                                 if (AskContinue() != 'Y') {
                                     isPlaying = false;
                                 }

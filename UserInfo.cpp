@@ -23,7 +23,10 @@ void DrawPlayerInfo() {
     GotoXY(LEFT, TOP + 12); cout << "Enter      : Danh co";
     GotoXY(LEFT, TOP + 13); cout << "L          : Luu game (Save)";
     GotoXY(LEFT, TOP + 14); cout << "T          : Tai game (Load)";
-    GotoXY(LEFT, TOP + 15); cout << "ESC        : Thoat";
+    GotoXY(LEFT, TOP + 15); cout << "Z          : Undo (Hoan tac)";
+    GotoXY(LEFT, TOP + 16); cout << "Y          : Redo (Lam lai)";
+    GotoXY(LEFT, TOP + 17); cout << "ESC        : Thoat";
+
 }
 
 void UpdateTurnInfo() {
