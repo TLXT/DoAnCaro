@@ -10,3 +10,6 @@ void MoveUp();
 void DrawCell(int x, int y, int bg_color);
 void ProcessMove(int _COMMAND,bool validEnter, bool& isPlaying);
 void PlayRandomMove();// them vao random
+void UndoMove();
+void RedoMove();
+void DrawCell(int x, int y, int bg_color);

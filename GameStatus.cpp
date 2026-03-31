@@ -8,8 +8,14 @@ int _X, _Y;
 bool _BOT_MODE = false;
 int _BOT_DIFFICULTY = 2;
 
+vector<MoveNode> moveHistory;
+int currentStep = 0;
 
 void ResetData() {
+    //xóa lịch sử khi bắt đầu ván mới
+    moveHistory.clear();
+    currentStep = 0;
+
     for (int i = 0; i < BOARD_SIZE; i++) {
 
         for (int j = 0; j < BOARD_SIZE; j++) {

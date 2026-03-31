@@ -21,8 +21,14 @@ void DrawPlayerInfo() {
     GotoXY(LEFT, TOP + 10); cout << "Phim dieu khien:";
     GotoXY(LEFT, TOP + 11); cout << "W, A, S, D : Di chuyen";
     GotoXY(LEFT, TOP + 12); cout << "Enter      : Danh co";
-    GotoXY(LEFT, TOP + 13); cout << "M:           :Mo menu";
-    GotoXY(LEFT, TOP + 14); cout << "P:           :Tam dung/Tiep tuc (Pause/Play)";
+    GotoXY(LEFT, TOP + 13); cout << "M          : Mo menu";
+    GotoXY(LEFT, TOP + 14); cout << "P          : Tam dung/Tiep tuc (Pause/Play)";
+    GotoXY(LEFT, TOP + 15); cout << "L          : Luu game (Save)";
+    GotoXY(LEFT, TOP + 16); cout << "T          : Tai game (Load)";
+    GotoXY(LEFT, TOP + 17); cout << "Z          : Undo (Hoan tac)";
+    GotoXY(LEFT, TOP + 18); cout << "Y          : Redo (Lam lai)";
+    GotoXY(LEFT, TOP + 19); cout << "ESC        : Thoat";
+
 }
 
 void UpdateTurnInfo() {
