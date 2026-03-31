@@ -282,8 +282,10 @@ int Minimax(int depth, int alpha, int beta, bool isMaximizing, int aiPiece, int 
     sort(scoredMoves.begin(), scoredMoves.end(), greater<pair<int, pair<int, int>>>());
 
     int originalAlpha = alpha, bestScore = isMaximizing ? numeric_limits<int>::min() : numeric_limits<int>::max();
-    for (auto& sm : scoredMoves) {
-        auto move = sm.second;
+    int maxMoves = 10;
+    int movesToConsider = min(maxMoves, (int)scoredMoves.size());
+    for (int i = 0; i < movesToConsider; i++) {
+        auto move = scoredMoves[i].second;
         _A[move.first][move.second].c = isMaximizing ? aiPiece : playerPiece;
         uint64_t newHash = UpdateHash(boardHash, move.first, move.second, _A[move.first][move.second].c);
 

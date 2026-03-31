@@ -137,8 +137,17 @@ void PlayRandomMove() {
         int c = emptyCells[index].second;
         _X = _A[r][c].x;
         _Y = _A[r][c].y;
-        CheckBoard(_X, _Y);
-        DrawCell(_X, _Y, 11);
+        int checkRes = CheckBoard(_X, _Y); // Đánh cờ và lấy giá trị (-1 hoặc 1)
+
+        // --- QUAN TRỌNG: Lưu vào lịch sử nước đi ---
+        if (currentStep < (int)moveHistory.size()) {
+            moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end());
+        }
+        moveHistory.push_back({ r, c, checkRes });
+        currentStep++;
+        // -------------------------------------------
+
+        DrawCell(_X, _Y, 11); // Vẽ quân cờ vừa đánh với highlight
         GotoXY(_X, _Y);
     }
 }

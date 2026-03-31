@@ -22,15 +22,15 @@ void TimerLogic() {
                 int curX = _X, curY = _Y;
 
                 // Xóa vùng cũ trước khi in số mới để tránh bị lem chữ
-                GotoXY(60, TOP + 18); cout << "                             ";
+                GotoXY(60, TOP + 21); cout << "                             ";
 
-                GotoXY(60, TOP + 18);
+                GotoXY(60, TOP + 21);
                 if (timeLeft <= 5) SetColor(12, 15);
                 else SetColor(0, 15);
                 cout << "THOI GIAN CON LAI: " << (int)timeLeft << "s";
 
                 // In trạng thái Pause/Play
-                GotoXY(60, TOP + 19);
+                GotoXY(60, TOP + 22);
                 if (isPaused) {
                     SetColor(14, 0);
                     cout << " >>> DANG TAM DUNG (PAUSED) <<< ";
@@ -59,8 +59,8 @@ void StopTimerThread() {
     this_thread::sleep_for(chrono::milliseconds(150));
     {
         lock_guard<mutex> lock(consoleMutex);
-        GotoXY(60, TOP + 18); cout << "                             ";
-        GotoXY(60, TOP + 19); cout << "                             ";
-        GotoXY(60, TOP + 20); cout << "                             ";
+        GotoXY(60, TOP + 21); cout << "                             ";
+        GotoXY(60, TOP + 22); cout << "                             ";
+        GotoXY(60, TOP + 23); cout << "                             ";
     }
 }

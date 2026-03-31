@@ -1,21 +1,101 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\caro-local\\DoAnCaro\\",
+  "WorkspaceRootPath": "D:\\DoAnCaro\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\caro-local\\DoAnCaro\\CaroBot.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\GamePlay.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:GamePlay.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\GameTimer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:GameTimer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\SaveLoad.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:SaveLoad.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\SaveLoad.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:SaveLoad.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\UserInfo.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:UserInfo.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\UserInfo.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:UserInfo.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\GamePlay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:GamePlay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\GameStatus.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:GameStatus.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\CaroBot.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:CaroBot.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\GameStatus.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:GameStatus.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\FinishProcess.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:FinishProcess.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\FinishProcess.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:FinishProcess.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\Menu.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:Menu.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\Menu.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:Menu.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\ControlConsole.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:ControlConsole.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\ControlConsole.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:ControlConsole.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\DrawBoard.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:DrawBoard.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\DrawBoard.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:DrawBoard.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|D:\\DoAnCaro\\CaroBot.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{28C37798-B9A3-4593-BC71-D284FF41D541}|Caro game.vcxproj|solutionrelative:CaroBot.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
-      "VerticalTabListWidth": 256,
+      "VerticalTabListWidth": 100,
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 7,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
@@ -26,11 +106,258 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "GameTimer.cpp",
+              "DocumentMoniker": "D:\\DoAnCaro\\GameTimer.cpp",
+              "RelativeDocumentMoniker": "GameTimer.cpp",
+              "ToolTip": "D:\\DoAnCaro\\GameTimer.cpp",
+              "RelativeToolTip": "GameTimer.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD8AAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-31T16:35:52.771Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "UserInfo.cpp",
+              "DocumentMoniker": "D:\\DoAnCaro\\UserInfo.cpp",
+              "RelativeDocumentMoniker": "UserInfo.cpp",
+              "ToolTip": "D:\\DoAnCaro\\UserInfo.cpp",
+              "RelativeToolTip": "UserInfo.cpp",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABUAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-23T14:25:25.779Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "SaveLoad.cpp",
+              "DocumentMoniker": "D:\\DoAnCaro\\SaveLoad.cpp",
+              "RelativeDocumentMoniker": "SaveLoad.cpp",
+              "ToolTip": "D:\\DoAnCaro\\SaveLoad.cpp",
+              "RelativeToolTip": "SaveLoad.cpp",
+              "ViewState": "AgIAAOEAAAAAAAAAAAAAAOcAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-23T14:25:25.075Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Menu.cpp",
+              "DocumentMoniker": "D:\\DoAnCaro\\Menu.cpp",
+              "RelativeDocumentMoniker": "Menu.cpp",
+              "ToolTip": "D:\\DoAnCaro\\Menu.cpp",
+              "RelativeToolTip": "Menu.cpp",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-23T14:25:24.475Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "main.cpp",
+              "DocumentMoniker": "D:\\DoAnCaro\\main.cpp",
+              "RelativeDocumentMoniker": "main.cpp",
+              "ToolTip": "D:\\DoAnCaro\\main.cpp*",
+              "RelativeToolTip": "main.cpp*",
+              "ViewState": "AgIAAP8AAAAAAAAAAAAgwB0BAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-23T14:25:23.792Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "GameStatus.cpp",
+              "DocumentMoniker": "D:\\DoAnCaro\\GameStatus.cpp",
+              "RelativeDocumentMoniker": "GameStatus.cpp",
+              "ToolTip": "D:\\DoAnCaro\\GameStatus.cpp",
+              "RelativeToolTip": "GameStatus.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-23T14:25:23.177Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "GamePlay.cpp",
+              "DocumentMoniker": "D:\\DoAnCaro\\GamePlay.cpp",
+              "RelativeDocumentMoniker": "GamePlay.cpp",
+              "ToolTip": "D:\\DoAnCaro\\GamePlay.cpp",
+              "RelativeToolTip": "GamePlay.cpp",
+              "ViewState": "AgIAAHYAAAAAAAAAAAAIwJcAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-23T14:25:22.562Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "FinishProcess.cpp",
+              "DocumentMoniker": "D:\\DoAnCaro\\FinishProcess.cpp",
+              "RelativeDocumentMoniker": "FinishProcess.cpp",
+              "ToolTip": "D:\\DoAnCaro\\FinishProcess.cpp",
+              "RelativeToolTip": "FinishProcess.cpp",
+              "ViewState": "AgIAADMAAAAAAAAAAAAAABkAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-23T14:25:21.864Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "DrawBoard.cpp",
+              "DocumentMoniker": "D:\\DoAnCaro\\DrawBoard.cpp",
+              "RelativeDocumentMoniker": "DrawBoard.cpp",
+              "ToolTip": "D:\\DoAnCaro\\DrawBoard.cpp",
+              "RelativeToolTip": "DrawBoard.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-23T14:25:21.189Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "ControlConsole.cpp",
+              "DocumentMoniker": "D:\\DoAnCaro\\ControlConsole.cpp",
+              "RelativeDocumentMoniker": "ControlConsole.cpp",
+              "ToolTip": "D:\\DoAnCaro\\ControlConsole.cpp",
+              "RelativeToolTip": "ControlConsole.cpp",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-23T14:25:20.512Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "CaroBot.cpp",
+              "DocumentMoniker": "D:\\DoAnCaro\\CaroBot.cpp",
+              "RelativeDocumentMoniker": "CaroBot.cpp",
+              "ToolTip": "D:\\DoAnCaro\\CaroBot.cpp",
+              "RelativeToolTip": "CaroBot.cpp",
+              "ViewState": "AgIAAAgBAAAAAAAAAAAAACIBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-23T14:25:19.735Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "UserInfo.h",
+              "DocumentMoniker": "D:\\DoAnCaro\\UserInfo.h",
+              "RelativeDocumentMoniker": "UserInfo.h",
+              "ToolTip": "D:\\DoAnCaro\\UserInfo.h",
+              "RelativeToolTip": "UserInfo.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-23T14:25:18.744Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "SaveLoad.h",
+              "DocumentMoniker": "D:\\DoAnCaro\\SaveLoad.h",
+              "RelativeDocumentMoniker": "SaveLoad.h",
+              "ToolTip": "D:\\DoAnCaro\\SaveLoad.h",
+              "RelativeToolTip": "SaveLoad.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-23T14:25:17.987Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Menu.h",
+              "DocumentMoniker": "D:\\DoAnCaro\\Menu.h",
+              "RelativeDocumentMoniker": "Menu.h",
+              "ToolTip": "D:\\DoAnCaro\\Menu.h",
+              "RelativeToolTip": "Menu.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-23T14:25:17.267Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "GamePlay.h",
+              "DocumentMoniker": "D:\\DoAnCaro\\GamePlay.h",
+              "RelativeDocumentMoniker": "GamePlay.h",
+              "ToolTip": "D:\\DoAnCaro\\GamePlay.h",
+              "RelativeToolTip": "GamePlay.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-23T14:25:15.1Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "GameStatus.h",
+              "DocumentMoniker": "D:\\DoAnCaro\\GameStatus.h",
+              "RelativeDocumentMoniker": "GameStatus.h",
+              "ToolTip": "D:\\DoAnCaro\\GameStatus.h",
+              "RelativeToolTip": "GameStatus.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-23T14:25:14.447Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "FinishProcess.h",
+              "DocumentMoniker": "D:\\DoAnCaro\\FinishProcess.h",
+              "RelativeDocumentMoniker": "FinishProcess.h",
+              "ToolTip": "D:\\DoAnCaro\\FinishProcess.h",
+              "RelativeToolTip": "FinishProcess.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-23T14:25:13.757Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "DrawBoard.h",
+              "DocumentMoniker": "D:\\DoAnCaro\\DrawBoard.h",
+              "RelativeDocumentMoniker": "DrawBoard.h",
+              "ToolTip": "D:\\DoAnCaro\\DrawBoard.h",
+              "RelativeToolTip": "DrawBoard.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-23T14:25:13.104Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "ControlConsole.h",
+              "DocumentMoniker": "D:\\DoAnCaro\\ControlConsole.h",
+              "RelativeDocumentMoniker": "ControlConsole.h",
+              "ToolTip": "D:\\DoAnCaro\\ControlConsole.h",
+              "RelativeToolTip": "ControlConsole.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-23T14:25:12.429Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
               "Title": "CaroBot.h",
-              "DocumentMoniker": "D:\\caro-local\\DoAnCaro\\CaroBot.h",
+              "DocumentMoniker": "D:\\DoAnCaro\\CaroBot.h",
               "RelativeDocumentMoniker": "CaroBot.h",
-              "ToolTip": "D:\\caro-local\\DoAnCaro\\CaroBot.h",
+              "ToolTip": "D:\\DoAnCaro\\CaroBot.h",
               "RelativeToolTip": "CaroBot.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",

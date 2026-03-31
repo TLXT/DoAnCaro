@@ -129,8 +129,10 @@
     <ClCompile Include="FinishProcess.cpp" />
     <ClCompile Include="GamePlay.cpp" />
     <ClCompile Include="GameStatus.cpp" />
+    <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="Replay.cpp" />
     <ClCompile Include="SaveLoad.cpp" />
     <ClCompile Include="UserInfo.cpp" />
   </ItemGroup>
@@ -141,7 +143,9 @@
     <ClInclude Include="FinishProcess.h" />
     <ClInclude Include="GamePlay.h" />
     <ClInclude Include="GameStatus.h" />
+    <ClInclude Include="GameTimer.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="Replay.h" />
     <ClInclude Include="SaveLoad.h" />
     <ClInclude Include="UserInfo.h" />
   </ItemGroup>
