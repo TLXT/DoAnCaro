@@ -30,6 +30,7 @@ int main() {
 
             if (mode == 0) {
                 _BOT_MODE = false;
+                InputPlayerNames(false);
                 StartGame();
                 isPlaying = true;
             }
@@ -41,6 +42,7 @@ int main() {
 
                 _BOT_MODE = true;
                 _BOT_DIFFICULTY = diff + 1;
+                InputPlayerNames(true);
 
                 StartGame();
                 isPlaying = true;
@@ -81,6 +83,13 @@ int main() {
                     PlayRandomMove();
                     int finish = ProcessFinish(TestBoard());
                     if (finish != 2) {
+                        isPaused = true;
+                        {
+                            lock_guard<mutex> lock(consoleMutex);
+                            GotoXY(60, TOP + 21); cout << "                                ";
+                            GotoXY(60, TOP + 22); cout << "                                ";
+                        }
+
                         if (AskContinue() != 'Y') {
                             isPlaying = false;
                         }
@@ -131,7 +140,10 @@ int main() {
 
                             switch (ProcessFinish(TestBoard())) {
                             case -1: case 1: case 0:
-                                //nhấn enter xong sẽ xuất hiện replay
+                                isPaused = true;
+                                GotoXY(60, TOP + 21); cout << "                                ";
+                                GotoXY(60, TOP + 22); cout << "                                ";
+
                                 char ch;
                                 do {
                                     ch = _getch();
@@ -161,7 +173,6 @@ int main() {
                 // 3. XỬ LÝ PHÍM BẤM CỦA NGƯỜI CHƠI
                 if (_kbhit()) {
                     int ch = _getch();
-                    // ---> [SỬA LỖI 1]: Xử lý phím mũi tên đúng cách để không trùng với Menu
                     if (ch == 0 || ch == 224) {
                         ch = _getch();
                         if (ch == 72) _COMMAND = 'W';      // Lên
@@ -185,12 +196,10 @@ int main() {
                         if (gamechoice == 0) { isPlaying = false; }
                         else if (gamechoice == 1) {
                             string temp = SaveGame();
-                            // ---> [SỬA LỖI 2]: Xóa lịch sử cũ và Reset Time khi Load
                             if (LoadGame(temp)) { moveHistory.clear(); currentStep = 0; timeLeft = TURN_TIME_LIMIT; }
                         }
                         else if (gamechoice == 2) {
                             string filename = ChooseFileMenu();
-                            // ---> [SỬA LỖI 2]
                             if (LoadGame(filename)) { moveHistory.clear(); currentStep = 0; timeLeft = TURN_TIME_LIMIT; }
                         }
                         else if (gamechoice == 4) { loadPresent(); }
@@ -214,14 +223,12 @@ int main() {
                     }
                     // --- CÁC PHÍM CHỈ HOẠT ĐỘNG KHI TẠM DỪNG ---
                     else if (isPaused) {
-                        // ---> [SỬA LỖI 3]: XÓA DÒNG lock_guard Ở ĐÂY để ko bị đơ khi gõ tên file
                         if (_COMMAND == 27) { // ESC: Thoát
                             isPlaying = false;
                         }
                         else if (_COMMAND == 'L') { SaveGame(); }
                         else if (_COMMAND == 'T') {
                             if (LoadGame() == true) {
-                                // ---> [SỬA LỖI 4]: Xóa lịch sử ván cũ để Undo/Redo không bị lỗi
                                 moveHistory.clear(); currentStep = 0; timeLeft = TURN_TIME_LIMIT;
                             }
                             else {
@@ -264,6 +271,13 @@ int main() {
 
                                 switch (ProcessFinish(TestBoard())) {
                                 case -1: case 1: case 0:
+                                    isPaused = true;
+                                    {
+                                        lock_guard<mutex> lock(consoleMutex);
+                                        GotoXY(60, TOP + 21); cout << "                                ";
+                                        GotoXY(60, TOP + 22); cout << "                                ";
+                                    }
+
                                     char ch_player;
                                     do {
                                         ch_player = _getch();

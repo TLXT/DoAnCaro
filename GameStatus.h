@@ -23,6 +23,10 @@ struct MoveNode {
 
 extern vector<MoveNode> moveHistory; //lưu lịch sử nước đi
 extern int currentStep; //nước đi hiện tại
+#include <string>
+
+extern std::string _PLAYER1_NAME;
+extern std::string _PLAYER2_NAME;
 
 void ResetData();
 

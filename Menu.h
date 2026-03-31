@@ -11,3 +11,4 @@ int PlayGameMenu();
 int DifficultyMenu();
 int SettingsMenu();
 int GameMenu();
+void InputPlayerNames(bool isBotMode);

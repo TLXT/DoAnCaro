@@ -2,10 +2,14 @@
 #include "ControlConsole.h"
 #include "GameStatus.h"
 #include <chrono>
+#include <string>
 
 atomic<int> timeLeft(TURN_TIME_LIMIT);
 atomic<bool> isPaused(false);
 atomic<bool> isTimerRunning(false);
+
+std::string _PLAYER1_NAME = "Player 1";
+std::string _PLAYER2_NAME = "Player 2";
 
 void TimerLogic() {
     while (isTimerRunning) {

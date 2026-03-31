@@ -1,5 +1,6 @@
 ﻿#include "Menu.h"
 #include "ControlConsole.h"
+#include "GameStatus.h"
 
 using namespace std;
 
@@ -66,6 +67,50 @@ int SettingsMenu() {
     return GenericMenu(options, 2, "CAI DAT");
 }
 int GameMenu() {
-    string options[5] = { "1. thoat game","2. Luu game","3. Tai game","4. Cai dat","5. Thoat menu"};
+    string options[5] = { "1. Thoat game","2. Luu game","3. Tai game","4. Cai dat","5. Thoat menu"};
     return GenericMenu(options, 5, "MENU");
+}
+
+string TypeName() {
+    string res = "";
+    while (true) {
+        char c = _getch();
+        if (c == 13 && res.length() > 0) { // Bấm Enter
+            break;
+        }
+        else if (c == 8) { // Bấm Backspace (Xóa)
+            if (res.length() > 0) {
+                res.pop_back();
+                cout << "\b \b";
+            }
+        }
+        // Cho phép nhập chữ, số và khoảng trắng (tối đa 15 ký tự để không vỡ UI)
+        else if ((isalnum(c) || c == ' ') && res.length() < 15) {
+            res += c;
+            cout << c;
+        }
+    }
+    return res;
+}
+
+void InputPlayerNames(bool isBotMode) {
+    system("cls");
+    system("color F0");
+    SetColor(12, 15);
+
+    GotoXY(35, 10); cout << "Nhap ten Nguoi choi 1 (X): ";
+    UnhideCursor();
+    _PLAYER1_NAME = TypeName();
+
+    if (isBotMode) {
+        // Tự động đặt tên Bot theo độ khó
+        if (_BOT_DIFFICULTY == 1) _PLAYER2_NAME = "Bot (De)";
+        else if (_BOT_DIFFICULTY == 2) _PLAYER2_NAME = "Bot (Trung Binh)";
+        else _PLAYER2_NAME = "Bot (Kho)";
+    }
+    else {
+        GotoXY(35, 12); cout << "Nhap ten Nguoi choi 2 (O): ";
+        _PLAYER2_NAME = TypeName();
+    }
+    HideCursor();
 }

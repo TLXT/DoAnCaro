@@ -26,10 +26,10 @@ int ProcessFinish(int pWhoWin) {
     SetColor(1, 15);
 
     switch (pWhoWin) {
-    case -1: cout << "Nguoi choi X da thang va nguoi choi O da thua!\n"; break;
-    case 1:  cout << "Nguoi choi O da thang va nguoi choi X da thua!\n"; break;
-    case 0:  cout << "Hai ben hoa nhau! Ban co da full o.          \n"; break;
-    case 2:  
+    case -1: cout << _PLAYER1_NAME << " (X) da THANG va " << _PLAYER2_NAME << " (O) da THUA!   \n"; break;
+    case 1:  cout << _PLAYER2_NAME << " (O) da THANG va " << _PLAYER1_NAME << " (X) da THUA!   \n"; break;
+    case 0:  cout << "Tran dau HOA! Ban co da het o trong.                          \n"; break;
+    case 2:
         _TURN = !_TURN;
         UpdateTurnInfo();
         break;
