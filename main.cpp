@@ -188,7 +188,7 @@ int main() {
                     if (_COMMAND == 0) continue;
 
                     // --- MỞ MENU PHỤ ---
-                    if (_COMMAND == 'M') {
+                    if (_COMMAND == 'M' || _COMMAND == 27) {
                         isPaused = true;
                         future<int> SecondThreadchoice = async(launch::async, GameMenu);
                         int gamechoice = SecondThreadchoice.get();
@@ -222,24 +222,24 @@ int main() {
                         GotoXY(_X, _Y);
                     }
                     // --- CÁC PHÍM CHỈ HOẠT ĐỘNG KHI TẠM DỪNG ---
-                    else if (isPaused) {
-                        if (_COMMAND == 27) { // ESC: Thoát
-                            isPlaying = false;
-                        }
-                        else if (_COMMAND == 'L') { SaveGame(); }
-                        else if (_COMMAND == 'T') {
-                            if (LoadGame() == true) {
-                                moveHistory.clear(); currentStep = 0; timeLeft = TURN_TIME_LIMIT;
-                            }
-                            else {
-                                system("cls"); DrawBoard(BOARD_SIZE); DrawPlayerInfo(); UpdateTurnInfo();
-                                for (int i = 0; i < BOARD_SIZE; i++)
-                                    for (int j = 0; j < BOARD_SIZE; j++)
-                                        DrawCell(_A[i][j].x, _A[i][j].y, 15);
-                                DrawCell(_X, _Y, 11);
-                            }
-                        }
-                    }
+                    //else if (isPaused) {
+                    //    if (_COMMAND == 27) { // ESC: Thoát
+                    //        isPlaying = false;
+                    //    }
+                    //    else if (_COMMAND == 'L') { SaveGame(); }
+                    //    else if (_COMMAND == 'T') {
+                    //        if (LoadGame() == true) {
+                    //            moveHistory.clear(); currentStep = 0; timeLeft = TURN_TIME_LIMIT;
+                    //        }
+                    //        else {
+                    //            system("cls"); DrawBoard(BOARD_SIZE); DrawPlayerInfo(); UpdateTurnInfo();
+                    //            for (int i = 0; i < BOARD_SIZE; i++)
+                    //                for (int j = 0; j < BOARD_SIZE; j++)
+                    //                    DrawCell(_A[i][j].x, _A[i][j].y, 15);
+                    //            DrawCell(_X, _Y, 11);
+                    //        }
+                    //    }
+                    //}
                     // --- CÁC PHÍM DI CHUYỂN / ĐÁNH CỜ (CHỈ KHI ĐANG CHƠI) ---
                     else if (!isPaused) {
                         if (_COMMAND == 'Z') {
