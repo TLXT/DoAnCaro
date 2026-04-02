@@ -123,6 +123,7 @@ int main() {
 
                         int checkRes = CheckBoard(_X, _Y); //lưu giá trị c
                         DrawCell(_X, _Y, 11);
+                        int finishStatus; // Biến tạm lưu kết quả kiểm tra thắng thua
                         {
                             lock_guard<mutex>lock(consoleMutex);
 
@@ -137,8 +138,16 @@ int main() {
                             GotoXY(60, 20);
                             SetColor(0, 15);
                             cout << "                             ";
+                            // Kiểm tra trạng thái ván cờ ngay trong lúc khóa luồng
+                            finishStatus = ProcessFinish(TestBoard());
+                            if (finishStatus != 2) {
+                                GotoXY(60, TOP + 21); cout << "                                ";
+                                GotoXY(60, TOP + 22); cout << "                                ";
+                            }
+                        } // <-- GIẢI PHÓNG MUTEX TẠI ĐÂY
 
-                            switch (ProcessFinish(TestBoard())) {
+                            // Xử lý Replay bên ngoài khóa mutex
+                            switch (finishStatus) {
                             case -1: case 1: case 0:
                                 isPaused = true;
                                 GotoXY(60, TOP + 21); cout << "                                ";
@@ -163,7 +172,7 @@ int main() {
                                 timeLeft = TURN_TIME_LIMIT; // Đặt lại đồng hồ về 30 giây cho người tiếp theo
                                 break;
                             }
-                        }
+                        
                         isPaused = false;
                         timeLeft = TURN_TIME_LIMIT;
                         continue;
@@ -196,11 +205,11 @@ int main() {
                         if (gamechoice == 0) { isPlaying = false; }
                         else if (gamechoice == 1) {
                             string temp = SaveGame();
-                            if (LoadGame(temp)) { moveHistory.clear(); currentStep = 0; timeLeft = TURN_TIME_LIMIT; }
+                            if (LoadGame(temp)) { timeLeft = TURN_TIME_LIMIT; }
                         }
                         else if (gamechoice == 2) {
                             string filename = ChooseFileMenu();
-                            if (LoadGame(filename)) { moveHistory.clear(); currentStep = 0; timeLeft = TURN_TIME_LIMIT; }
+                            if (LoadGame(filename)) { timeLeft = TURN_TIME_LIMIT; }
                         }
                         else if (gamechoice == 4) { loadPresent(); }
 

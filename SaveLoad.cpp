@@ -79,6 +79,11 @@ string SaveGame() {
             }
             outFile << endl;
         }
+        outFile << currentStep << endl; //lưu số bước hiện tại
+        for (int i = 0; i < currentStep; i++) {
+            //lưu tọa độ dòng, cột và loại quân cờ (-1 hoặc 1) của từng bước đi
+            outFile << moveHistory[i].row << " " << moveHistory[i].col << " " << moveHistory[i].c << endl;
+        }
         outFile.close();
 
         GotoXY(5, 28);
@@ -135,6 +140,17 @@ bool LoadGame() {
                 inFile >> _A[i][j].c;
             }
         }
+        moveHistory.clear(); //xóa lịch sử cũ trước khi load
+        if (inFile >> currentStep) { //kiểm tra xem file save có dữ liệu lịch sử không
+            for (int i = 0; i < currentStep; i++) {
+                MoveNode node;
+                inFile >> node.row >> node.col >> node.c;
+                moveHistory.push_back(node);
+            }
+        }
+        else {
+            currentStep = 0; //tránh lỗi crash nếu đọc nhầm file save cũ (file được tạo trước khi sửa code)
+        }
         inFile.close();
 
         system("cls");
@@ -176,6 +192,17 @@ bool LoadGame(string filename) {
                 _A[i][j].y = 2 * i + TOP + 1;
                 inFile >> _A[i][j].c;
             }
+        }
+        moveHistory.clear(); //xóa lịch sử cũ trước khi load
+        if (inFile >> currentStep) { //kiểm tra xem file save có dữ liệu lịch sử không
+            for (int i = 0; i < currentStep; i++) {
+                MoveNode node;
+                inFile >> node.row >> node.col >> node.c;
+                moveHistory.push_back(node);
+            }
+        }
+        else {
+            currentStep = 0; //tránh lỗi crash nếu đọc nhầm file save cũ (file được tạo trước khi sửa code)
         }
         inFile.close();
 

@@ -96,10 +96,23 @@ void ProcessMove(int _COMMAND,bool validEnter,bool& isPlaying) {
     else if (_COMMAND == 'S' || _COMMAND == 80) MoveDown();
     else if (_COMMAND == 'D' || _COMMAND == 77) MoveRight();
     else if (_COMMAND == 13) {
-        switch (CheckBoard(_X, _Y)) {
-        case -1: DrawCell(_X, _Y, 11); break;
-        case 1:  DrawCell(_X, _Y, 11); break;
-        case 0:  validEnter = false;
+        int checkRes = CheckBoard(_X, _Y); // Đánh cờ và lấy kết quả (-1 hoặc 1)
+        
+        if (checkRes == 0) {
+            validEnter = false; // Ô đã có người đánh
+        }
+        else {
+            DrawCell(_X, _Y, 11);
+
+            // --- THÊM ĐOẠN NÀY ĐỂ LƯU LỊCH SỬ NƯỚC ĐI CỦA NGƯỜI CHƠI ---
+            int r = (_Y - TOP - 1) / 2;  // Suy ra vị trí dòng từ tọa độ Y
+            int c = (_X - LEFT - 2) / 4; // Suy ra vị trí cột từ tọa độ X
+
+            if (currentStep < (int)moveHistory.size()) {
+                moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end());
+            }
+            moveHistory.push_back({ r, c, checkRes }); // Lưu lịch sử
+            currentStep++;                             // Tăng số bước
         }
 
         if (validEnter == true) {
