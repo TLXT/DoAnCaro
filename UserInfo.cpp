@@ -33,11 +33,11 @@ void UpdateTurnInfo() {
     GotoXY(LEFT, TOP + 7);
     if (_TURN) {
         SetColor(12, 15);
-        cout << "=> LUOT DI: " << _PLAYER1_NAME << " (X)   ";
+        cout << "=> LUOT DI: " << _PLAYER1_NAME << " (X)              ";
     }
     else {
         SetColor(10, 15);
-        cout << "=> LUOT DI: " << _PLAYER2_NAME << " (O)   ";
+        cout << "=> LUOT DI: " << _PLAYER2_NAME << " (O)              ";
     }
     SetColor(0, 15);
     GotoXY(_X, _Y);

@@ -67,8 +67,8 @@ int SettingsMenu() {
     return GenericMenu(options, 2, "CAI DAT");
 }
 int GameMenu() {
-    string options[5] = { "1. Thoat game","2. Luu game","3. Tai game","4. Cai dat","5. Thoat menu"};
-    return GenericMenu(options, 5, "MENU");
+    string options[4] = { "1. Thoat game","2. Luu game","3. Tai game","4. Thoat menu"};
+    return GenericMenu(options, 4, "MENU");
 }
 
 string TypeName() {
@@ -84,8 +84,8 @@ string TypeName() {
                 cout << "\b \b";
             }
         }
-        // Cho phép nhập chữ, số và khoảng trắng (tối đa 15 ký tự để không vỡ UI)
-        else if ((isalnum(c) || c == ' ') && res.length() < 15) {
+        // Cho phép nhập chữ, số (tối đa 15 ký tự để không vỡ UI)
+        else if ((isalnum(c)) && res.length() < 15) {
             res += c;
             cout << c;
         }
@@ -98,6 +98,7 @@ void InputPlayerNames(bool isBotMode) {
     system("color F0");
     SetColor(12, 15);
 
+    // Nhập tên Người chơi 1
     GotoXY(35, 10); cout << "Nhap ten Nguoi choi 1 (X): ";
     UnhideCursor();
     _PLAYER1_NAME = TypeName();
@@ -109,8 +110,24 @@ void InputPlayerNames(bool isBotMode) {
         else _PLAYER2_NAME = "Bot (Kho)";
     }
     else {
+        // Nhập tên Người chơi 2
         GotoXY(35, 12); cout << "Nhap ten Nguoi choi 2 (O): ";
         _PLAYER2_NAME = TypeName();
-    }
+
+        // Vòng lặp kiểm tra trùng tên
+        while (_PLAYER1_NAME == _PLAYER2_NAME) {
+            // Xóa dòng thông báo cũ và tên đã nhập sai
+            GotoXY(35, 13); cout << "Ten trung voi Player 1! Vui long nhap lai...";
+            _getch();
+
+            // Xóa các dòng text cũ trên console để nhập lại cho sạch
+            GotoXY(35, 13); cout << "                                                  ";
+            GotoXY(61, 12); cout << "                                                  ";
+
+            GotoXY(35, 12); cout << "Nhap lai ten Nguoi choi 2 (O): ";
+            _PLAYER2_NAME = TypeName();
+        }
+    } // Kết thúc block else
+
     HideCursor();
 }

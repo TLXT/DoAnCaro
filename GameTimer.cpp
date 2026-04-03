@@ -21,17 +21,20 @@ void TimerLogic() {
 
         if (!isPaused && timeLeft > 0) {
             timeLeft--;
+            SetColor(0, 15);
+            GotoXY(60, TOP + 21);
+            cout << "THOI GIAN CON LAI: ";
             {
                 lock_guard<mutex> lock(consoleMutex);
                 int curX = _X, curY = _Y;
 
                 // Xóa vùng cũ trước khi in số mới để tránh bị lem chữ
-                GotoXY(60, TOP + 21); cout << "                             ";
+                GotoXY(79, TOP + 21); cout << "                             ";
 
-                GotoXY(60, TOP + 21);
+                GotoXY(79, TOP + 21);
                 if (timeLeft <= 5) SetColor(12, 15);
                 else SetColor(0, 15);
-                cout << "THOI GIAN CON LAI: " << (int)timeLeft << "s";
+                cout << (int)timeLeft << "s";
 
                 // In trạng thái Pause/Play
                 GotoXY(60, TOP + 22);

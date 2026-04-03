@@ -211,7 +211,7 @@ int main() {
                             string filename = ChooseFileMenu();
                             if (LoadGame(filename)) { timeLeft = TURN_TIME_LIMIT; }
                         }
-                        else if (gamechoice == 4) { loadPresent(); }
+                        else if (gamechoice == 3) { loadPresent(); }
 
                         isPaused = false;
                     }
@@ -223,6 +223,9 @@ int main() {
                         if (isPaused) {
                             SetColor(14, 0);
                             cout << " >>> DANG TAM DUNG (PAUSED) <<< ";
+                            SetColor(0, 15);
+                            GotoXY(60, TOP + 22);
+                            cout << "                               ";
                         }
                         else {
                             SetColor(10, 15);
