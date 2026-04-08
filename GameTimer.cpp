@@ -21,13 +21,12 @@ void TimerLogic() {
 
         if (!isPaused && timeLeft > 0) {
             timeLeft--;
+            lock_guard<mutex> lock(consoleMutex);
+            int curX = _X, curY = _Y;
             SetColor(0, 15);
             GotoXY(60, TOP + 21);
             cout << "THOI GIAN CON LAI: ";
             {
-                lock_guard<mutex> lock(consoleMutex);
-                int curX = _X, curY = _Y;
-
                 // Xóa vùng cũ trước khi in số mới để tránh bị lem chữ
                 GotoXY(79, TOP + 21); cout << "                             ";
 
@@ -46,6 +45,7 @@ void TimerLogic() {
                     SetColor(10, 15);
                     cout << "      DANG CHOI (PLAYING)       ";
                 }
+                SetColor(0, 15);
                 GotoXY(curX, curY);
             }
         }
