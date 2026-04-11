@@ -209,6 +209,9 @@ int main() {
                         }
                         else if (gamechoice == 2) {
                             if (LoadGame()) { timeLeft = TURN_TIME_LIMIT; }
+                            else {
+                                loadPresent();
+                            }
                         }
                         else if (gamechoice == 3) { loadPresent(); }
 
