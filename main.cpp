@@ -204,12 +204,14 @@ int main() {
 
                         if (gamechoice == 0) { isPlaying = false; }
                         else if (gamechoice == 1) {
-                            string temp = SaveGame();
-                            if (LoadGame(temp)) { timeLeft = TURN_TIME_LIMIT; }
+                            SaveGame();
+                            if (loadPresent()) { timeLeft = TURN_TIME_LIMIT; }
                         }
                         else if (gamechoice == 2) {
-                            string filename = ChooseFileMenu();
-                            if (LoadGame(filename)) { timeLeft = TURN_TIME_LIMIT; }
+                            if (LoadGame()) { timeLeft = TURN_TIME_LIMIT; }
+                            else {
+                                loadPresent();
+                            }
                         }
                         else if (gamechoice == 3) { loadPresent(); }
 

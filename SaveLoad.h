@@ -12,7 +12,6 @@ string TypeFileName();
 string SaveGame();
 vector<string> GetSaveFiles();
 string ChooseFileMenu();
-bool LoadGame();//tao lai ban cu
+bool LoadGame();
 void ClearAllData();
-bool LoadGame(string filename);
-void loadPresent();
+bool loadPresent();
