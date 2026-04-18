@@ -177,59 +177,6 @@ bool LoadGame() {
     }
 }
 
-bool LoadGame(string filename) {
-    if (filename == "") {
-        return false;
-    }
-
-    ifstream inFile(filename + ".caro");
-    if (inFile.is_open()) {
-        inFile >> _TURN >> _X >> _Y;
-
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                _A[i][j].x = 4 * j + LEFT + 2;
-                _A[i][j].y = 2 * i + TOP + 1;
-                inFile >> _A[i][j].c;
-            }
-        }
-        moveHistory.clear(); //xóa lịch sử cũ trước khi load
-        if (inFile >> currentStep) { //kiểm tra xem file save có dữ liệu lịch sử không
-            for (int i = 0; i < currentStep; i++) {
-                MoveNode node;
-                inFile >> node.row >> node.col >> node.c;
-                moveHistory.push_back(node);
-            }
-        }
-        else {
-            currentStep = 0; //tránh lỗi crash nếu đọc nhầm file save cũ (file được tạo trước khi sửa code)
-        }
-        inFile.close();
-
-        system("cls");
-        DrawBoard(BOARD_SIZE);
-        DrawPlayerInfo();
-        UpdateTurnInfo();
-
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                DrawCell(_A[i][j].x, _A[i][j].y, 15);
-            }
-        }
-        DrawCell(_X, _Y, 11);
-
-        return true;
-    }
-    else {
-        system("cls");
-        GotoXY(40, 15);
-        SetColor(12, 15);
-        cout << "Loi doc file! Nhan phim bat ky de thoat...";
-        _getch();
-        return false;
-    }
-}
-
 string ChooseFileMenu() {
     while (true) {
         vector<string> files = GetSaveFiles();
@@ -329,7 +276,7 @@ void ClearAllData() {
     }
     _getch();
 }
-void loadPresent() {
+bool loadPresent() {
     system("cls");
     DrawBoard(BOARD_SIZE);
     DrawPlayerInfo();
@@ -338,5 +285,5 @@ void loadPresent() {
         for (int j = 0; j < BOARD_SIZE; j++)
             DrawCell(_A[i][j].x, _A[i][j].y, 15);
     DrawCell(_X, _Y, 11);
-
+    return true;
 }
