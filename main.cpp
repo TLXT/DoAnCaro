@@ -1,8 +1,7 @@
 #include <iostream>
 #include <conio.h>
 #include <Windows.h>
-#include<future>
-
+#include <future>
 #include "GameStatus.h"
 #include "ControlConsole.h"
 #include "GamePlay.h"
@@ -12,7 +11,7 @@
 #include "UserInfo.h"
 #include "DrawBoard.h"
 #include "CaroBot.h"
-#include"GameTimer.h"
+#include "GameTimer.h"
 #include "Replay.h"
 
 using namespace std;
