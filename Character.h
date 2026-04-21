@@ -4,8 +4,8 @@
 
 using namespace std;
 
-int CharacterASelect = -1;
-int CharacterBSelect = -1;
+extern int CharacterASelect;
+extern int CharacterBSelect;
 
 //class Character {
 //protected:

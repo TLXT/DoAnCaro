@@ -1,4 +1,8 @@
 #include"Character.h"
+
+int CharacterASelect = -1;
+int CharacterBSelect = -1;
+
 //void outsidedisplay(int option) {
 //	if (option == 0) {
 //		Knight a;
