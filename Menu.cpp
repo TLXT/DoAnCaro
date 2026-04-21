@@ -131,3 +131,48 @@ void InputPlayerNames(bool isBotMode) {
 
     HideCursor();
 }
+int GenericCharacterMenu(string options[], int size, string title) {
+    int currentSelect = 0;
+
+    while (true) {
+        system("cls");
+        system("color F0");
+        SetColor(12, 15);
+        GotoXY(90, 5); cout << "==============================";
+        GotoXY(90, 6);
+        int padding = (26 - title.length()) / 2;
+        cout << "||" << string(padding, ' ') << title << string(26 - title.length() - padding, ' ') << "||";
+        GotoXY(90, 7); cout << "==============================";
+
+        for (int i = 0; i < size; i++) {
+            if (i == currentSelect) {
+                SetColor(0, 11); // Nền Cyan
+                GotoXY(95, 11 + i * 2);
+                cout << ">> " << options[i] << " <<";
+            }
+            else {
+                SetColor(0, 15); // Nền trắng
+                GotoXY(95, 11 + i * 2);
+                cout << "   " << options[i] << "   ";
+            }
+        }
+        SetColor(0, 15);
+
+        int key = toupper(_getch());
+        if (key == 'W' || key == 72) {
+            currentSelect--;
+            if (currentSelect < 0) currentSelect = size - 1;
+        }
+        else if (key == 'S' || key == 80) {
+            currentSelect++;
+            if (currentSelect >= size) currentSelect = 0;
+        }
+        else if (key == 13) { // Phím Enter
+            return currentSelect;
+        }
+    }
+}
+int CharacterSelectionMenu() {
+    string options[6] = { "1. Knight","2. Assassin","3. Vampire ","4. Elf" ,"5. Werewolf","6. Berserker"};
+    return GenericCharacterMenu(options, 6, "CHARACTER MENU");
+}
