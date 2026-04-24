@@ -1,7 +1,7 @@
 ﻿#include "Menu.h"
 #include "ControlConsole.h"
 #include "GameStatus.h"
-
+#include "character.h"
 using namespace std;
 
 int GenericMenu(string options[], int size, string title) {
@@ -167,12 +167,13 @@ int GenericCharacterMenu(string options[], int size, string title) {
             currentSelect++;
             if (currentSelect >= size) currentSelect = 0;
         }
-        else if (key == 13) { // Phím Enter
+		outsidedisplay(currentSelect);
+        if (key == 13) { // Phím Enter
             return currentSelect;
         }
     }
 }
 int CharacterSelectionMenu() {
-    string options[6] = { "1. Knight","2. Assassin","3. Vampire ","4. Elf" ,"5. Werewolf","6. Berserker"};
-    return GenericCharacterMenu(options, 6, "CHARACTER MENU");
+    string options[5] = { "1. Knight","2. Assassin","3. Vampire ","4. Paladin" ,"5. Officer"};
+    return GenericCharacterMenu(options, 5, "CHARACTER MENU");
 }
