@@ -24,19 +24,22 @@ void TimerLogic() {
             lock_guard<mutex> lock(consoleMutex);
             int curX = _X, curY = _Y;
             SetColor(0, 15);
-            GotoXY(60, TOP + 21);
+
+            // In chữ ở góc trái (X = 10)
+            GotoXY(15, TOP + 21);
             cout << "THOI GIAN CON LAI: ";
             {
-                // Xóa vùng cũ trước khi in số mới để tránh bị lem chữ
-                GotoXY(79, TOP + 21); cout << "                             ";
+                // Chữ "THOI GIAN CON LAI: " dài khoảng 19 ký tự. 
+                // Do đó vị trí in số sẽ bắt đầu từ X = 29 ngay sát bên cạnh.
+                GotoXY(29, TOP + 21); cout << "          "; // Xóa vùng số cũ
 
-                GotoXY(79, TOP + 21);
+                GotoXY(29, TOP + 21);
                 if (timeLeft <= 5) SetColor(12, 15);
                 else SetColor(0, 15);
                 cout << (int)timeLeft << "s";
 
-                // In trạng thái Pause/Play
-                GotoXY(60, TOP + 22);
+                // In trạng thái Pause/Play cũng ở lề trái (X = 10) ngay dòng dưới (TOP + 22)
+                GotoXY(15, TOP + 22);
                 if (isPaused) {
                     SetColor(14, 0);
                     cout << " >>> DANG TAM DUNG (PAUSED) <<< ";
@@ -45,8 +48,9 @@ void TimerLogic() {
                     SetColor(10, 15);
                     cout << "      DANG CHOI (PLAYING)       ";
                 }
+
                 SetColor(0, 15);
-                GotoXY(curX, curY);
+                GotoXY(curX, curY); // Trả lại con trỏ cho người chơi
             }
         }
     }
@@ -66,8 +70,9 @@ void StopTimerThread() {
     this_thread::sleep_for(chrono::milliseconds(150));
     {
         lock_guard<mutex> lock(consoleMutex);
-        GotoXY(60, TOP + 21); cout << "                             ";
-        GotoXY(60, TOP + 22); cout << "                             ";
-        GotoXY(60, TOP + 23); cout << "                             ";
+        // Khi xóa cũng phải dời X về 10 để xóa sạch góc trái
+        GotoXY(10, TOP + 21); cout << "                                        ";
+        GotoXY(10, TOP + 22); cout << "                                        ";
+        GotoXY(10, TOP + 23); cout << "                                        ";
     }
 }

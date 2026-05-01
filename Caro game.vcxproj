@@ -124,6 +124,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CaroBot.cpp" />
+    <ClCompile Include="CharSprite.cpp" />
     <ClCompile Include="ControlConsole.cpp" />
     <ClCompile Include="DrawBoard.cpp" />
     <ClCompile Include="FinishProcess.cpp" />
@@ -138,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CaroBot.h" />
+    <ClInclude Include="CharSprite.h" />
     <ClInclude Include="ControlConsole.h" />
     <ClInclude Include="DrawBoard.h" />
     <ClInclude Include="FinishProcess.h" />

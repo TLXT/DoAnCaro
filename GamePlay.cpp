@@ -4,7 +4,9 @@
 #include "ControlConsole.h"
 #include "UserInfo.h"
 #include "FinishProcess.h"
-#include"GameTimer.h"
+#include "GameTimer.h"
+#include "CharSprite.h"   // <<< THÊM MỚI: hệ thống sprite nhân vật
+
 using namespace std;
 
 void DrawCell(int x, int y, int bg_color) {
@@ -25,28 +27,30 @@ void DrawCell(int x, int y, int bg_color) {
         cout << " ";
     }
     else if (c == -1) {
-        SetColor(12, bg_color); // X màu đỏ
+        SetColor(12, bg_color);  // X màu đỏ
         cout << "X";
     }
     else if (c == 1) {
-        SetColor(10, bg_color); // O màu xanh lá
+        SetColor(10, bg_color);  // O màu xanh lá
         cout << "O";
     }
 
-    SetColor(0, 15); // chữ đen, nền trắng
+    SetColor(0, 15);
 }
+
 void StartGame() {
     system("color F0");
     system("cls");
-    SetConsoleWindow(1000, 600);
+    SetConsoleWindow(1000, 800);   // <<< TĂNG chiều cao cửa sổ
     HideCursor();
     ResetData();
-    DrawBoard(BOARD_SIZE);
 
-    DrawPlayerInfo();
+    DrawBoard(BOARD_SIZE);         // Vẽ bàn cờ (giữa màn hình, LEFT=38)
+    DrawPlayerInfo();              // Vẽ panel thông tin (bên phải)
+    DrawBothSprites();             // <<< THÊM MỚI: vẽ sprite 2 nhân vật
     UpdateTurnInfo();
 
-	GotoXY(_X, _Y);
+    GotoXY(_X, _Y);
     DrawCell(_X, _Y, 11);
 }
 
@@ -57,6 +61,7 @@ void MoveRight() {
         DrawCell(_X, _Y, 11);
     }
 }
+
 void MoveLeft() {
     if (_X > _A[0][0].x) {
         DrawCell(_X, _Y, 15);
@@ -64,6 +69,7 @@ void MoveLeft() {
         DrawCell(_X, _Y, 11);
     }
 }
+
 void MoveDown() {
     if (_Y < _A[BOARD_SIZE - 1][BOARD_SIZE - 1].y) {
         DrawCell(_X, _Y, 15);
@@ -71,6 +77,7 @@ void MoveDown() {
         DrawCell(_X, _Y, 11);
     }
 }
+
 void MoveUp() {
     if (_Y > _A[0][0].y) {
         DrawCell(_X, _Y, 15);
@@ -78,41 +85,42 @@ void MoveUp() {
         DrawCell(_X, _Y, 11);
     }
 }
+
 int CheckBoard(int pX, int pY) {
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
             if (_A[i][j].x == pX && _A[i][j].y == pY && _A[i][j].c == 0) {
                 if (_TURN == true) _A[i][j].c = -1;
-                else _A[i][j].c = 1;
+                else               _A[i][j].c = 1;
                 return _A[i][j].c;
             }
         }
     }
     return 0;
 }
-void ProcessMove(int _COMMAND,bool validEnter,bool& isPlaying) {
+
+void ProcessMove(int _COMMAND, bool validEnter, bool& isPlaying) {
     if (_COMMAND == 'A' || _COMMAND == 75) MoveLeft();
     else if (_COMMAND == 'W' || _COMMAND == 72) MoveUp();
     else if (_COMMAND == 'S' || _COMMAND == 80) MoveDown();
     else if (_COMMAND == 'D' || _COMMAND == 77) MoveRight();
     else if (_COMMAND == 13) {
-        int checkRes = CheckBoard(_X, _Y); // Đánh cờ và lấy kết quả (-1 hoặc 1)
-        
+        int checkRes = CheckBoard(_X, _Y);
+
         if (checkRes == 0) {
-            validEnter = false; // Ô đã có người đánh
+            validEnter = false;
         }
         else {
             DrawCell(_X, _Y, 11);
 
-            // --- THÊM ĐOẠN NÀY ĐỂ LƯU LỊCH SỬ NƯỚC ĐI CỦA NGƯỜI CHƠI ---
-            int r = (_Y - TOP - 1) / 2;  // Suy ra vị trí dòng từ tọa độ Y
-            int c = (_X - LEFT - 2) / 4; // Suy ra vị trí cột từ tọa độ X
+            int r = (_Y - TOP - 1) / 2;
+            int c = (_X - LEFT - 2) / 4;
 
             if (currentStep < (int)moveHistory.size()) {
                 moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end());
             }
-            moveHistory.push_back({ r, c, checkRes }); // Lưu lịch sử
-            currentStep++;                             // Tăng số bước
+            moveHistory.push_back({ r, c, checkRes });
+            currentStep++;
         }
 
         if (validEnter == true) {
@@ -131,62 +139,52 @@ void ProcessMove(int _COMMAND,bool validEnter,bool& isPlaying) {
         validEnter = true;
     }
 }
-//Dùng để thực hiện đánh ngẫu nhiên khi hết thời gian
+
+// Đánh ngẫu nhiên khi hết thời gian
 void PlayRandomMove() {
     vector<pair<int, int>> emptyCells;
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            if (_A[i][j].c == 0) {
+    for (int i = 0; i < BOARD_SIZE; i++)
+        for (int j = 0; j < BOARD_SIZE; j++)
+            if (_A[i][j].c == 0)
                 emptyCells.push_back({ i, j });
-            }
-        }
-    }
 
     if (!emptyCells.empty()) {
         DrawCell(_X, _Y, 15);
-        srand(time(NULL));
+        srand((unsigned int)time(NULL));
         int index = rand() % emptyCells.size();
         int r = emptyCells[index].first;
         int c = emptyCells[index].second;
         _X = _A[r][c].x;
         _Y = _A[r][c].y;
-        int checkRes = CheckBoard(_X, _Y); // Đánh cờ và lấy giá trị (-1 hoặc 1)
+        int checkRes = CheckBoard(_X, _Y);
 
-        // --- QUAN TRỌNG: Lưu vào lịch sử nước đi ---
         if (currentStep < (int)moveHistory.size()) {
             moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end());
         }
         moveHistory.push_back({ r, c, checkRes });
         currentStep++;
-        // -------------------------------------------
 
-        DrawCell(_X, _Y, 11); // Vẽ quân cờ vừa đánh với highlight
+        DrawCell(_X, _Y, 11);
         GotoXY(_X, _Y);
     }
 }
 
 void UndoMove() {
-    if (currentStep <= 0) return; // Không còn nước nào để undo thì thoát luôn
+    if (currentStep <= 0) return;
 
-    // Nếu Bot Mode: undo 2 nước (nước bot + nước người)
     int undoCount = (_BOT_MODE) ? 2 : 1;
 
-    // Phòng trường hợp Bot Mode chỉ có 1 nước nhưng lại cố undo 2 nước
     for (int k = 0; k < undoCount; k++) {
         if (currentStep <= 0) break;
-
         currentStep--;
         MoveNode& move = moveHistory[currentStep];
-
         _A[move.row][move.col].c = 0;
         DrawCell(_A[move.row][move.col].x, _A[move.row][move.col].y, 15);
-
         _TURN = !_TURN;
     }
 
     UpdateTurnInfo();
 
-    // Di chuyển con trỏ về ô vừa undo
     MoveNode& lastUndo = moveHistory[currentStep];
     DrawCell(_X, _Y, 15);
     _X = _A[lastUndo.row][lastUndo.col].x;
@@ -194,26 +192,22 @@ void UndoMove() {
     DrawCell(_X, _Y, 11);
 }
 
-
 void RedoMove() {
-    if (currentStep >= (int)moveHistory.size()) return; 
+    if (currentStep >= (int)moveHistory.size()) return;
 
     int redoCount = (_BOT_MODE) ? 2 : 1;
 
     for (int k = 0; k < redoCount; k++) {
         if (currentStep >= (int)moveHistory.size()) break;
-
         MoveNode& move = moveHistory[currentStep];
         _A[move.row][move.col].c = move.c;
         DrawCell(_A[move.row][move.col].x, _A[move.row][move.col].y, 15);
-
         currentStep++;
         _TURN = !_TURN;
     }
 
     UpdateTurnInfo();
 
-    // Di chuyển con trỏ về ô vừa redo
     MoveNode& lastRedo = moveHistory[currentStep - 1];
     DrawCell(_X, _Y, 15);
     _X = _A[lastRedo.row][lastRedo.col].x;
