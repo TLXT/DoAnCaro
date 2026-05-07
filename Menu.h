@@ -16,4 +16,5 @@ int SettingsMenu();
 int GameMenu();
 int MusicMenu();
 int CharacterSelectionMenu();
+void VolumeMenu();
 void InputPlayerNames(bool isBotMode);

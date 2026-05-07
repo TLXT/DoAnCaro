@@ -70,9 +70,17 @@ int main() {
         }
         else if (choice == 3) {
             while (true) {
+                volumeLevel = 500;
                 int musicChoice = MusicMenu();
-                if (musicChoice == 6) break;
-                PlayMusic(musicChoice, 500);
+				if (musicChoice == 6) {
+                    VolumeMenu();//cập nhật biến volumeLevel
+					if (MusicStatus())//kiểm tra an toàn trước khi phát nhạc
+                        setVolume();
+				}
+                if (musicChoice == 7) break;
+                if (musicChoice >= 0 && musicChoice <= 5) {
+                    PlayMusic(musicChoice, volumeLevel);
+                }
             }
         }
         else if (choice == 4) { // CHỌN: EXIT

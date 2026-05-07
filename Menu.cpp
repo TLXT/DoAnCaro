@@ -72,8 +72,51 @@ int GameMenu() {
     return GenericMenu(options, 4, "MENU");
 }
 int MusicMenu() {
-    string options[7] = { "1. Music 1", "2. Music 2", "3. Music 3", "4. Music 4", "5. Music 5", "6. Tat nhac","7. Thoat menu" };
-	return GenericMenu(options, 7, "MUSIC SETTINGS");
+    string options[8] = { "1. Music 1", "2. Music 2", "3. Music 3", "4. Music 4", "5. Music 5", "6. Tat nhac","7. Thay doi am luong","8. Thoat menu"};
+	return GenericMenu(options, 8, "MUSIC SETTINGS");
+}
+void VolumeMenu() {
+    int currentSelect = volumeLevel;
+    while (true) {
+        system("cls");
+        system("color F0");
+
+        SetColor(12, 15);
+        GotoXY(40, 5); cout << "==============================";
+        GotoXY(40, 6); cout << "||       Menu am luong       ||";
+        GotoXY(40, 7); cout << "==============================";
+        GotoXY(10, 17);
+        SetColor(0, 15);
+        for (int i = 0; i < 103; i++) cout << "-";
+        cout << ">";
+        for (int i = 0; i <= 100; i += 5) {
+            GotoXY(10 + i, 18); // Tọa độ X chạy từ 10 đến 110
+
+            if (i == currentSelect/10) {
+                SetColor(0, 11); // Màu nền xanh, chữ đen cho mục đang chọn
+                cout << i;
+                GotoXY(10 + i, 20); cout << "V";
+                SetColor(0, 15); // Reset lại màu cho các số sau
+            }
+            else {
+                cout << i;
+            }
+        }
+        int key = toupper(_getch());
+		if (key == 'A' || key == 75) {
+			currentSelect -= 50;
+			if (currentSelect < 0) currentSelect = 1000;
+		}
+		else if (key == 'D' || key == 77) {
+			currentSelect += 50;
+			if (currentSelect > 1000) currentSelect = 0;
+		}
+        else if (key == 13) { // Phím Enter
+            volumeLevel = currentSelect;
+            system("cls");
+            return;
+        }
+    }
 }
 string TypeName() {
     string res = "";

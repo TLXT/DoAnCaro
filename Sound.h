@@ -7,4 +7,6 @@
 using namespace std;
 
 void PlayMusic(int choice, int volume);
-void setVolume(int choice);
+void setVolume();
+bool MusicStatus();
+extern int volumeLevel;

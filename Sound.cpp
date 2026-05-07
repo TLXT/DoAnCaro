@@ -1,4 +1,6 @@
 ﻿#include"Sound.h"
+int volumeLevel = 50;
+
 void PlayMusic(int choice, int volume) {
 	if (choice == 5) {
 		mciSendStringW(L"close myMusic", NULL, 0, NULL);
@@ -15,17 +17,24 @@ void PlayMusic(int choice, int volume) {
 	wstring fileName(musicFiles[choice].begin(), musicFiles[choice].end());
 	wstring command = L"open \"" + fileName + L"\" type mpegvideo alias Mymusic";
 	wstring volumeCommand = L"setaudio myMusic volume to " + to_wstring(volume);
-	//volume nhạn giá trị từ 500-1000
+	//volume nhạn giá trị từ 0-1000
 	mciSendStringW(command.c_str(), NULL, 0, NULL);
 	MCIERROR err = mciSendStringW(command.c_str(), NULL, 0, NULL);
 	mciSendStringW(L"play myMusic repeat", NULL, 0, NULL);
 	mciSendStringW(volumeCommand.c_str(), NULL, 0, NULL);
 }
 
-void setVolume(int choice)
+void setVolume()
 {
-	int volume = choice * 10; 
-	PlayMusic(0, volume); 
-	wstring volumeCommand = L"setaudio myMusic volume to " + to_wstring(volume);
+	wstring volumeCommand = L"setaudio myMusic volume to " + to_wstring(volumeLevel);
 	mciSendStringW(volumeCommand.c_str(), NULL, 0, NULL);
+}
+bool MusicStatus() {
+	wchar_t status[128];
+	MCIERROR err = mciSendStringW(L"status myMusic mode", status, 128, NULL);
+
+	if (err == 0) {
+		return true;
+	}
+	return false;
 }
