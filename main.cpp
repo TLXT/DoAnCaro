@@ -14,6 +14,7 @@
 #include "GameTimer.h"
 #include "Replay.h"
 #include"Sound.h"
+#include"Proccesor.h"
 
 using namespace std;
 
@@ -26,30 +27,7 @@ int main() {
         int choice = MainMenu();
         bool isPlaying = false;
         if (choice == 0) { // CHỌN: PLAY GAME
-            int mode = PlayGameMenu();
-
-            if (mode == 0) {
-                _BOT_MODE = false;
-                InputPlayerNames(false);
-                StartGame();
-                isPlaying = true;
-            }
-            else if (mode == 1) {
-                int diff = DifficultyMenu();
-                if (diff == 3) {
-                    continue;
-                }
-
-                _BOT_MODE = true;
-                _BOT_DIFFICULTY = diff + 1;
-                InputPlayerNames(true);
-
-                StartGame();
-                isPlaying = true;
-            }
-            else if (mode == 2) {
-                continue;
-            }
+            if (!loadGameMenu(isPlaying)) continue;
         }
         else if (choice == 1) { // CHỌN: LOAD GAME
             if (LoadGame() == true) {
@@ -57,31 +35,10 @@ int main() {
             }
         }
         else if (choice == 2) { // CHỌN: SETTINGS
-            while (true) {
-                int setChoice = SettingsMenu();
-
-                if (setChoice == 0) {
-                    ClearAllData();
-                }
-                else if (setChoice == 1) {
-                    break;
-                }
-            }
+            loadSettingMenu();
         }
         else if (choice == 3) {
-            while (true) {
-                volumeLevel = 500;
-                int musicChoice = MusicMenu();
-				if (musicChoice == 6) {
-                    VolumeMenu();//cập nhật biến volumeLevel
-					if (MusicStatus())//kiểm tra an toàn trước khi phát nhạc
-                        setVolume();
-				}
-                if (musicChoice == 7) break;
-                if (musicChoice >= 0 && musicChoice <= 5) {
-                    PlayMusic(musicChoice, volumeLevel);
-                }
-            }
+            loadmusic();
         }
         else if (choice == 4) { // CHỌN: EXIT
             ExitGame();
@@ -121,77 +78,8 @@ int main() {
 
                 // 2. LƯỢT CỦA BOT
                 if (_BOT_MODE == true && _TURN == false) {
-                    isPaused = true;
-                    {
-                        lock_guard<mutex>lock(consoleMutex);
-                        GotoXY(60, 20);
-                        SetColor(12, 15);
-                        cout << "Bot dang suy nghi...         ";
-                    }
-
-                    _POINT botMove = FindBotMove(1, _BOT_DIFFICULTY);
-
-                    if (botMove.x != -1) {
-                        DrawCell(_X, _Y, 15);
-                        _X = botMove.x;
-                        _Y = botMove.y;
-
-                        int checkRes = CheckBoard(_X, _Y); //lưu giá trị c
-                        DrawCell(_X, _Y, 11);
-                        int finishStatus; // Biến tạm lưu kết quả kiểm tra thắng thua
-                        {
-                            lock_guard<mutex>lock(consoleMutex);
-
-                            //lưu lịch sử di chuyển của bot
-                            int r = (_Y - TOP - 1) / 2;
-                            int c = (_X - LEFT - 2) / 4;
-                            if (currentStep < (int)moveHistory.size())
-                                moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end());
-                            moveHistory.push_back({ r, c, checkRes });
-                            currentStep++;
-
-                            GotoXY(60, 20);
-                            SetColor(0, 15);
-                            cout << "                             ";
-                            // Kiểm tra trạng thái ván cờ ngay trong lúc khóa luồng
-                            finishStatus = ProcessFinish(TestBoard());
-                            if (finishStatus != 2) {
-                                GotoXY(60, TOP + 21); cout << "                                ";
-                                GotoXY(60, TOP + 22); cout << "                                ";
-                            }
-                        } // <-- GIẢI PHÓNG MUTEX TẠI ĐÂY
-
-                            // Xử lý Replay bên ngoài khóa mutex
-                            switch (finishStatus) {
-                            case -1: case 1: case 0:
-                                isPaused = true;
-                                GotoXY(60, TOP + 21); cout << "                                ";
-                                GotoXY(60, TOP + 22); cout << "                                ";
-
-                                char ch;
-                                do {
-                                    ch = _getch();
-                                    if (ch == -32 || ch == 0) _getch();
-                                } while (ch != 13);
-
-                                HandleReplayOption();
-                                if (AskContinue() != 'Y') {
-                                    isPlaying = false;
-                                }
-                                else {
-                                    StartGame();
-                                    timeLeft = TURN_TIME_LIMIT;
-                                }
-                                break;
-                            case 2: // Ván cờ vẫn tiếp tục, chuyển lượt
-                                timeLeft = TURN_TIME_LIMIT; // Đặt lại đồng hồ về 30 giây cho người tiếp theo
-                                break;
-                            }
-                        
-                        isPaused = false;
-                        timeLeft = TURN_TIME_LIMIT;
-                        continue;
-                    }
+                    loadBotMove(isPlaying);
+                    continue;
                 }
 
                 // 3. XỬ LÝ PHÍM BẤM CỦA NGƯỜI CHƠI
@@ -228,8 +116,12 @@ int main() {
                                 loadPresent();
                             }
                         }
-                        else if (gamechoice == 3) { loadPresent(); }
-
+                        else if (gamechoice == 3) {
+                            loadmusic();
+                        }
+                        else if (gamechoice == 4) {
+                            loadPresent();
+                        }
                         isPaused = false;
                     }
                     // --- TẠM DỪNG / TIẾP TỤC ---

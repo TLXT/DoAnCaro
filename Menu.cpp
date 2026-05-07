@@ -68,8 +68,8 @@ int SettingsMenu() {
     return GenericMenu(options, 2, "CAI DAT");
 }
 int GameMenu() {
-    string options[4] = { "1. Thoat game","2. Luu game","3. Tai game","4. Thoat menu"};
-    return GenericMenu(options, 4, "MENU");
+    string options[5] = { "1. Thoat game","2. Luu game","3. Tai game","4. Music Setting","5. Thoat menu"};
+    return GenericMenu(options, 5, "MENU");
 }
 int MusicMenu() {
     string options[8] = { "1. Music 1", "2. Music 2", "3. Music 3", "4. Music 4", "5. Music 5", "6. Tat nhac","7. Thay doi am luong","8. Thoat menu"};
