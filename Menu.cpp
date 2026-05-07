@@ -2,6 +2,7 @@
 #include "ControlConsole.h"
 #include "GameStatus.h"
 #include "character.h"
+#include"Sound.h"
 using namespace std;
 
 int GenericMenu(string options[], int size, string title) {
@@ -48,8 +49,8 @@ int GenericMenu(string options[], int size, string title) {
 }
 
 int MainMenu() {
-    string options[4] = { "1. Play Game", "2. Load Game", "3. Settings", "4. Exit" };
-    return GenericMenu(options, 4, "GAME CARO");
+    string options[5] = { "1. Play Game", "2. Load Game", "3. Settings","4. Music Setting", "5. Exit"};
+    return GenericMenu(options, 5, "GAME CARO");
 }
 
 int PlayGameMenu() {
@@ -70,7 +71,10 @@ int GameMenu() {
     string options[4] = { "1. Thoat game","2. Luu game","3. Tai game","4. Thoat menu"};
     return GenericMenu(options, 4, "MENU");
 }
-
+int MusicMenu() {
+    string options[7] = { "1. Music 1", "2. Music 2", "3. Music 3", "4. Music 4", "5. Music 5", "6. Tat nhac","7. Thoat menu" };
+	return GenericMenu(options, 7, "MUSIC SETTINGS");
+}
 string TypeName() {
     string res = "";
     while (true) {

@@ -1,4 +1,5 @@
 #pragma once
+#pragma comment(lib, "winmm.lib")
 #include <iostream>
 #include <conio.h>
 #include <string>
@@ -13,5 +14,6 @@ int PlayGameMenu();
 int DifficultyMenu();
 int SettingsMenu();
 int GameMenu();
+int MusicMenu();
 int CharacterSelectionMenu();
 void InputPlayerNames(bool isBotMode);

@@ -13,6 +13,7 @@
 #include "CaroBot.h"
 #include "GameTimer.h"
 #include "Replay.h"
+#include"Sound.h"
 
 using namespace std;
 
@@ -67,7 +68,14 @@ int main() {
                 }
             }
         }
-        else if (choice == 3) { // CHỌN: EXIT
+        else if (choice == 3) {
+            while (true) {
+                int musicChoice = MusicMenu();
+                if (musicChoice == 6) break;
+                PlayMusic(musicChoice, 500);
+            }
+        }
+        else if (choice == 4) { // CHỌN: EXIT
             ExitGame();
             return 0;
         }
@@ -234,26 +242,6 @@ int main() {
                         }
                         GotoXY(_X, _Y);
                     }
-                    // --- CÁC PHÍM CHỈ HOẠT ĐỘNG KHI TẠM DỪNG ---
-                    //else if (isPaused) {
-                    //    if (_COMMAND == 27) { // ESC: Thoát
-                    //        isPlaying = false;
-                    //    }
-                    //    else if (_COMMAND == 'L') { SaveGame(); }
-                    //    else if (_COMMAND == 'T') {
-                    //        if (LoadGame() == true) {
-                    //            moveHistory.clear(); currentStep = 0; timeLeft = TURN_TIME_LIMIT;
-                    //        }
-                    //        else {
-                    //            system("cls"); DrawBoard(BOARD_SIZE); DrawPlayerInfo(); UpdateTurnInfo();
-                    //            for (int i = 0; i < BOARD_SIZE; i++)
-                    //                for (int j = 0; j < BOARD_SIZE; j++)
-                    //                    DrawCell(_A[i][j].x, _A[i][j].y, 15);
-                    //            DrawCell(_X, _Y, 11);
-                    //        }
-                    //    }
-                    //}
-                    // --- CÁC PHÍM DI CHUYỂN / ĐÁNH CỜ (CHỈ KHI ĐANG CHƠI) ---
                     else if (!isPaused) {
                         if (_COMMAND == 'Z') {
                             if (!_BOT_MODE || _TURN) { UndoMove(); timeLeft = TURN_TIME_LIMIT; } // Thêm reset thời gian
