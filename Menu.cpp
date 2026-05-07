@@ -102,67 +102,86 @@ void InputPlayerNames(bool isBotMode) {
     system("color F0");
     SetColor(12, 15);
 
-    // Nhập tên Người chơi 1
+    // --- NHẬP CHO NGƯỜI CHƠI 1 ---
     GotoXY(35, 10); cout << "Nhap ten Nguoi choi 1 (X): ";
     UnhideCursor();
     _PLAYER1_NAME = TypeName();
+    HideCursor();
+    
+    // Gọi menu chọn nhân vật cho Player 1
+    // Hàm này sẽ trả về chỉ số 0-4 tương ứng với Knight, Assassin, v.v.
+    CharacterASelect = CharacterSelectionMenu(); 
 
     if (isBotMode) {
-        // Tự động đặt tên Bot theo độ khó
+        // --- CHẾ ĐỘ VỚI BOT ---
         if (_BOT_DIFFICULTY == 1) _PLAYER2_NAME = "Bot (De)";
         else if (_BOT_DIFFICULTY == 2) _PLAYER2_NAME = "Bot (Trung Binh)";
         else _PLAYER2_NAME = "Bot (Kho)";
+
+        // Bot có thể mặc định là nhân vật cuối cùng hoặc ngẫu nhiên
+        CharacterBSelect = 4; // Ví dụ mặc định Bot là Officer
     }
     else {
-        // Nhập tên Người chơi 2
+        // --- CHẾ ĐỘ PVP ---
+        system("cls"); // Xóa màn hình để nhập người chơi 2
+        SetColor(12, 15);
         GotoXY(35, 12); cout << "Nhap ten Nguoi choi 2 (O): ";
+        UnhideCursor();
         _PLAYER2_NAME = TypeName();
 
-        // Vòng lặp kiểm tra trùng tên
+        // Kiểm tra trùng tên
         while (_PLAYER1_NAME == _PLAYER2_NAME) {
-            // Xóa dòng thông báo cũ và tên đã nhập sai
             GotoXY(35, 13); cout << "Ten trung voi Player 1! Vui long nhap lai...";
             _getch();
-
-            // Xóa các dòng text cũ trên console để nhập lại cho sạch
-            GotoXY(35, 13); cout << "                                                  ";
-            GotoXY(61, 12); cout << "                                                  ";
-
+            GotoXY(35, 13); cout << "                                                 ";
+            GotoXY(61, 12); cout << "                                                 ";
             GotoXY(35, 12); cout << "Nhap lai ten Nguoi choi 2 (O): ";
             _PLAYER2_NAME = TypeName();
         }
-    } // Kết thúc block else
+        HideCursor();
 
-    HideCursor();
+        // Gọi menu chọn nhân vật cho Player 2
+        CharacterBSelect = CharacterSelectionMenu();
+    }
 }
+
 int GenericCharacterMenu(string options[], int size, string title) {
     int currentSelect = 0;
+    int marginX = 80;
 
     while (true) {
         system("cls");
         system("color F0");
+
+        // Vẽ nhân vật trước khi đợi nhập phím
+        outsidedisplay(currentSelect);
+
+        // Vẽ Menu ở phía bên phải
         SetColor(12, 15);
-        GotoXY(90, 5); cout << "==============================";
-        GotoXY(90, 6);
+        GotoXY(marginX, 5); cout << "==============================";
+        GotoXY(marginX, 6);
         int padding = (26 - title.length()) / 2;
         cout << "||" << string(padding, ' ') << title << string(26 - title.length() - padding, ' ') << "||";
-        GotoXY(90, 7); cout << "==============================";
+        GotoXY(marginX, 7); cout << "==============================";
 
         for (int i = 0; i < size; i++) {
             if (i == currentSelect) {
-                SetColor(0, 11); // Nền Cyan
-                GotoXY(95, 11 + i * 2);
+                SetColor(0, 11); // Nền Cyan cho mục đang chọn
+                GotoXY(marginX + 5, 11 + i * 2);
                 cout << ">> " << options[i] << " <<";
             }
             else {
-                SetColor(0, 15); // Nền trắng
-                GotoXY(95, 11 + i * 2);
+                SetColor(0, 15); // Nền trắng cho các mục khác
+                GotoXY(marginX + 5, 11 + i * 2);
                 cout << "   " << options[i] << "   ";
             }
         }
         SetColor(0, 15);
 
+        // Đợi người dùng nhấn phím
         int key = toupper(_getch());
+
+        // Xử lý logic phím bấm
         if (key == 'W' || key == 72) {
             currentSelect--;
             if (currentSelect < 0) currentSelect = size - 1;
@@ -171,12 +190,12 @@ int GenericCharacterMenu(string options[], int size, string title) {
             currentSelect++;
             if (currentSelect >= size) currentSelect = 0;
         }
-		outsidedisplay(currentSelect);
-        if (key == 13) { // Phím Enter
+        else if (key == 13) { // Phím Enter
             return currentSelect;
         }
     }
 }
+
 int CharacterSelectionMenu() {
     string options[5] = { "1. Knight","2. Assassin","3. Vampire ","4. Paladin" ,"5. Officer"};
     return GenericCharacterMenu(options, 5, "CHARACTER MENU");
