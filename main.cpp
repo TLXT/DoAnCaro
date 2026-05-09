@@ -118,6 +118,7 @@ int main() {
                         }
                         else if (gamechoice == 3) {
                             loadmusic();
+                            loadPresent();
                         }
                         else if (gamechoice == 4) {
                             loadPresent();
