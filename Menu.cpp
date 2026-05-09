@@ -95,7 +95,7 @@ void VolumeMenu() {
             if (i == currentSelect/10) {
                 SetColor(0, 11); // Màu nền xanh, chữ đen cho mục đang chọn
                 cout << i;
-                GotoXY(10 + i, 20); cout << "V";
+                GotoXY(10 + i, 16); cout << "V";
                 SetColor(0, 15); // Reset lại màu cho các số sau
             }
             else {
