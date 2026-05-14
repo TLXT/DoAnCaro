@@ -1,15 +1,23 @@
 ﻿#include"Proccesor.h"
 void loadmusic() {
     while (true) {
-        int musicChoice = MusicMenu();
-        if (musicChoice == 6) {
-            VolumeMenu();//cập nhật biến volumeLevel
-            if (MusicStatus())//kiểm tra an toàn trước khi phát nhạc
-                setVolume();
+        int choice = MusicMenu();
+        if (choice >= 0 && choice <= 4) {
+            PlayMusic(choice, volumeLevel);
         }
-        if (musicChoice == 7) break;
-        if (musicChoice >= 0 && musicChoice <= 5) {
-            PlayMusic(musicChoice, volumeLevel);
+        else if (choice == 5) {
+            PlayMusic(5, 0);
+        }
+        else if (choice == 6) {
+            VolumeMenu();
+            setVolume();
+        }
+        else if (choice == 7) {
+            // 8. Sound Effect: [ON/OFF]
+            isSFXOn = !isSFXOn;
+        }
+        else if (choice == 8) {
+            break;
         }
     }
 }

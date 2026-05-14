@@ -37,12 +37,15 @@ int GenericMenu(string options[], int size, string title) {
         if (key == 'W' || key == 72) {
             currentSelect--;
             if (currentSelect < 0) currentSelect = size - 1;
+            PlayMenuSound();
         }
         else if (key == 'S' || key == 80) {
             currentSelect++;
             if (currentSelect >= size) currentSelect = 0;
+            PlayMenuSound();
         }
         else if (key == 13) { // Phím Enter
+            PlayMenuSound();
             return currentSelect;
         }
     }
@@ -72,8 +75,9 @@ int GameMenu() {
     return GenericMenu(options, 5, "MENU");
 }
 int MusicMenu() {
-    string options[8] = { "1. Music 1", "2. Music 2", "3. Music 3", "4. Music 4", "5. Music 5", "6. Tat nhac","7. Thay doi am luong","8. Thoat menu"};
-	return GenericMenu(options, 8, "MUSIC SETTINGS");
+    string sfxToggle = isSFXOn ? "ON" : "OFF";
+    string options[9] = { "1. Music 1", "2. Music 2", "3. Music 3", "4. Music 4", "5. Music 5","6. Tat nhac", "7. Thay doi am luong","8. Sound Effect: [" + sfxToggle + "]","9. Thoat menu"};
+    return GenericMenu(options, 9, "MUSIC SETTINGS");
 }
 void VolumeMenu() {
     int currentSelect = volumeLevel;
@@ -228,12 +232,15 @@ int GenericCharacterMenu(string options[], int size, string title) {
         if (key == 'W' || key == 72) {
             currentSelect--;
             if (currentSelect < 0) currentSelect = size - 1;
+            PlayMenuSound();
         }
         else if (key == 'S' || key == 80) {
             currentSelect++;
             if (currentSelect >= size) currentSelect = 0;
+            PlayMenuSound();
         }
         else if (key == 13) { // Phím Enter
+            PlayMenuSound();
             return currentSelect;
         }
     }
