@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <string>
 #include <vector>
+#include <iostream>
+#include "ControlConsole.h"
 using namespace std;
 
 // ============================================================
@@ -101,3 +103,20 @@ void DrawSprite(const int sprite[][SPRITE_W], int h, int startX, int startY);
 void ClearSprite(int startX, int startY, int w, int h);
 void DrawBothSprites();
 void CharacterSelectMenu();
+
+// Hàm vẽ sprite đặc biệt dùng cho nút (button)
+template <size_t W>
+void DrawSolidImage(const int sprite[][W], int w, int h, int startX, int startY) {
+    for (int y = 0; y < h; y++) {
+        GotoXY(startX, startY + y);
+        for (int x = 0; x < w; x++) {
+            int colorIdx = sprite[y][x];
+            SetColor(colorIdx, colorIdx); // Đổi màu nền thành màu của pixel
+            std::cout << "  ";            // In 2 dấu cách để tạo thành 1 pixel vuông
+        }
+    }
+    SetColor(0, 15); // Reset màu về mặc định
+}
+
+// Khai báo hàm vẽ khung cho câu hỏi Yes/No và chọn tốc độ 
+void DrawFrame(int x, int y, int w, int h);

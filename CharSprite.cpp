@@ -3,6 +3,9 @@
 #include "GameStatus.h"
 #include <iostream>
 #include <conio.h>
+
+#include "btn_normal.h"
+#include "btn_hover.h"
 using namespace std;
 
 // ============================================================
@@ -74,6 +77,19 @@ void DrawBothSprites() {
     cout << CHAR_LIST[_PLAYER1_CHAR].name;
     GotoXY(RIGHT_SPRITE_X, SPRITE_START_Y + SPRITE_H + 1);
     cout << CHAR_LIST[_PLAYER2_CHAR].name;
+}
+
+// Triển khai hàm vẽ khung câu hỏi Replay và tốc độ
+void DrawFrame(int x, int y, int w, int h) {
+    SetColor(0, 15);
+    GotoXY(x, y);
+    cout << "+"; for (int i = 0; i < w - 2; i++) cout << "-"; cout << "+";
+    for (int i = 1; i < h - 1; i++) {
+        GotoXY(x, y + i); cout << "|";
+        GotoXY(x + w - 1, y + i); cout << "|";
+    }
+    GotoXY(x, y + h - 1);
+    cout << "+"; for (int i = 0; i < w - 2; i++) cout << "-"; cout << "+";
 }
 
 // ============================================================

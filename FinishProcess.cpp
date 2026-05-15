@@ -3,6 +3,10 @@
 #include "ControlConsole.h"
 #include "UserInfo.h"
 
+#include "Menu.h"
+#include "btn_normal.h"
+#include "btn_hover.h"
+
 using namespace std;
 
 void GarbageCollect() {
@@ -45,11 +49,10 @@ int ProcessFinish(int pWhoWin) {
 }
 
 int AskContinue() {
-    // Hiển thị câu hỏi ngay dưới thông báo kết quả (dòng 30)
-    GotoXY(LEFT, _A[BOARD_SIZE - 1][BOARD_SIZE - 1].y + 4);
-    SetColor(0, 15);
-    cout << "Nhan 'y' de choi lai, 'n' de thoat: ";
-    return toupper(_getch());
+    // Gọi màn hình Yes/No căn giữa, không xóa màn hình
+    bool yes = GraphicalYesNo("Ban co muon choi tiep khong?", 10, false,
+        BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
+    return yes ? 'Y' : 'N';
 }
 
 int TestBoard() {
