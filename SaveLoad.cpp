@@ -8,7 +8,6 @@
 #include "Menu.h"
 #include "btn_normal.h"
 #include "btn_hover.h"
-#include <algorithm>
 
 using namespace std;
 
@@ -111,7 +110,7 @@ string SaveGame() {
 }
 
 vector<string> GetSaveFiles() {
-    vector<string> files;
+    vector<SaveFileInfo> files;
     WIN32_FIND_DATAA findFileData;
     HANDLE hFind = FindFirstFileA("*.caro", &findFileData);
 
@@ -119,11 +118,28 @@ vector<string> GetSaveFiles() {
         do {
             string fileName = findFileData.cFileName;
             fileName = fileName.substr(0, fileName.find_last_of("."));
-            files.push_back(fileName);
+
+            // Lấy thời gian file được lưu cuối cùng
+            ULARGE_INTEGER fileTime;
+            fileTime.LowPart = findFileData.ftLastWriteTime.dwLowDateTime;
+            fileTime.HighPart = findFileData.ftLastWriteTime.dwHighDateTime;
+
+            files.push_back({ fileName, fileTime });
         } while (FindNextFileA(hFind, &findFileData) != 0);
         FindClose(hFind);
     }
-    return files;
+
+    // Sắp xếp file theo thời gian lưu (Giảm dần: Mới nhất lên đầu)
+    sort(files.begin(), files.end(), [](const SaveFileInfo& a, const SaveFileInfo& b) {
+        return a.time.QuadPart > b.time.QuadPart;
+        });
+
+    vector<string> fileList;
+    for (const auto& item : files) {
+        fileList.push_back(item.name);
+    }
+
+    return fileList;
 }
 
 
@@ -221,7 +237,7 @@ string ChooseFileMenu() {
 
                 GotoXY((consoleW - 65) / 2, startY_Base + maxDisplay * (BTN_NORMAL_H + 1) + 2);
                 SetColor(8, 15);
-                cout << "(W/S: Chon | Enter: Tai | X: Xoa | ESC: Huy | Tong: " << files.size() << " files)";
+                // cout << "(W/S: Chon | Enter: Tai | X: Xoa | ESC: Huy | Tong: " << files.size() << " files)";
 
                 lastStartIndex = startIndex;
                 lastSelect = -1; // Ép vẽ lại toàn bộ nút

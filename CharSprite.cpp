@@ -81,15 +81,21 @@ void DrawBothSprites() {
 
 // Triển khai hàm vẽ khung câu hỏi Replay và tốc độ
 void DrawFrame(int x, int y, int w, int h) {
+    // Đặt màu: 0 (chữ đen) - 15 (nền trắng)
     SetColor(0, 15);
-    GotoXY(x, y);
-    cout << "+"; for (int i = 0; i < w - 2; i++) cout << "-"; cout << "+";
-    for (int i = 1; i < h - 1; i++) {
-        GotoXY(x, y + i); cout << "|";
-        GotoXY(x + w - 1, y + i); cout << "|";
+
+	// Vẽ từng dòng từ trên xuống dưới: w: rộng, h: cao
+    for (int i = 0; i < h; i++) {
+        GotoXY(x, y + i);
+
+        // In ra w khoảng trắng để lấp đầy 1 dòng nền trắng
+        for (int j = 0; j < w; j++) {
+            cout << " ";
+        }
     }
-    GotoXY(x, y + h - 1);
-    cout << "+"; for (int i = 0; i < w - 2; i++) cout << "-"; cout << "+";
+
+    // Reset màu lại sau khi vẽ xong
+    SetColor(0, 15);
 }
 
 // ============================================================
@@ -97,34 +103,67 @@ void DrawFrame(int x, int y, int w, int h) {
 // Hiển thị preview sprite bên trái/phải khi di chuyển chọn
 // ============================================================
 void CharacterSelectMenu() {
+    int maxDisplay = 5; // Chỉ hiển thị tối đa 5 lựa chọn để không tràn màn hình
+    int btnCols = BTN_NORMAL_W * 2;
+    int startX = 42;    // Giữ nguyên tọa độ cột của danh sách lựa chọn
+    int startY_Base = 6;
+
+    // Lấy màu nền của nút
+    int bgNorm = BTN_NORMAL[BTN_NORMAL_H / 2][BTN_NORMAL_W / 2];
+    int bgHov = BTN_HOVER[BTN_HOVER_H / 2][BTN_HOVER_W / 2];
+
     // --- Chọn nhân vật cho Player 1 ---
-    system("cls");
     system("color F0");
     int sel1 = 0;
+    int lastSel1 = -1;
+    int startIndex1 = 0;
+    int lastStartIndex1 = -1;
 
     while (true) {
-        system("cls");
-        SetColor(12, 15);
-        GotoXY(40, 2); cout << "=== CHON NHAN VAT CHO PLAYER 1 (X) ===";
-        GotoXY(40, 3); cout << "  (W/S de chon, Enter de xac nhan)   ";
-
-        // Hiển thị danh sách
-        for (int i = 0; i < CHAR_COUNT; i++) {
-            GotoXY(42, 6 + i * 2);
-            if (i == sel1) {
-                SetColor(0, 11);
-                cout << ">> " << CHAR_LIST[i].name << " <<";
-            }
-            else {
-                SetColor(0, 15);
-                cout << "   " << CHAR_LIST[i].name << "   ";
-            }
+        // NẾU BỊ CUỘN TRANG: Xóa và vẽ lại tiêu đề
+        if (startIndex1 != lastStartIndex1) {
+            system("cls");
+            SetColor(12, 15);
+            GotoXY(40, 2); cout << "=== CHON NHAN VAT CHO PLAYER 1 (X) ===";
+            GotoXY(40, 3); cout << "  (W/S de chon, Enter de xac nhan)   ";
+            lastStartIndex1 = startIndex1;
+            lastSel1 = -1; // Ép vẽ lại toàn bộ nút
         }
 
-        // Preview sprite nhân vật đang chọn
-        SetColor(0, 15);
-        GotoXY(10, 5);  cout << "Preview:";
-        DrawSprite(CHAR_LIST[sel1].sprite, SPRITE_H, 10, 6);
+        // NẾU CHUYỂN LỰA CHỌN: Cập nhật lại nút và Preview
+        if (sel1 != lastSel1) {
+            int endIdx = min(startIndex1 + maxDisplay, CHAR_COUNT);
+
+            // Vẽ danh sách nút
+            for (int i = startIndex1; i < endIdx; i++) {
+                int rowOffset = i - startIndex1;
+                int startY = startY_Base + rowOffset * (BTN_NORMAL_H + 1);
+
+                if (i == sel1) {
+                    DrawSolidImage(BTN_HOVER, BTN_HOVER_W, BTN_HOVER_H, startX, startY);
+                    GotoXY(startX + (btnCols - CHAR_LIST[i].name.length()) / 2, startY + BTN_HOVER_H / 2);
+                    SetColor(0, bgHov); cout << CHAR_LIST[i].name;
+                }
+                else {
+                    DrawSolidImage(BTN_NORMAL, BTN_NORMAL_W, BTN_NORMAL_H, startX, startY);
+                    GotoXY(startX + (btnCols - CHAR_LIST[i].name.length()) / 2, startY + BTN_NORMAL_H / 2);
+                    SetColor(0, bgNorm); cout << CHAR_LIST[i].name;
+                }
+            }
+
+            // Xóa Sprite nhân vật cũ bằng khoảng trắng trước khi vẽ đè
+            SetColor(0, 15);
+            for (int r = 0; r < SPRITE_H + 5; r++) {
+                GotoXY(10, 6 + r);
+                cout << string(30, ' '); // Quét 30 khoảng trắng để làm sạch vùng Preview
+            }
+
+            // Vẽ Preview sprite nhân vật đang chọn (giữ nguyên logic gốc)
+            GotoXY(10, 5); cout << "Preview:";
+            DrawSprite(CHAR_LIST[sel1].sprite, SPRITE_H, 10, 6);
+
+            lastSel1 = sel1;
+        }
 
         SetColor(0, 15);
         int key = toupper(_getch());
@@ -142,41 +181,67 @@ void CharacterSelectMenu() {
             _PLAYER1_CHAR = sel1;
             break;
         }
+
+        // Logic cuộn trang
+        if (sel1 < startIndex1) startIndex1 = sel1;
+        else if (sel1 >= startIndex1 + maxDisplay) startIndex1 = sel1 - maxDisplay + 1;
     }
 
     // --- Chọn nhân vật cho Player 2 (hoặc Bot) ---
-    // Nếu Bot Mode thì tự chọn nhân vật cho bot
     extern bool _BOT_MODE;
     if (_BOT_MODE) {
-        // Bot tự dùng nhân vật còn lại
         _PLAYER2_CHAR = (_PLAYER1_CHAR == 0) ? 1 : 0;
         return;
     }
 
-    int sel2 = (_PLAYER1_CHAR == 0) ? 1 : 0;  // Gợi ý nhân vật khác
+    int sel2 = (_PLAYER1_CHAR == 0) ? 1 : 0;
+    int lastSel2 = -1;
+
+    // Nếu gợi ý ban đầu nằm ngoài tầm hiển thị, phải setup lại startIndex
+    int startIndex2 = 0;
+    if (sel2 >= maxDisplay) startIndex2 = sel2 - maxDisplay + 1;
+    int lastStartIndex2 = -1;
 
     while (true) {
-        system("cls");
-        SetColor(1, 15);
-        GotoXY(40, 2); cout << "=== CHON NHAN VAT CHO PLAYER 2 (O) ===";
-        GotoXY(40, 3); cout << "  (W/S de chon, Enter de xac nhan)   ";
+        if (startIndex2 != lastStartIndex2) {
+            system("cls");
+            SetColor(1, 15);
+            GotoXY(40, 2); cout << "=== CHON NHAN VAT CHO PLAYER 2 (O) ===";
+            GotoXY(40, 3); cout << "  (W/S de chon, Enter de xac nhan)   ";
+            lastStartIndex2 = startIndex2;
+            lastSel2 = -1;
+        }
 
-        for (int i = 0; i < CHAR_COUNT; i++) {
-            GotoXY(42, 6 + i * 2);
-            if (i == sel2) {
-                SetColor(0, 11);
-                cout << ">> " << CHAR_LIST[i].name << " <<";
+        if (sel2 != lastSel2) {
+            int endIdx = min(startIndex2 + maxDisplay, CHAR_COUNT);
+            for (int i = startIndex2; i < endIdx; i++) {
+                int rowOffset = i - startIndex2;
+                int startY = startY_Base + rowOffset * (BTN_NORMAL_H + 1);
+
+                if (i == sel2) {
+                    DrawSolidImage(BTN_HOVER, BTN_HOVER_W, BTN_HOVER_H, startX, startY);
+                    GotoXY(startX + (btnCols - CHAR_LIST[i].name.length()) / 2, startY + BTN_HOVER_H / 2);
+                    SetColor(0, bgHov); cout << CHAR_LIST[i].name;
+                }
+                else {
+                    DrawSolidImage(BTN_NORMAL, BTN_NORMAL_W, BTN_NORMAL_H, startX, startY);
+                    GotoXY(startX + (btnCols - CHAR_LIST[i].name.length()) / 2, startY + BTN_NORMAL_H / 2);
+                    SetColor(0, bgNorm); cout << CHAR_LIST[i].name;
+                }
             }
-            else {
-                SetColor(0, 15);
-                cout << "   " << CHAR_LIST[i].name << "   ";
+
+            SetColor(0, 15);
+            for (int r = 0; r < SPRITE_H + 5; r++) {
+                GotoXY(10, 6 + r);
+                cout << string(30, ' ');
             }
+            GotoXY(10, 5); cout << "Preview:";
+            DrawSprite(CHAR_LIST[sel2].sprite, SPRITE_H, 10, 6);
+
+            lastSel2 = sel2;
         }
 
         SetColor(0, 15);
-        GotoXY(10, 5); cout << "Preview:";
-        DrawSprite(CHAR_LIST[sel2].sprite, SPRITE_H, 10, 6);
-
         int key = toupper(_getch());
         if (key == 0 || key == 224) key = _getch();
 
@@ -192,5 +257,8 @@ void CharacterSelectMenu() {
             _PLAYER2_CHAR = sel2;
             break;
         }
+
+        if (sel2 < startIndex2) startIndex2 = sel2;
+        else if (sel2 >= startIndex2 + maxDisplay) startIndex2 = sel2 - maxDisplay + 1;
     }
 }
