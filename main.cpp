@@ -37,14 +37,15 @@ void SetConsoleFontSize(int width, int height) {
     SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
 }
 
+
 int main() {
     EnableRGBColor(); 
     SetConsoleOutputCP(CP_UTF8); // THÊM DÒNG NÀY ĐỂ BẬT FONT UTF-8
     
-    SetConsoleFontSize(4, 4);
+    SetConsoleFontSize(10,15);
     
     FixConsoleWindow();
-    system("MODE CON COLS=280 LINES=70");
+    system("MODE CON COLS=120 LINES=40");
     // SetConsoleWindow(1000, 600);
     HideCursor();
 

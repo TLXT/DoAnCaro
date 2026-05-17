@@ -4,7 +4,7 @@
 #include "DrawBoard.h"
 #include "GamePlay.h"
 #include "UserInfo.h"
-
+#include "DrawBackground.hpp"
 using namespace std;
 
 string TypeFileName() {
@@ -33,12 +33,17 @@ string TypeFileName() {
 }
 string SaveGame() {
     string filename;
+
+    system("cls");              // Xóa bàn cờ đi
+    DrawLoadgameBackground();   // Vẽ nền Save/Load lên
+
     while (true) {
         GotoXY(5, 27);
         cout << "                                                                    ";
 
         GotoXY(5, 27);
-        SetColor(12, 15);
+        //SetColor(12, 15);
+        printf("\x1b[38;2;255;50;50m\x1b[48;2;20;20;20m");
         cout << "Nhap ten file de luu: ";
 
         UnhideCursor();
@@ -125,6 +130,9 @@ vector<string> GetSaveFiles() {
 bool LoadGame() {
     string filename = ChooseFileMenu();
 
+    system("cls"); 
+    DrawLoadgameBackground();
+
     if (filename == "") {
         return false;
     }
@@ -154,13 +162,16 @@ bool LoadGame() {
         inFile.close();
 
         system("cls");
+        DrawIngameBackground();
         DrawBoard(BOARD_SIZE);
         DrawPlayerInfo();
         UpdateTurnInfo();
 
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
-                DrawCell(_A[i][j].x, _A[i][j].y, 15);
+                if (_A[i][j].c != 0) {
+                    DrawCell(_A[i][j].x, _A[i][j].y, 15);
+                } 
             }
         }
         DrawCell(_X, _Y, 11);
@@ -169,8 +180,10 @@ bool LoadGame() {
     }
     else {
         system("cls");
+        DrawLoadgameBackground();
         GotoXY(40, 15);
-        SetColor(12, 15);
+        //SetColor(12, 15);
+        printf("\x1b[38;2;255;50;50m\x1b[48;2;20;20;20m");
         cout << "Loi doc file! Nhan phim bat ky de thoat...";
         _getch();
         return false;
@@ -183,8 +196,10 @@ string ChooseFileMenu() {
 
         if (files.empty()) {
             system("cls");
+            DrawLoadgameBackground();
             GotoXY(40, 15);
-            SetColor(12, 15);
+            //SetColor(12, 15);
+            printf("\x1b[38;2;255;50;50m\x1b[48;2;20;20;20m");
             cout << "Chua co du lieu Save! Nhan phim bat ky de quay lai...";
             _getch();
             return "";
@@ -193,29 +208,44 @@ string ChooseFileMenu() {
         int currentSelect = 0;
         int displayCount = files.size() < 15 ? files.size() : 15;
         bool isLooping = true;
+        system("cls");
+        DrawLoadgameBackground();
+        
+        GotoXY(40, 5);
+        printf("\x1b[38;2;255;50;50m\x1b[48;2;30;30;30m"); 
+        cout << "=== DANH SACH CAC VAN DA LUU ===";
+
+        GotoXY(30, 8 + displayCount * 2 + 2);
+        printf("\x1b[38;2;150;150;150m\x1b[48;2;20;20;20m"); 
+        cout << "(W/S: Chon | Enter: Tai game | X: Xoa file | ESC: Huy)";
 
         while (isLooping) {
-            system("cls");
-            system("color F0");
-            GotoXY(40, 5);
-            SetColor(12, 15);
-            cout << "=== DANH SACH CAC VAN DA LUU ===";
+            // system("cls");
+            // //system("color F0");
+            // DrawLoadgameBackground();
+            // GotoXY(40, 5);
+            // //SetColor(12, 15);
+            // printf("\x1b[38;2;255;50;50m\x1b[48;2;30;30;30m"); // Chữ đỏ, nền xám đen
+            // cout << "=== DANH SACH CAC VAN DA LUU ===";
 
             for (int i = 0; i < displayCount; i++) {
                 GotoXY(45, 8 + i * 2);
                 if (i == currentSelect) {
-                    SetColor(0, 11);
+                    //SetColor(0, 11);
+                    printf("\x1b[38;2;0;255;255m\x1b[48;2;50;50;50m");
                     cout << ">> " << files[i] << " <<";
                 }
                 else {
-                    SetColor(0, 15);
+                    //SetColor(0, 15);
+                    printf("\x1b[38;2;255;255;255m\x1b[48;2;20;20;20m");
                     cout << "   " << files[i] << "   ";
                 }
             }
 
-            GotoXY(30, 8 + displayCount * 2 + 2);
-            SetColor(8, 15);
-            cout << "(W/S: Chon | Enter: Tai game | X: Xoa file | ESC: Huy)";
+            // GotoXY(30, 8 + displayCount * 2 + 2);
+            // //SetColor(8, 15);
+            // printf("\x1b[38;2;150;150;150m\x1b[48;2;20;20;20m"); // Màu xám chú thích
+            // cout << "(W/S: Chon | Enter: Tai game | X: Xoa file | ESC: Huy)";
 
             int key = toupper(_getch());
             if (key == 27) { // Bấm ESC
@@ -246,17 +276,21 @@ void ClearAllData() {
 
     if (files.empty()) {
         system("cls");
+        DrawLoadgameBackground();
         GotoXY(40, 15);
-        SetColor(12, 15);
+        //SetColor(12, 15);
+        printf("\x1b[38;2;255;50;50m\x1b[48;2;20;20;20m");
         cout << "Khong co du lieu luu nao de xoa!";
         _getch();
         return;
     }
 
     system("cls");
-    system("color F0");
+    //system("color F0");
+    DrawLoadgameBackground();
     GotoXY(35, 15);
-    SetColor(12, 15);
+    //SetColor(12, 15);
+    printf("\x1b[38;2;255;0;0m\x1b[48;2;30;30;30m");
     cout << "Ban co chac muon xoa TOAN BO " << files.size() << " file luu? (Y/N): ";
 
     char confirm = toupper(_getch());
@@ -278,12 +312,15 @@ void ClearAllData() {
 }
 bool loadPresent() {
     system("cls");
+    DrawIngameBackground();
     DrawBoard(BOARD_SIZE);
     DrawPlayerInfo();
     UpdateTurnInfo();
     for (int i = 0; i < BOARD_SIZE; i++)
         for (int j = 0; j < BOARD_SIZE; j++)
-            DrawCell(_A[i][j].x, _A[i][j].y, 15);
+            if (_A[i][j].c != 0) {
+                DrawCell(_A[i][j].x, _A[i][j].y, 15);
+            }
     DrawCell(_X, _Y, 11);
     return true;
 }

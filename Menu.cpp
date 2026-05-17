@@ -1,8 +1,8 @@
 ﻿#include "Menu.h"
 #include "ControlConsole.h"
 #include "GameStatus.h"
-#include "bg_forest.h"
-#include "DrawBackground.h"
+#include "bg_menu.h"
+#include "DrawBackground.hpp"
 
 using namespace std;
 
@@ -105,7 +105,7 @@ int GenericMenu(string options[], int size, string title) {
     int currentSelect = 0;
 
     system("cls");
-    DrawBackground(); 
+    DrawMenuBackground(); 
 
     while (true) {
         if (title == "GAME CARO") {
@@ -195,16 +195,16 @@ string TypeName() {
 
 void InputPlayerNames(bool isBotMode) {
     system("cls");
-    DrawBackground(); 
+    DrawMenuBackground(); 
     
     PrintTextWithBg(35, 10, "Nhap ten Nguoi choi 1 (X): ", 14); 
     GotoXY(62, 10); 
     UnhideCursor();
     
     // Lấy màu nền chỗ con trỏ chuột
-    int r1 = BG_FOREST[10 * 2][62][0];
-    int g1 = BG_FOREST[10 * 2][62][1];
-    int b1 = BG_FOREST[10 * 2][62][2];
+    int r1 = BG_MENU[10 * 2][62][0];
+    int g1 = BG_MENU[10 * 2][62][1];
+    int b1 = BG_MENU[10 * 2][62][2];
     printf("\x1b[38;2;255;255;0m\x1b[48;2;%d;%d;%dm", r1, g1, b1);
     
     _PLAYER1_NAME = TypeName();
@@ -219,9 +219,9 @@ void InputPlayerNames(bool isBotMode) {
         PrintTextWithBg(35, 12, "Nhap ten Nguoi choi 2 (O): ", 14);
         GotoXY(62, 12);
         
-        int r2 = BG_FOREST[12][62 / 2][0];
-        int g2 = BG_FOREST[12][62 / 2][1];
-        int b2 = BG_FOREST[12][62 / 2][2];
+        int r2 = BG_MENU[12][62 / 2][0];
+        int g2 = BG_MENU[12][62 / 2][1];
+        int b2 = BG_MENU[12][62 / 2][2];
         printf("\x1b[38;2;255;255;0m\x1b[48;2;%d;%d;%dm", r2, g2, b2);
         
         _PLAYER2_NAME = TypeName();
@@ -237,9 +237,9 @@ void InputPlayerNames(bool isBotMode) {
             PrintTextWithBg(35, 12, "Nhap lai ten Nguoi choi 2 (O): ", 14);
             GotoXY(66, 12);
             
-            int r3 = BG_FOREST[12][66 / 2][0];
-            int g3 = BG_FOREST[12][66 / 2][1];
-            int b3 = BG_FOREST[12][66 / 2][2];
+            int r3 = BG_MENU[12][66 / 2][0];
+            int g3 = BG_MENU[12][66 / 2][1];
+            int b3 = BG_MENU[12][66 / 2][2];
             printf("\x1b[38;2;255;255;0m\x1b[48;2;%d;%d;%dm", r3, g3, b3);
             
             _PLAYER2_NAME = TypeName();
