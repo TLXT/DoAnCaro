@@ -13,12 +13,40 @@
 #include "CaroBot.h"
 #include "GameTimer.h"
 #include "Replay.h"
+#include <windows.h>
 
 using namespace std;
 
+void EnableRGBColor() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= 0x0004; // ENABLE_VIRTUAL_TERMINAL_PROCESSING
+    SetConsoleMode(hOut, dwMode);
+}
+
+void SetConsoleFontSize(int width, int height) {
+    CONSOLE_FONT_INFOEX cfi;
+    cfi.cbSize = sizeof(cfi);
+    cfi.nFont = 0;
+    cfi.dwFontSize.X = width;  // Chiều rộng pixel của 1 ký tự
+    cfi.dwFontSize.Y = height; // Chiều cao pixel của 1 ký tự
+    cfi.FontFamily = FF_DONTCARE;
+    cfi.FontWeight = FW_NORMAL;
+    wcscpy_s(cfi.FaceName, L"Consolas"); // Hoặc "Terminal" để ra chất retro
+    SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
+}
+
+
 int main() {
+    EnableRGBColor(); 
+    SetConsoleOutputCP(CP_UTF8); // THÊM DÒNG NÀY ĐỂ BẬT FONT UTF-8
+    
+    SetConsoleFontSize(10,15);
+    
     FixConsoleWindow();
-    SetConsoleWindow(1000, 600);
+    system("MODE CON COLS=120 LINES=40");
+    // SetConsoleWindow(1000, 600);
     HideCursor();
 
     while (true) {
