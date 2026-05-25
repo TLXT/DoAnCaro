@@ -1,37 +1,105 @@
-﻿#include "Menu.h"
+#include "Menu.h"
 #include "ControlConsole.h"
 #include "GameStatus.h"
 #include "character.h"
-#include"Sound.h"
+#include "Sound.h"
+#include "bg_menu.h"
+#include "DrawBackground.hpp"
+#include "btn_normal.h"
+#include "btn_hover.h"
+#include <windows.h>
+
 using namespace std;
 
+// --- CÁC HÀM WRAPPER ĐỂ TEMPLATE TRONG H CÓ THỂ GỌI ĐƯỢC ---
+void DrawUIBackground() {
+    DrawMenuBackground();
+}
+
+void DrawTitleArtWrapper(int startX, int startY) {
+    // Gọi hàm DrawTitleArt gốc bên dưới
+    void DrawTitleArt(int, int);
+    DrawTitleArt(startX, startY);
+}
+
+// 1. Hàm in chữ có hộp nền tối (Dark Box) để chữ không cắn rách ảnh
+void PrintTextWithBg(int startX, int startY, string text, int textColorCode) {
+    int tr = 255, tg = 255, tb = 255;
+    if (textColorCode == 11) { tr = 0; tg = 255; tb = 255; }
+    else if (textColorCode == 14) { tr = 255; tg = 255; tb = 0; }
+    else if (textColorCode == 12) { tr = 255; tg = 0; tb = 0; }
+
+    GotoXY(startX, startY);
+    // \x1b[48;2;15;15;20m là màu nền đen tuyền để lót dưới chữ
+    printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;15;15;20m", tr, tg, tb);
+    cout << text;
+    printf("\x1b[0m");
+}
+
+// Gradient màu xanh băng từ trên xuống (7 màu cho 6 dòng ASCII art)
+static const int TITLE_GRAD[7][3] = {
+    {220, 240, 255},  // trắng băng (dòng 0)
+    {140, 220, 255},  // xanh nhạt  (dòng 1)
+    { 80, 200, 255},  // cyan sáng  (dòng 2)
+    { 60, 180, 240},  // cyan       (dòng 3)
+    { 40, 150, 220},  // xanh vừa   (dòng 4)
+    { 20, 120, 200},  // xanh đậm   (dòng 5)
+};
+
+static const int SHADOW_COL[3] = { 20, 60, 120 }; // Màu outline/shadow
+
+void DrawTitleArt(int startX, int startY) {
+    const char* art[] = {
+        " _____   ___  ______ _____ ",
+        "/  __ \\ / _ \\ | ___ \\  _  |",
+        "| /  \\// /_\\ \\| |_/ / | | |",
+        "|    /|  _  ||    /| | | |",
+        "| \\__/\\| | | || |\\ \\\\ \\_/ /",
+        " \\____/\\_| |_/\\_| \\_|\\___/ ",
+    };
+    int nLines = 6;
+
+    for (int i = 0; i < nLines; i++) {
+        // Vẽ shadow (lệch 1 xuống 1 phải, màu tối)
+        GotoXY(startX + 1, startY + i + 1);
+        printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;5;10;25m%s\x1b[0m",
+            SHADOW_COL[0], SHADOW_COL[1], SHADOW_COL[2], art[i]);
+
+        // Vẽ chữ chính với gradient
+        GotoXY(startX, startY + i);
+        printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;5;10;25m%s\x1b[0m",
+            TITLE_GRAD[i][0], TITLE_GRAD[i][1], TITLE_GRAD[i][2], art[i]);
+    }
+}
+
+// Vẫn giữ lại Menu gốc (GenericMenu) để đảm bảo không mất tính năng nào
 int GenericMenu(string options[], int size, string title) {
     int currentSelect = 0;
+    system("cls");
+    DrawMenuBackground();
 
     while (true) {
-        system("cls");
-        system("color F0");
-
-        SetColor(12, 15);
-        GotoXY(40, 5); cout << "==============================";
-        GotoXY(40, 6);
-        int padding = (26 - title.length()) / 2;
-        cout << "||" << string(padding, ' ') << title << string(26 - title.length() - padding, ' ') << "||";
-        GotoXY(40, 7); cout << "==============================";
+        if (title == "GAME CARO") {
+            DrawTitleArt(42, 3);
+        }
+        else {
+            PrintTextWithBg(40, 5, "==============================", 11);
+            int padding = (26 - title.length()) / 2;
+            string titleLine = "||" + string(padding, ' ') + title + string(26 - title.length() - padding, ' ') + "||";
+            PrintTextWithBg(40, 6, titleLine, 11);
+            PrintTextWithBg(40, 7, "==============================", 11);
+        }
 
         for (int i = 0; i < size; i++) {
             if (i == currentSelect) {
-                SetColor(0, 11); // Nền Cyan
-                GotoXY(45, 11 + i * 2);
-                cout << ">> " << options[i] << " <<";
+                string opt = ">> " + options[i] + " <<";
+                PrintTextWithBg(45, 11 + i * 2, opt, 14);
             }
             else {
-                SetColor(0, 15); // Nền trắng
-                GotoXY(45, 11 + i * 2);
-                cout << "   " << options[i] << "   ";
+                string opt = "   " + options[i] + "   ";
+                PrintTextWithBg(45, 11 + i * 2, opt, 11);
             }
         }
-        SetColor(0, 15);
 
         int key = toupper(_getch());
         if (key == 'W' || key == 72) {
@@ -51,34 +119,38 @@ int GenericMenu(string options[], int size, string title) {
     }
 }
 
+// --- Menu dùng Đồ Họa Cải Tiến (GraphicalMenu) ---
 int MainMenu() {
-    string options[5] = { "1. Play Game", "2. Load Game", "3. Settings","4. Music Setting", "5. Exit"};
-    return GenericMenu(options, 5, "GAME CARO");
+    string options[5] = { "Play Game", "Load Game", "Settings", "Music Setting", "Exit" };
+    return GraphicalMenu(options, 5, "GAME CARO", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int PlayGameMenu() {
-    string options[3] = { "1. Player vs Player", "2. Player vs Bot", "3. Quay lai" };
-    return GenericMenu(options, 3, "CHON CHE DO");
+    string options[3] = { "Player vs Player", "Player vs Bot", "Quay lai" };
+    return GraphicalMenu(options, 3, "CHON CHE DO", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int DifficultyMenu() {
-    string options[4] = { "1. De (Easy)", "2. Trung binh (Medium)", "3. Kho (Hard)", "4. Quay lai" };
-    return GenericMenu(options, 4, "CHON DO KHO");
+    string options[4] = { "De (Easy)", "Trung binh", "Kho (Hard)", "Quay lai" };
+    return GraphicalMenu(options, 4, "CHON DO KHO", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int SettingsMenu() {
-    string options[2] = { "1. Clear Data (Xoa toan bo Save)", "2. Quay lai" };
-    return GenericMenu(options, 2, "CAI DAT");
+    string options[2] = { "Clear Data", "Quay lai" };
+    return GraphicalMenu(options, 2, "CAI DAT", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
+
 int GameMenu() {
-    string options[5] = { "1. Thoat game","2. Luu game","3. Tai game","4. Music Setting","5. Thoat menu"};
-    return GenericMenu(options, 5, "MENU");
+    string options[5] = { "Thoat game", "Luu game", "Tai game", "Music Setting", "Thoat menu" };
+    return GraphicalMenu(options, 5, "MENU TAM DUNG", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
+
 int MusicMenu() {
     string sfxToggle = isSFXOn ? "ON" : "OFF";
     string options[9] = { "1. Music 1", "2. Music 2", "3. Music 3", "4. Music 4", "5. Music 5","6. Tat nhac", "7. Thay doi am luong","8. Sound Effect: [" + sfxToggle + "]","9. Thoat menu"};
     return GenericMenu(options, 9, "MUSIC SETTINGS");
 }
+
 void VolumeMenu() {
     int currentSelect = volumeLevel;
     while (true) {
@@ -126,16 +198,15 @@ string TypeName() {
     string res = "";
     while (true) {
         char c = _getch();
-        if (c == 13 && res.length() > 0) { // Bấm Enter
+        if (c == 13 && res.length() > 0) {
             break;
         }
-        else if (c == 8) { // Bấm Backspace (Xóa)
+        else if (c == 8) {
             if (res.length() > 0) {
                 res.pop_back();
                 cout << "\b \b";
             }
         }
-        // Cho phép nhập chữ, số (tối đa 15 ký tự để không vỡ UI)
         else if ((isalnum(c)) && res.length() < 15) {
             res += c;
             cout << c;
@@ -146,47 +217,82 @@ string TypeName() {
 
 void InputPlayerNames(bool isBotMode) {
     system("cls");
-    system("color F0");
-    SetColor(12, 15);
+    DrawMenuBackground(); // Nền xịn từ Menu cũ
 
-    // --- NHẬP CHO NGƯỜI CHƠI 1 ---
-    GotoXY(35, 10); cout << "Nhap ten Nguoi choi 1 (X): ";
+    int consoleW = 120;
+    int frameW = 52;
+    int frameX = (consoleW - frameW) / 2;
+    int p1Y = 8;
+    int p2Y = 14;
+
+    // Frame Nhập Tên Player 1
+    DrawFrame(frameX, p1Y, frameW, 3);
+    PrintTextWithBg(frameX + 4, p1Y + 1, "Nhap ten Nguoi choi 1 (X): ", 12);
+
     UnhideCursor();
+    GotoXY(frameX + 31, p1Y + 1);
+
+    // Tích hợp hệ thống quét pixel nền thông minh
+    int r1 = BG_MENU[(p1Y + 1) * 2][frameX + 31][0];
+    int g1 = BG_MENU[(p1Y + 1) * 2][frameX + 31][1];
+    int b1 = BG_MENU[(p1Y + 1) * 2][frameX + 31][2];
+    printf("\x1b[38;2;255;255;0m\x1b[48;2;%d;%d;%dm", r1, g1, b1);
+
     _PLAYER1_NAME = TypeName();
+    printf("\x1b[0m");
     HideCursor();
     
     // Gọi menu chọn nhân vật cho Player 1
-    // Hàm này sẽ trả về chỉ số 0-4 tương ứng với Knight, Assassin, v.v.
     CharacterASelect = CharacterSelectionMenu(); 
 
+    // Frame Nhập Tên Player 2 (Hoặc Bot)
     if (isBotMode) {
-        // --- CHẾ ĐỘ VỚI BOT ---
         if (_BOT_DIFFICULTY == 1) _PLAYER2_NAME = "Bot (De)";
         else if (_BOT_DIFFICULTY == 2) _PLAYER2_NAME = "Bot (Trung Binh)";
         else _PLAYER2_NAME = "Bot (Kho)";
 
-        // Bot có thể mặc định là nhân vật cuối cùng hoặc ngẫu nhiên
-        CharacterBSelect = 4; // Ví dụ mặc định Bot là Officer
+        DrawFrame(frameX, p2Y, frameW, 3);
+        PrintTextWithBg(frameX + 4, p2Y + 1, "Ten Nguoi choi 2 (Bot): " + _PLAYER2_NAME, 11);
+        Sleep(1000);
+        
+        // Bot mặc định chọn nhân vật 4
+        CharacterBSelect = 4;
     }
     else {
-        // --- CHẾ ĐỘ PVP ---
-        system("cls"); // Xóa màn hình để nhập người chơi 2
-        SetColor(12, 15);
-        GotoXY(35, 12); cout << "Nhap ten Nguoi choi 2 (O): ";
-        UnhideCursor();
-        _PLAYER2_NAME = TypeName();
+        DrawFrame(frameX, p2Y, frameW, 3);
 
-        // Kiểm tra trùng tên
-        while (_PLAYER1_NAME == _PLAYER2_NAME) {
-            GotoXY(35, 13); cout << "Ten trung voi Player 1! Vui long nhap lai...";
-            _getch();
-            GotoXY(35, 13); cout << "                                                 ";
-            GotoXY(61, 12); cout << "                                                 ";
-            GotoXY(35, 12); cout << "Nhap lai ten Nguoi choi 2 (O): ";
+        while (true) {
+            PrintTextWithBg(frameX + 4, p2Y + 1, "Nhap ten Nguoi choi 2 (O): ", 11);
+
+            // Xóa vùng text nhập tên bên trong Frame
+            GotoXY(frameX + 31, p2Y + 1);
+            printf("\x1b[48;2;%d;%d;%dm", r1, g1, b1);
+            cout << string(16, ' ');
+            GotoXY(frameX + 31, p2Y + 1);
+
+            UnhideCursor();
+            int r2 = BG_MENU[(p2Y + 1) * 2][frameX + 31][0];
+            int g2 = BG_MENU[(p2Y + 1) * 2][frameX + 31][1];
+            int b2 = BG_MENU[(p2Y + 1) * 2][frameX + 31][2];
+            printf("\x1b[38;2;255;255;0m\x1b[48;2;%d;%d;%dm", r2, g2, b2);
+
             _PLAYER2_NAME = TypeName();
-        }
-        HideCursor();
+            printf("\x1b[0m");
+            HideCursor();
 
+            if (_PLAYER1_NAME == _PLAYER2_NAME) {
+                string errorMsg = "Ten bi trung voi Player 1! Nhan phim bat ky de nhap lai...";
+                PrintTextWithBg((consoleW - errorMsg.length()) / 2, p2Y + 4, errorMsg, 12);
+                _getch();
+
+                // Tẩy xóa dòng báo lỗi
+                PrintTextWithBg((consoleW - errorMsg.length()) / 2, p2Y + 4, string(errorMsg.length(), ' '), 15);
+            }
+            else {
+                break;
+            }
+        }
+        
         // Gọi menu chọn nhân vật cho Player 2
         CharacterBSelect = CharacterSelectionMenu();
     }
@@ -249,4 +355,44 @@ int GenericCharacterMenu(string options[], int size, string title) {
 int CharacterSelectionMenu() {
     string options[5] = { "1. Knight","2. Assassin","3. Vampire ","4. Paladin" ,"5. Officer"};
     return GenericCharacterMenu(options, 5, "CHARACTER MENU");
+=======
+        DrawFrame(frameX, p2Y, frameW, 3);
+        PrintTextWithBg(frameX + 4, p2Y + 1, "Ten Nguoi choi 2 (Bot): " + _PLAYER2_NAME, 11);
+        Sleep(1000);
+    }
+    else {
+        DrawFrame(frameX, p2Y, frameW, 3);
+
+        while (true) {
+            PrintTextWithBg(frameX + 4, p2Y + 1, "Nhap ten Nguoi choi 2 (O): ", 11);
+
+            // Xóa vùng text nhập tên bên trong Frame
+            GotoXY(frameX + 31, p2Y + 1);
+            printf("\x1b[48;2;%d;%d;%dm", r1, g1, b1);
+            cout << string(16, ' ');
+            GotoXY(frameX + 31, p2Y + 1);
+
+            UnhideCursor();
+            int r2 = BG_MENU[(p2Y + 1) * 2][frameX + 31][0];
+            int g2 = BG_MENU[(p2Y + 1) * 2][frameX + 31][1];
+            int b2 = BG_MENU[(p2Y + 1) * 2][frameX + 31][2];
+            printf("\x1b[38;2;255;255;0m\x1b[48;2;%d;%d;%dm", r2, g2, b2);
+
+            _PLAYER2_NAME = TypeName();
+            printf("\x1b[0m");
+            HideCursor();
+
+            if (_PLAYER1_NAME == _PLAYER2_NAME) {
+                string errorMsg = "Ten bi trung voi Player 1! Nhan phim bat ky de nhap lai...";
+                PrintTextWithBg((consoleW - errorMsg.length()) / 2, p2Y + 4, errorMsg, 12);
+                _getch();
+
+                // Tẩy xóa dòng báo lỗi
+                PrintTextWithBg((consoleW - errorMsg.length()) / 2, p2Y + 4, string(errorMsg.length(), ' '), 15);
+            }
+            else {
+                break;
+            }
+        }
+    }
 }

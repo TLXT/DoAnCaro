@@ -7,121 +7,69 @@
 #include <windows.h>
 #include <string>
 
+// --- THÊM THƯ VIỆN ẢNH VÀO ĐÂY ---
+#include "Menu.h"
+#include "btn_normal.h"
+#include "btn_hover.h"
+
 using namespace std;
 
 //hỏi người dùng có muốn replay không
 bool AskForReplay() {
-    int choice = 0; // 0: Yes, 1: No
-    int startX = 40;
-    int startY = 15;
-
-    system("cls");
-
-    while (true) {
-        GotoXY(startX, startY);
-        SetColor(0, 15);
-        cout << "Ban co muon xem lai van dau khong?";
-
-        //vẽ nút YES
-        GotoXY(startX + 5, startY + 2);
-        if (choice == 0) {
-            SetColor(0, 11); //
-            cout << ">> YES <<";
-        }
-        else {
-            SetColor(0, 15);
-            cout << "   YES   ";
-        }
-
-        //vẽ nút NO
-        GotoXY(startX + 20, startY + 2);
-        if (choice == 1) {
-            SetColor(0, 11);
-            cout << ">> NO <<";
-        }
-        else {
-            SetColor(0, 15);
-            cout << "   NO   ";
-        }
-
-        SetColor(0, 15);
-
-        char ch = _getch();
-        if (ch == -32 || ch == 0) ch = _getch(); //phím đặc biệt nên _getch() lại để lấy mã thật
-
-        if (ch == 75 || ch == 'a' || ch == 'A') { //trái
-            choice = 0;
-        }
-        else if (ch == 77 || ch == 'd' || ch == 'D') { //phải
-            choice = 1;
-        }
-        else if (ch == 13) { //enter
-            break;
-        }
-    }
-    return (choice == 0);
+    return GraphicalYesNo("Ban co muon xem lai van dau khong?", 10, true,
+        BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 //chọn tốc độ
 void ChooseReplaySpeed(float& speed, int& delay) {
-    int choice = 1; // 0: 0.5x, 1: 1x, 2: 1.5x
-    int startX = 40;
-    int startY = 15;
-
+    int choice = 1;
     system("cls");
 
+    int consoleW = 120;
+    string prompt = "Chon toc do xem lai (phim mui ten hoac A/D)";
+    int frameW = prompt.length() + 12;
+    int frameX = (consoleW - frameW) / 2;
+    int startY = 8;
+
+    DrawFrame(frameX, startY, frameW, 5);
+    GotoXY(frameX + 6, startY + 2);
+    SetColor(12, 15);
+    cout << prompt;
+
+    int btnCols = BTN_NORMAL_W * 2;
+    int totalBtnW = btnCols * 3 + 20; // 3 nút, cách nhau 10 khoảng trắng
+    int startX = (consoleW - totalBtnW) / 2;
+    int btnY = startY + 8;
+
+    int bgNorm = BTN_NORMAL[BTN_NORMAL_H / 2][BTN_NORMAL_W / 2];
+    int bgHov = BTN_HOVER[BTN_HOVER_H / 2][BTN_HOVER_W / 2];
+    int lastChoice = -1;
+
     while (true) {
-        GotoXY(startX, startY);
-        SetColor(0, 15);
-        cout << "Chon toc do xem lai (su dung phim mui ten trai/phai hoac A/D):";
-
-        //nút 0.5x
-        GotoXY(startX - 2, startY + 2);
-        if (choice == 0) {
-            SetColor(0, 11);
-            cout << ">> 0.5x <<";
-        }
-        else {
-            SetColor(0, 15);
-            cout << "   0.5x   ";
-        }
-
-        //nút 1.0x
-        GotoXY(startX + 12, startY + 2);
-        if (choice == 1) {
-            SetColor(0, 11);
-            cout << ">> 1.0x (0.5s/buoc) <<";
-        }
-        else {
-            SetColor(0, 15);
-            cout << "   1.0x (0.5s/buoc)   ";
-        }
-
-        //nút 1.5x
-        GotoXY(startX + 38, startY + 2);
-        if (choice == 2) {
-            SetColor(0, 11);
-            cout << ">> 1.5x <<";
-        }
-        else {
-            SetColor(0, 15);
-            cout << "   1.5x   ";
+        if (choice != lastChoice) {
+            string opts[3] = { "0.5x", "1.0x", "1.5x" };
+            for (int i = 0; i < 3; i++) {
+                int bX = startX + i * (btnCols + 10);
+                if (choice == i) {
+                    DrawSolidImage(BTN_HOVER, BTN_HOVER_W, BTN_HOVER_H, bX, btnY);
+                    GotoXY(bX + (btnCols - opts[i].length()) / 2, btnY + BTN_HOVER_H / 2);
+                    SetColor(0, bgHov); cout << opts[i];
+                }
+                else {
+                    DrawSolidImage(BTN_NORMAL, BTN_NORMAL_W, BTN_NORMAL_H, bX, btnY);
+                    GotoXY(bX + (btnCols - opts[i].length()) / 2, btnY + BTN_NORMAL_H / 2);
+                    SetColor(0, bgNorm); cout << opts[i];
+                }
+            }
+            lastChoice = choice;
         }
 
         SetColor(0, 15);
-
         char ch = _getch();
         if (ch == -32 || ch == 0) ch = _getch();
-
-        if (ch == 75 || ch == 'a' || ch == 'A') {
-            if (choice > 0) choice--;
-        }
-        else if (ch == 77 || ch == 'd' || ch == 'D') {
-            if (choice < 2) choice++;
-        }
-        else if (ch == 13) {
-            break;
-        }
+        if (ch == 75 || ch == 'a' || ch == 'A') { if (choice > 0) choice--; }
+        else if (ch == 77 || ch == 'd' || ch == 'D') { if (choice < 2) choice++; }
+        else if (ch == 13) break;
     }
 
     if (choice == 0) { speed = 0.5f; delay = (int)(500 / 0.5f); }
@@ -190,7 +138,7 @@ void PlayReplay(int delay) {
                     isPaused = !isPaused;
                     if (isPaused) {
                         GotoXY(LEFT + 67, TOP + 16);
-                        SetColor(12, 15); 
+                        SetColor(12, 15);
                         cout << "|| PAUSED  ";
                     }
                     else {

@@ -5,6 +5,12 @@
 #include "GamePlay.h"
 #include "UserInfo.h"
 
+// Tích hợp cả thư viện vẽ background (từ bản 1) và nút bấm (từ bản 2)
+#include "DrawBackground.hpp"
+#include "Menu.h"
+#include "btn_normal.h"
+#include "btn_hover.h"
+
 using namespace std;
 
 string TypeFileName() {
@@ -31,14 +37,20 @@ string TypeFileName() {
     }
     return res;
 }
+
 string SaveGame() {
     string filename;
+
+    system("cls");
+    DrawLoadgameBackground();   // [Merged] Vẽ nền xịn từ file gốc
+
     while (true) {
         GotoXY(5, 27);
         cout << "                                                                    ";
 
         GotoXY(5, 27);
-        SetColor(12, 15);
+        // [Merged] Dùng ANSI code để màu chữ đỏ sắc nét đè trên nền game
+        printf("\x1b[38;2;255;50;50m\x1b[48;2;20;20;20m");
         cout << "Nhap ten file de luu: ";
 
         UnhideCursor();
@@ -81,7 +93,6 @@ string SaveGame() {
         }
         outFile << currentStep << endl; //lưu số bước hiện tại
         for (int i = 0; i < currentStep; i++) {
-            //lưu tọa độ dòng, cột và loại quân cờ (-1 hoặc 1) của từng bước đi
             outFile << moveHistory[i].row << " " << moveHistory[i].col << " " << moveHistory[i].c << endl;
         }
         outFile.close();
@@ -105,8 +116,9 @@ string SaveGame() {
     GotoXY(_X, _Y);
 }
 
+// [Merged] Logic lấy file mới nhất bằng Struct từ bản thứ 2
 vector<string> GetSaveFiles() {
-    vector<string> files;
+    vector<SaveFileInfo> files;
     WIN32_FIND_DATAA findFileData;
     HANDLE hFind = FindFirstFileA("*.caro", &findFileData);
 
@@ -114,13 +126,29 @@ vector<string> GetSaveFiles() {
         do {
             string fileName = findFileData.cFileName;
             fileName = fileName.substr(0, fileName.find_last_of("."));
-            files.push_back(fileName);
+
+            // Lấy thời gian file được lưu cuối cùng
+            ULARGE_INTEGER fileTime;
+            fileTime.LowPart = findFileData.ftLastWriteTime.dwLowDateTime;
+            fileTime.HighPart = findFileData.ftLastWriteTime.dwHighDateTime;
+
+            files.push_back({ fileName, fileTime });
         } while (FindNextFileA(hFind, &findFileData) != 0);
         FindClose(hFind);
     }
-    return files;
-}
 
+    // Sắp xếp file theo thời gian lưu (Giảm dần: Mới nhất lên đầu)
+    sort(files.begin(), files.end(), [](const SaveFileInfo& a, const SaveFileInfo& b) {
+        return a.time.QuadPart > b.time.QuadPart;
+        });
+
+    vector<string> fileList;
+    for (const auto& item : files) {
+        fileList.push_back(item.name);
+    }
+
+    return fileList;
+}
 
 bool LoadGame() {
     string filename = ChooseFileMenu();
@@ -140,8 +168,8 @@ bool LoadGame() {
                 inFile >> _A[i][j].c;
             }
         }
-        moveHistory.clear(); //xóa lịch sử cũ trước khi load
-        if (inFile >> currentStep) { //kiểm tra xem file save có dữ liệu lịch sử không
+        moveHistory.clear();
+        if (inFile >> currentStep) {
             for (int i = 0; i < currentStep; i++) {
                 MoveNode node;
                 inFile >> node.row >> node.col >> node.c;
@@ -149,18 +177,22 @@ bool LoadGame() {
             }
         }
         else {
-            currentStep = 0; //tránh lỗi crash nếu đọc nhầm file save cũ (file được tạo trước khi sửa code)
+            currentStep = 0;
         }
         inFile.close();
 
         system("cls");
+        DrawIngameBackground(); // [Merged] Vẽ background ingame từ bản gốc
         DrawBoard(BOARD_SIZE);
         DrawPlayerInfo();
         UpdateTurnInfo();
 
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
-                DrawCell(_A[i][j].x, _A[i][j].y, 15);
+                // [Merged] Fix lỗi hiển thị: Chỉ vẽ các ô đã có quân
+                if (_A[i][j].c != 0) {
+                    DrawCell(_A[i][j].x, _A[i][j].y, 15);
+                }
             }
         }
         DrawCell(_X, _Y, 11);
@@ -169,6 +201,7 @@ bool LoadGame() {
     }
     else {
         system("cls");
+        DrawLoadgameBackground();
         GotoXY(40, 15);
         SetColor(12, 15);
         cout << "Loi doc file! Nhan phim bat ky de thoat...";
@@ -177,65 +210,110 @@ bool LoadGame() {
     }
 }
 
+// [Merged] UI Menu Nút Cuộn Kết Hợp Background
 string ChooseFileMenu() {
     while (true) {
         vector<string> files = GetSaveFiles();
-
         if (files.empty()) {
             system("cls");
+            DrawLoadgameBackground(); // [Merged] Phủ nền khi báo lỗi trống file
+
+            // Dùng ANSI in đè nền xám viền đỏ để báo lỗi đẹp hơn
             GotoXY(40, 15);
-            SetColor(12, 15);
+            printf("\x1b[38;2;255;50;50m\x1b[48;2;20;20;20m");
             cout << "Chua co du lieu Save! Nhan phim bat ky de quay lai...";
             _getch();
             return "";
         }
 
         int currentSelect = 0;
-        int displayCount = files.size() < 15 ? files.size() : 15;
+        int maxDisplay = 5; // Chỉ hiển thị tối đa 5 file cùng lúc để không vỡ khung
+        int startIndex = 0; // Vị trí file bắt đầu hiển thị (dùng để cuộn)
+
+        int lastSelect = -1;
+        int lastStartIndex = -1;
         bool isLooping = true;
 
+        int consoleW = 120;
+        string title = "DANH SACH CAC VAN DA LUU";
+        int frameW = title.length() + 8;
+        int btnCols = BTN_NORMAL_W * 2;
+        int startX = (consoleW - btnCols) / 2;
+        int startY_Base = 10;
+
+        int bgNorm = BTN_NORMAL[BTN_NORMAL_H / 2][BTN_NORMAL_W / 2];
+        int bgHov = BTN_HOVER[BTN_HOVER_H / 2][BTN_HOVER_W / 2];
+
         while (isLooping) {
-            system("cls");
-            system("color F0");
-            GotoXY(40, 5);
-            SetColor(12, 15);
-            cout << "=== DANH SACH CAC VAN DA LUU ===";
+            // NẾU BỊ CUỘN TRANG (thay đổi startIndex): Xóa và vẽ lại toàn bộ khung và nền
+            if (startIndex != lastStartIndex) {
+                system("cls");
+                DrawLoadgameBackground(); // Vẽ lại nền sau khi clean
 
-            for (int i = 0; i < displayCount; i++) {
-                GotoXY(45, 8 + i * 2);
-                if (i == currentSelect) {
-                    SetColor(0, 11);
-                    cout << ">> " << files[i] << " <<";
-                }
-                else {
-                    SetColor(0, 15);
-                    cout << "   " << files[i] << "   ";
-                }
+                // Vẽ Title bằng text ANSI để tiệp với không gian nền
+                GotoXY(40, 5);
+                printf("\x1b[38;2;255;50;50m\x1b[48;2;30;30;30m");
+                cout << "=== DANH SACH CAC VAN DA LUU ===";
+
+                GotoXY(30, startY_Base + maxDisplay * (BTN_NORMAL_H + 1) + 2);
+                printf("\x1b[38;2;150;150;150m\x1b[48;2;20;20;20m");
+                cout << "(W/S: Chon | Enter: Tai game | X: Xoa file | ESC: Huy)";
+
+                lastStartIndex = startIndex;
+                lastSelect = -1; // Ép vẽ lại toàn bộ nút
             }
 
-            GotoXY(30, 8 + displayCount * 2 + 2);
-            SetColor(8, 15);
-            cout << "(W/S: Chon | Enter: Tai game | X: Xoa file | ESC: Huy)";
+            // NẾU CÓ SỰ DỊCH CHUYỂN NÚT BẤM (Cập nhật hiển thị Hover)
+            if (currentSelect != lastSelect) {
+                int endIdx = min(startIndex + maxDisplay, (int)files.size());
 
+                for (int i = startIndex; i < endIdx; i++) {
+                    int rowOffset = i - startIndex; // Tính toán xem nút sẽ nằm ở dòng thứ mấy trên màn hình
+                    int startY = startY_Base + rowOffset * (BTN_NORMAL_H + 1);
+
+                    if (i == currentSelect) {
+                        DrawSolidImage(BTN_HOVER, BTN_HOVER_W, BTN_HOVER_H, startX, startY);
+                        GotoXY(startX + (btnCols - files[i].length()) / 2, startY + BTN_HOVER_H / 2);
+                        SetColor(0, bgHov); cout << files[i];
+                    }
+                    else {
+                        DrawSolidImage(BTN_NORMAL, BTN_NORMAL_W, BTN_NORMAL_H, startX, startY);
+                        GotoXY(startX + (btnCols - files[i].length()) / 2, startY + BTN_NORMAL_H / 2);
+                        SetColor(0, bgNorm); cout << files[i];
+                    }
+                }
+                lastSelect = currentSelect;
+            }
+
+            // Xử lý phím
+            SetColor(0, 15);
             int key = toupper(_getch());
-            if (key == 27) { // Bấm ESC
-                return "";
-            }
+            if (key == 0 || key == 224) key = toupper(_getch());
+
+            if (key == 27) return ""; // ESC
             else if (key == 'W' || key == 72) {
                 currentSelect--;
-                if (currentSelect < 0) currentSelect = displayCount - 1;
+                if (currentSelect < 0) currentSelect = files.size() - 1;
             }
             else if (key == 'S' || key == 80) {
                 currentSelect++;
-                if (currentSelect >= displayCount) currentSelect = 0;
+                if (currentSelect >= files.size()) currentSelect = 0;
             }
-            else if (key == 13) { // Phím Enter
-                return files[currentSelect];
-            }
+            else if (key == 13) return files[currentSelect]; // Enter
             else if (key == 'X') {
                 string fileToDelete = files[currentSelect] + ".caro";
                 DeleteFileA(fileToDelete.c_str());
-                isLooping = false;
+                isLooping = false; // Bấm xóa sẽ kích hoạt reset lại file
+            }
+
+            // LOGIC CUỘN TRANG
+            // Nếu con trỏ chuột nhảy lên trên khỏi giới hạn hiển thị
+            if (currentSelect < startIndex) {
+                startIndex = currentSelect;
+            }
+            // Nếu con trỏ chuột nhảy xuống dưới khỏi giới hạn hiển thị
+            else if (currentSelect >= startIndex + maxDisplay) {
+                startIndex = currentSelect - maxDisplay + 1;
             }
         }
     }
@@ -243,47 +321,49 @@ string ChooseFileMenu() {
 
 void ClearAllData() {
     vector<string> files = GetSaveFiles();
-
     if (files.empty()) {
         system("cls");
+        DrawLoadgameBackground(); // [Merged] Draw bg 
         GotoXY(40, 15);
-        SetColor(12, 15);
+        printf("\x1b[38;2;255;50;50m\x1b[48;2;20;20;20m");
         cout << "Khong co du lieu luu nao de xoa!";
         _getch();
         return;
     }
 
-    system("cls");
-    system("color F0");
-    GotoXY(35, 15);
-    SetColor(12, 15);
-    cout << "Ban co chac muon xoa TOAN BO " << files.size() << " file luu? (Y/N): ";
+    // [Merged] Gọi Graphic Yes No từ bản 2
+    string prompt = "Ban co chac muon xoa TOAN BO " + to_string(files.size()) + " file luu?";
+    bool confirm = GraphicalYesNo(prompt, 10, true, BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 
-    char confirm = toupper(_getch());
-    if (confirm == 'Y') {
+    system("cls");
+    DrawLoadgameBackground();
+
+    if (confirm) {
         for (string file : files) {
             string fullPath = file + ".caro";
             DeleteFileA(fullPath.c_str());
         }
         GotoXY(35, 17);
-        SetColor(10, 15);
-        cout << "Da xoa thanh cong toan bo du lieu! Nhan phim bat ky...";
+        SetColor(10, 15); cout << "Da xoa thanh cong toan bo du lieu! Nhan phim bat ky...";
     }
     else {
         GotoXY(35, 17);
-        SetColor(8, 15);
-        cout << "Da huy thao tac xoa. Nhan phim bat ky...";
+        SetColor(8, 15); cout << "Da huy thao tac xoa. Nhan phim bat ky...";
     }
     _getch();
 }
+
 bool loadPresent() {
     system("cls");
+    DrawIngameBackground();
     DrawBoard(BOARD_SIZE);
     DrawPlayerInfo();
     UpdateTurnInfo();
     for (int i = 0; i < BOARD_SIZE; i++)
         for (int j = 0; j < BOARD_SIZE; j++)
-            DrawCell(_A[i][j].x, _A[i][j].y, 15);
+            if (_A[i][j].c != 0) { // [Merged] Chỉ vẽ lên ô có quân
+                DrawCell(_A[i][j].x, _A[i][j].y, 15);
+            }
     DrawCell(_X, _Y, 11);
     return true;
 }
