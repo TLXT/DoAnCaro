@@ -6,6 +6,11 @@
 
 using namespace std;
 
+// --- Khai báo các hàm liên kết (Wrappers) để dùng đồ họa trong Template ---
+void DrawUIBackground();
+void DrawTitleArtWrapper(int startX, int startY);
+
+// --- Khai báo các hàm Menu chính ---
 int GenericMenu(string options[], int size, string title);
 int MainMenu();
 int PlayGameMenu();
@@ -21,15 +26,25 @@ int GraphicalMenu(string options[], int size, string title,
     const int btnNormal[][BtnW], const int btnHover[][BtnW], int btnW, int btnH)
 {
     system("cls");
+
+    // [Merged Feature]: Vẽ Background đồ họa xịn xò từ Menu gốc
+    DrawUIBackground();
+
     int consoleW = 120;
 
-    // Vẽ khung câu hỏi/tiêu đề
-    int frameW = title.length() + 12;
-    int frameX = (consoleW - frameW) / 2;
-    DrawFrame(frameX, 4, frameW, 5);
-    GotoXY(frameX + 6, 6);
-    SetColor(12, 15);
-    cout << title;
+    // [Merged Feature]: Render tiêu đề tùy biến
+    if (title == "GAME CARO") {
+        DrawTitleArtWrapper(42, 3); // Dùng ASCII art Gradient
+    }
+    else {
+        // Vẽ khung câu hỏi/tiêu đề
+        int frameW = title.length() + 12;
+        int frameX = (consoleW - frameW) / 2;
+        DrawFrame(frameX, 4, frameW, 5);
+        GotoXY(frameX + 6, 6);
+        SetColor(12, 15);
+        cout << title;
+    }
 
     int btnCols = btnW * 2;
     int startX = (consoleW - btnCols) / 2;
@@ -85,14 +100,13 @@ bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
     int consoleH = 40; // Giới hạn chiều cao tuyệt đối của console
 
     // --- BẢO VỆ CHỐNG TRÀN MÀN HÌNH (Fix lỗi xéo khung) ---
-    // Tính toán dòng sâu nhất mà menu sẽ vẽ tới. 
-    // Nếu nó lớn hơn hoặc bằng 40, ép nó dịch lên trên để an toàn.
     if (startY + 7 + btnH >= consoleH) {
         startY = consoleH - 8 - btnH;
     }
 
     if (clearScreen) {
         system("cls");
+        DrawUIBackground(); // Vẽ lại Background nếu có xóa màn hình
     }
     else {
         // Tẩy trắng khu vực sẽ chứa Menu để đè gọn gàng lên bàn cờ cũ

@@ -10,7 +10,7 @@
 using namespace std;
 
 // ==============================================================
-// 1. Cập nhật hàm lấy file: Đọc thuộc tính và đưa file mới nhất lên đầu
+// Cập nhật cấu trúc lấy file: Đọc thuộc tính và đưa file mới lên đầu
 // ==============================================================
 struct SaveFileInfo {
     string name;

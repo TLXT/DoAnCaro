@@ -13,13 +13,47 @@
 #include "CaroBot.h"
 #include "GameTimer.h"
 #include "Replay.h"
-#include "CharSprite.h"   // <<< THÊM MỚI
+#include "CharSprite.h"   // <<< Tích hợp Sprite Nhân vật
 
 using namespace std;
 
+// =========================================================
+// CÁC HÀM CẤU HÌNH CONSOLE TỪ MAIN CŨ (RẤT QUAN TRỌNG ĐỂ VẼ MÀU)
+// =========================================================
+void EnableRGBColor() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= 0x0004; // ENABLE_VIRTUAL_TERMINAL_PROCESSING
+    SetConsoleMode(hOut, dwMode);
+}
+
+void SetConsoleFontSize(int width, int height) {
+    CONSOLE_FONT_INFOEX cfi;
+    cfi.cbSize = sizeof(cfi);
+    cfi.nFont = 0;
+    cfi.dwFontSize.X = width;  // Chiều rộng pixel của 1 ký tự
+    cfi.dwFontSize.Y = height; // Chiều cao pixel của 1 ký tự
+    cfi.FontFamily = FF_DONTCARE;
+    cfi.FontWeight = FW_NORMAL;
+    wcscpy_s(cfi.FaceName, L"Consolas"); // Font Consolas hỗ trợ UTF-8 tốt
+    SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
+}
+
+// =========================================================
+// HÀM MAIN CHÍNH
+// =========================================================
 int main() {
+    // 1. Khởi tạo môi trường đồ họa cho Console
+    EnableRGBColor();
+    SetConsoleOutputCP(CP_UTF8); // Bật Font UTF-8 để vẽ box và text tiếng Việt
+    SetConsoleFontSize(10, 15);
+
     FixConsoleWindow();
-    SetConsoleWindow(1000, 800);   // <<< Tăng chiều cao để chứa layout mới
+
+    // Đảm bảo lưới Console đủ 120 cột và 50 dòng để chứa được giao diện mới (800px)
+    system("MODE CON COLS=120 LINES=50");
+    SetConsoleWindow(1000, 800);
     HideCursor();
 
     while (true) {
@@ -32,7 +66,7 @@ int main() {
             if (mode == 0) {  // Player vs Player
                 _BOT_MODE = false;
                 InputPlayerNames(false);
-                CharacterSelectMenu();   // <<< THÊM MỚI: chọn nhân vật
+                CharacterSelectMenu();   // Gọi Menu chọn nhân vật mới
                 StartGame();
                 isPlaying = true;
             }
@@ -43,7 +77,7 @@ int main() {
                 _BOT_MODE = true;
                 _BOT_DIFFICULTY = diff + 1;
                 InputPlayerNames(true);
-                CharacterSelectMenu();   // <<< THÊM MỚI: chọn nhân vật
+                CharacterSelectMenu();   // Gọi Menu chọn nhân vật mới
                 StartGame();
                 isPlaying = true;
             }
@@ -53,7 +87,7 @@ int main() {
         }
         else if (choice == 1) {  // CHỌN: LOAD GAME
             if (LoadGame() == true) {
-                DrawBothSprites();       // <<< THÊM MỚI: vẽ lại sprite sau khi load
+                DrawBothSprites();       // Vẽ lại sprite 2 bên sau khi load
                 isPlaying = true;
             }
         }
@@ -234,23 +268,23 @@ int main() {
                         else if (gamechoice == 1) {
                             SaveGame();
                             if (loadPresent()) {
-                                DrawBothSprites();     // <<< Vẽ lại sprite sau save/load
+                                DrawBothSprites();     // Vẽ lại sprite sau save/load
                                 timeLeft = TURN_TIME_LIMIT;
                             }
                         }
                         else if (gamechoice == 2) {
                             if (LoadGame()) {
-                                DrawBothSprites();     // <<< Vẽ lại sprite sau load
+                                DrawBothSprites();     // Vẽ lại sprite sau load
                                 timeLeft = TURN_TIME_LIMIT;
                             }
                             else {
                                 loadPresent();
-                                DrawBothSprites();     // <<< Vẽ lại sprite
+                                DrawBothSprites();     // Vẽ lại sprite nếu load fail
                             }
                         }
                         else if (gamechoice == 3) {
                             loadPresent();
-                            DrawBothSprites();         // <<< Vẽ lại sprite
+                            DrawBothSprites();         // Vẽ lại sprite
                         }
 
                         isPaused = false;

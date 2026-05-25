@@ -138,9 +138,17 @@
     <ClCompile Include="UserInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bg_forest.h" />
+    <ClInclude Include="bg_game.h" />
+    <ClInclude Include="bg_load.h" />
+    <ClInclude Include="bg_menu.h" />
+    <ClInclude Include="btn_hover.h" />
+    <ClInclude Include="btn_normal.h" />
     <ClInclude Include="CaroBot.h" />
     <ClInclude Include="CharSprite.h" />
     <ClInclude Include="ControlConsole.h" />
+    <ClInclude Include="DrawBackground.h" />
+    <ClInclude Include="DrawBackground.hpp" />
     <ClInclude Include="DrawBoard.h" />
     <ClInclude Include="FinishProcess.h" />
     <ClInclude Include="GamePlay.h" />
