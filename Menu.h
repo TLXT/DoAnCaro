@@ -1,8 +1,9 @@
-﻿#pragma once
+#pragma once
+#pragma comment(lib, "winmm.lib")
 #include <iostream>
 #include <conio.h>
 #include <string>
-#include "CharSprite.h"
+#include "character.h"
 
 using namespace std;
 
@@ -12,11 +13,15 @@ void DrawTitleArtWrapper(int startX, int startY);
 
 // --- Khai báo các hàm Menu chính ---
 int GenericMenu(string options[], int size, string title);
+int GenericCharacterMenu(string options[], int size, string title);
 int MainMenu();
 int PlayGameMenu();
 int DifficultyMenu();
 int SettingsMenu();
 int GameMenu();
+int MusicMenu();
+int CharacterSelectionMenu();
+void VolumeMenu();
 void InputPlayerNames(bool isBotMode);
 
 // --- CÁC HÀM GIAO DIỆN CHUNG (Định nghĩa trực tiếp dùng Template) ---

@@ -13,7 +13,8 @@
 #include "CaroBot.h"
 #include "GameTimer.h"
 #include "Replay.h"
-#include "CharSprite.h"   // <<< Tích hợp Sprite Nhân vật
+#include"Sound.h"
+#include"Proccesor.h"
 
 using namespace std;
 
@@ -91,14 +92,13 @@ int main() {
                 isPlaying = true;
             }
         }
-        else if (choice == 2) {  // CHỌN: SETTINGS
-            while (true) {
-                int setChoice = SettingsMenu();
-                if (setChoice == 0) ClearAllData();
-                else if (setChoice == 1) break;
-            }
+        else if (choice == 2) { // CHỌN: SETTINGS
+            loadSettingMenu();
         }
-        else if (choice == 3) {  // CHỌN: EXIT
+        else if (choice == 3) {
+            loadmusic();
+        }
+        else if (choice == 4) { // CHỌN: EXIT
             ExitGame();
             return 0;
         }
@@ -154,87 +154,8 @@ int main() {
                 // 2. LƯỢT CỦA BOT
                 // --------------------------------------------------------
                 if (_BOT_MODE == true && _TURN == false) {
-                    isPaused = true;
-                    {
-                        lock_guard<mutex> lock(consoleMutex);
-                        GotoXY(BOT_MSG_X, BOT_MSG_Y);
-                        SetColor(12, 15);
-                        cout << "Bot dang suy nghi...            ";
-                    }
-
-                    _POINT botMove = FindBotMove(1, _BOT_DIFFICULTY);
-
-                    if (botMove.x != -1) {
-                        DrawCell(_X, _Y, 15);
-                        _X = botMove.x;
-                        _Y = botMove.y;
-
-                        int checkRes = CheckBoard(_X, _Y);
-                        DrawCell(_X, _Y, 11);
-
-                        int finishStatus;
-                        {
-                            lock_guard<mutex> lock(consoleMutex);
-
-                            // Lưu lịch sử nước đi của bot
-                            int r = (_Y - TOP - 1) / 2;
-                            int c = (_X - LEFT - 2) / 4;
-                            if (currentStep < (int)moveHistory.size())
-                                moveHistory.erase(moveHistory.begin() + currentStep, moveHistory.end());
-                            moveHistory.push_back({ r, c, checkRes });
-                            currentStep++;
-
-                            // Xóa thông báo "suy nghĩ"
-                            GotoXY(BOT_MSG_X, BOT_MSG_Y);
-                            SetColor(0, 15);
-                            cout << "                                ";
-
-                            // Kiểm tra thắng/thua trong lúc giữ mutex
-                            finishStatus = ProcessFinish(TestBoard());
-                            if (finishStatus != 2) {
-                                GotoXY(TIMER_X, TIMER_Y);     cout << "                                        ";
-                                GotoXY(TIMER_X, TIMER_Y + 1); cout << "                                        ";
-                            }
-                        }
-
-                        // Xử lý kết thúc ván (ngoài mutex)
-                        switch (finishStatus) {
-                        case -1: case 1: case 0:
-                            isPaused = true;
-                            {
-                                lock_guard<mutex> lock(consoleMutex);
-                                GotoXY(TIMER_X, TIMER_Y);     cout << "                                        ";
-                                GotoXY(TIMER_X, TIMER_Y + 1); cout << "                                        ";
-                            }
-
-                            {
-                                char ch;
-                                do {
-                                    ch = _getch();
-                                    if (ch == -32 || ch == 0) _getch();
-                                } while (ch != 13);
-                            }
-
-                            HandleReplayOption();
-
-                            if (AskContinue() != 'Y') {
-                                isPlaying = false;
-                            }
-                            else {
-                                StartGame();
-                                timeLeft = TURN_TIME_LIMIT;
-                            }
-                            break;
-
-                        case 2:  // Ván cờ tiếp tục
-                            timeLeft = TURN_TIME_LIMIT;
-                            break;
-                        }
-
-                        isPaused = false;
-                        timeLeft = TURN_TIME_LIMIT;
-                        continue;
-                    }
+                    loadBotMove(isPlaying);
+                    continue;
                 }
 
                 // --------------------------------------------------------
@@ -283,6 +204,10 @@ int main() {
                             }
                         }
                         else if (gamechoice == 3) {
+                            loadmusic();
+                            loadPresent();
+                        }
+                        else if (gamechoice == 4) {
                             loadPresent();
                             DrawBothSprites();         // Vẽ lại sprite
                         }
@@ -306,7 +231,6 @@ int main() {
                         }
                         GotoXY(_X, _Y);
                     }
-
                     // --- CÁC PHÍM DI CHUYỂN / ĐÁNH CỜ (chỉ khi đang chơi) ---
                     else if (!isPaused) {
                         if (_COMMAND == 'Z') {
