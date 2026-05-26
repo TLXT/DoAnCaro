@@ -1,55 +1,68 @@
-﻿#include "UserInfo.h"
+#include "UserInfo.h"
 #include "ControlConsole.h"
 #include "GameStatus.h"
+#include "Menu.h"
 #include <iostream>
+#include <algorithm>
+#include <cstdio>
 
 using namespace std;
 
-// INFO_X = 91, INFO_Y = 24  (định nghĩa trong GameStatus.h)
-// Panel nằm bên phải bàn cờ, bên dưới sprite nhân vật 2
+static void ClearHudLine(int y) {
+    GotoXY(0, y);
+    printf("\x1b[48;2;15;15;20m");
+    cout << string(CONSOLE_COLS, ' ');
+    printf("\x1b[0m");
+}
+
+void DrawStatusInfo(bool paused) {
+    if (paused) {
+        PrintTextWithBg(STATUS_X, STATUS_Y, "TRANG THAI: TAM DUNG       ", 14);
+    }
+    else {
+        PrintTextWithBg(STATUS_X, STATUS_Y, "TRANG THAI: DANG CHOI      ", 10);
+    }
+}
+
+static string ClipText(const string& text, int maxLen) {
+    if ((int)text.length() <= maxLen) return text;
+    if (maxLen <= 3) return text.substr(0, max(0, maxLen));
+    return text.substr(0, maxLen - 3) + "...";
+}
+
+static void PrintHudCentered(int y, const string& text, int color) {
+    ClearHudLine(y);
+    int x = (CONSOLE_COLS - static_cast<int>(text.length())) / 2;
+    if (x < 0) x = 0;
+    PrintTextWithBg(x, y, text, color);
+}
 
 void DrawPlayerInfo() {
-    // Tọa độ bắt đầu ngay dưới bàn cờ 2 dòng
-    int startY = TOP + BOARD_SIZE * 2;
-    int startX = LEFT;
+    for (int y = INFO_Y; y <= RESULT_Y; y++) {
+        ClearHudLine(y);
+    }
 
-    SetColor(0, 15);
+    string p1 = ClipText(_PLAYER1_NAME, 14);
+    string p2 = ClipText(_PLAYER2_NAME, 14);
+    string playerLine = "[X] " + p1 + "   vs   [O] " + p2;
+    string helpLine = "[WASD] Di chuyen   [Enter] Danh   [Z/Y] Undo/Redo   [P] Pause   [M] Menu";
 
-    // Viền trên
-    GotoXY(startX, startY);
-
-    // Khung tên người chơi (Cột 1)
-    GotoXY(startX, startY + 1);
-    SetColor(12, 15); cout << " [X] " << _PLAYER1_NAME;
-    SetColor(0, 15);  cout << "  vs  ";
-    SetColor(10, 15); cout << "[O] " << _PLAYER2_NAME;
-
-    // Viền dưới
-    GotoXY(startX, startY + 2);
-    SetColor(0, 15);
-
-    // Hướng dẫn phím siêu rút gọn
-    GotoXY(startX, startY + 3);
-    SetColor(8, 15); // Chữ màu xám đậm (hoặc dùng 0, 15 nếu không hỗ trợ)
-    cout << " Phim: WASD(Di chuyen) | Enter(Danh) | Z/Y(Undo/Redo) | P(Pause) | M(Menu)";
-    SetColor(0, 15);
+    PrintHudCentered(HUD_PLAYER_Y, playerLine, 15);
+    PrintHudCentered(HUD_HELP_Y, helpLine, 11);
+    PrintTextWithBg(TIMER_X, TIMER_Y, "THOI GIAN: 30s      ", 11);
+    DrawStatusInfo(false);
 }
 
 void UpdateTurnInfo() {
-    int startY = TOP + BOARD_SIZE * 2 + 3; // Nằm trên dòng Y + 1 của khung
-    int turnX = LEFT + 35; // Cột thứ 2
-
     lock_guard<mutex> lock(consoleMutex);
-    GotoXY(turnX, startY);
-    SetColor(0, 15);
-    cout << " |  LUOT DI: ";
-
+    
+    string turnText = "LUOT DI: ";
     if (_TURN == true) {
-        SetColor(12, 15); cout << "X   "; // Cắt bỏ tên để đỡ dài
+        PrintTextWithBg(TURN_INFO_X, TURN_INFO_Y, turnText + "X    ", 12);
     }
     else {
-        SetColor(10, 15); cout << "O   ";
+        PrintTextWithBg(TURN_INFO_X, TURN_INFO_Y, turnText + "O    ", 10);
     }
-    SetColor(0, 15);
+    
     GotoXY(_X, _Y); // Trả con trỏ về bàn cờ
 }

@@ -3,13 +3,18 @@
 #include <iostream>
 #include <conio.h>
 #include <string>
-#include "character.h"
+#include <algorithm>
+#include "Character.h"
+#include "ControlConsole.h" 
+#include "GameStatus.h"
+#include "Sound.h"
 
 using namespace std;
 
 // --- Khai báo các hàm liên kết (Wrappers) để dùng đồ họa trong Template ---
 void DrawUIBackground();
 void DrawTitleArtWrapper(int startX, int startY);
+void DrawMenuTitle(const string& title, int y, int consoleW);
 
 // --- Khai báo các hàm Menu chính ---
 int GenericMenu(string options[], int size, string title);
@@ -24,6 +29,39 @@ int CharacterSelectionMenu();
 void VolumeMenu();
 void InputPlayerNames(bool isBotMode);
 
+template <size_t W>
+void DrawSolidImage(const int sprite[][W], int w, int h, int startX, int startY) {
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            int colorIdx = sprite[y][x];
+            if (colorIdx >= 0 && colorIdx < 15) {
+                GotoXY(startX + x * 2, startY + y);
+                SetColor(colorIdx, colorIdx);
+                cout << "  ";
+            }
+        }
+    }
+    SetColor(0, 15);
+}
+
+void DrawFrame(int x, int y, int w, int h);
+
+inline int ReadMenuKey() {
+    int key = _getch();
+    if (key == 0 || key == 224) {
+        key = _getch();
+    }
+    else {
+        key = toupper((unsigned char)key);
+    }
+    return key;
+}
+
+inline int CenterConsoleX(int width, int consoleW = CONSOLE_COLS) {
+    int x = (consoleW - width) / 2;
+    return x < 0 ? 0 : x;
+}
+
 // --- CÁC HÀM GIAO DIỆN CHUNG (Định nghĩa trực tiếp dùng Template) ---
 
 template <size_t BtnW>
@@ -35,25 +73,22 @@ int GraphicalMenu(string options[], int size, string title,
     // [Merged Feature]: Vẽ Background đồ họa xịn xò từ Menu gốc
     DrawUIBackground();
 
-    int consoleW = 120;
+    int consoleW = CONSOLE_COLS;
 
-    // [Merged Feature]: Render tiêu đề tùy biến
     if (title == "GAME CARO") {
-        DrawTitleArtWrapper(42, 3); // Dùng ASCII art Gradient
+        DrawMenuTitle("CARO", 1, consoleW);
     }
     else {
-        // Vẽ khung câu hỏi/tiêu đề
-        int frameW = title.length() + 12;
-        int frameX = (consoleW - frameW) / 2;
-        DrawFrame(frameX, 4, frameW, 5);
-        GotoXY(frameX + 6, 6);
-        SetColor(12, 15);
-        cout << title;
+        DrawMenuTitle(title, 2, consoleW);
     }
 
     int btnCols = btnW * 2;
-    int startX = (consoleW - btnCols) / 2;
-    int startY_Base = 12;
+    int startX = CenterConsoleX(btnCols, consoleW);
+    int totalMenuH = size * btnH + (size - 1);
+    int startY_Base = (title == "GAME CARO") ? 10 : 12;
+    if (startY_Base + totalMenuH >= 40) {
+        startY_Base = 39 - totalMenuH;
+    }
 
     int currentSelect = 0;
     int lastSelect = -1;
@@ -69,13 +104,15 @@ int GraphicalMenu(string options[], int size, string title,
 
                 if (i == currentSelect) {
                     DrawSolidImage(btnHover, btnW, btnH, startX, startY);
-                    GotoXY(startX + (btnCols - options[i].length()) / 2, startY + btnH / 2);
+                    int textLen = static_cast<int>(options[i].length());
+                    GotoXY(startX + (btnCols - textLen) / 2, startY + btnH / 2);
                     SetColor(0, bgHover); // Chữ đen, nền theo màu nút
                     cout << options[i];
                 }
                 else {
                     DrawSolidImage(btnNormal, btnW, btnH, startX, startY);
-                    GotoXY(startX + (btnCols - options[i].length()) / 2, startY + btnH / 2);
+                    int textLen = static_cast<int>(options[i].length());
+                    GotoXY(startX + (btnCols - textLen) / 2, startY + btnH / 2);
                     SetColor(0, bgNormal);
                     cout << options[i];
                 }
@@ -84,16 +121,21 @@ int GraphicalMenu(string options[], int size, string title,
         }
 
         SetColor(0, 15);
-        int key = toupper(_getch());
+        int key = ReadMenuKey();
         if (key == 'W' || key == 72) {
             currentSelect--;
             if (currentSelect < 0) currentSelect = size - 1;
+            PlayMenuSound();
         }
         else if (key == 'S' || key == 80) {
             currentSelect++;
             if (currentSelect >= size) currentSelect = 0;
+            PlayMenuSound();
         }
-        else if (key == 13) return currentSelect;
+        else if (key == 13) {
+            PlayMenuSound();
+            return currentSelect;
+        }
     }
 }
 
@@ -101,8 +143,8 @@ template <size_t BtnW>
 bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
     const int btnNormal[][BtnW], const int btnHover[][BtnW], int btnW, int btnH)
 {
-    int consoleW = 120;
-    int consoleH = 40; // Giới hạn chiều cao tuyệt đối của console
+    int consoleW = CONSOLE_COLS;
+    int consoleH = CONSOLE_LINES;
 
     // --- BẢO VỆ CHỐNG TRÀN MÀN HÌNH (Fix lỗi xéo khung) ---
     if (startY + 7 + btnH >= consoleH) {
@@ -117,13 +159,13 @@ bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
         // Tẩy trắng khu vực sẽ chứa Menu để đè gọn gàng lên bàn cờ cũ
         SetColor(0, 15);
         for (int i = 0; i <= 7 + btnH; i++) {
-            GotoXY(4, startY + i);
-            cout << string(112, ' '); // Xóa khoảng trắng ở giữa, chừa lề 2 bên
+            GotoXY(0, startY + i);
+            cout << string(CONSOLE_COLS, ' ');
         }
     }
 
-    int frameW = prompt.length() + 12;
-    int frameX = (consoleW - frameW) / 2;
+    int frameW = static_cast<int>(prompt.length()) + 12;
+    int frameX = CenterConsoleX(frameW, consoleW);
 
     DrawFrame(frameX, startY, frameW, 5); // Khung này sẽ tự xóa rác bên trong
     GotoXY(frameX + 6, startY + 2);
@@ -132,7 +174,7 @@ bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
 
     int btnCols = btnW * 2;
     int totalBtnW = btnCols * 2 + 10;
-    int startX = (consoleW - totalBtnW) / 2;
+    int startX = CenterConsoleX(totalBtnW, consoleW);
     int btnY = startY + 7;
 
     int bgNormal = btnNormal[btnH / 2][btnW / 2];
@@ -172,14 +214,18 @@ bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
         }
 
         SetColor(0, 15);
-        char ch = _getch();
-        if (ch == -32 || ch == 0) ch = _getch();
+        int ch = ReadMenuKey();
 
-        if (ch == 75 || ch == 'a' || ch == 'A') choice = 0;
-        else if (ch == 77 || ch == 'd' || ch == 'D') choice = 1;
+        int oldChoice = choice;
+        if (ch == 75 || ch == 'A') choice = 0;
+        else if (ch == 77 || ch == 'D') choice = 1;
         else if (ch == 13) {
+            PlayMenuSound();
             SetColor(0, 15);
             return (choice == 0);
         }
+        if (choice != oldChoice) PlayMenuSound();
     }
 }
+
+void PrintTextWithBg(int startX, int startY, string text, int textColorCode);

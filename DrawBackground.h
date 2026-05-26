@@ -9,7 +9,7 @@ using namespace std;
 
 // FIX: Dùng GotoXY cho từng dòng thay vì \x1b[E]
 // → Không bao giờ bị sọc đen, không bao giờ bị scroll
-void DrawBackground() {
+inline void DrawBackground() {
     char pixel[64];
     
     for (int i = 0; i < BG_FOREST_H / 2; i++) {

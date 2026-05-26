@@ -1,4 +1,4 @@
-﻿#include "CaroBot.h"
+#include "CaroBot.h"
 #include <vector>
 #include <random>
 #include <unordered_map>
@@ -281,7 +281,7 @@ int Minimax(int depth, int alpha, int beta, bool isMaximizing, int aiPiece, int 
     for (auto move : moves) scoredMoves.push_back({ QuickEval(move.first, move.second, aiPiece, playerPiece), move });
     sort(scoredMoves.begin(), scoredMoves.end(), greater<pair<int, pair<int, int>>>());
 
-    int originalAlpha = alpha, bestScore = isMaximizing ? numeric_limits<int>::min() : numeric_limits<int>::max();
+    int originalAlpha = alpha, originalBeta = beta, bestScore = isMaximizing ? numeric_limits<int>::min() : numeric_limits<int>::max();
     int maxMoves = 10;
     int movesToConsider = min(maxMoves, (int)scoredMoves.size());
     for (int i = 0; i < movesToConsider; i++) {
@@ -297,7 +297,7 @@ int Minimax(int depth, int alpha, int beta, bool isMaximizing, int aiPiece, int 
         if (beta <= alpha) break;
     }
 
-    TranspositionEntry entry = { boardHash, depth, bestScore, (bestScore <= originalAlpha) ? 2 : ((bestScore >= beta) ? 1 : 0) };
+    TranspositionEntry entry = { boardHash, depth, bestScore, (bestScore <= originalAlpha) ? 2 : ((bestScore >= originalBeta) ? 1 : 0) };
     if (transpositionTable.size() < TRANSPOSITION_TABLE_SIZE) transpositionTable[boardHash] = entry;
     return bestScore;
 }
@@ -338,5 +338,6 @@ _POINT FindBotMove(int aiPiece, int difficultyLevel) {
     _POINT result;
     result.x = _A[bestMove.first][bestMove.second].x;
     result.y = _A[bestMove.first][bestMove.second].y;
+    result.c = 0;
     return result;
 }

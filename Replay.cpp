@@ -1,4 +1,4 @@
-﻿#include "Replay.h"
+#include "Replay.h"
 #include "DrawBoard.h"
 #include "ControlConsole.h"
 #include "GamePlay.h"
@@ -11,8 +11,13 @@
 #include "Menu.h"
 #include "btn_normal.h"
 #include "btn_hover.h"
+#include "Character.h"
+#include "DrawBackground.hpp"
+#include "UserInfo.h"
 
 using namespace std;
+
+static const int REPLAY_HELP_X = LEFT + BOARD_SIZE * 4 + 6;
 
 //hỏi người dùng có muốn replay không
 bool AskForReplay() {
@@ -25,10 +30,10 @@ void ChooseReplaySpeed(float& speed, int& delay) {
     int choice = 1;
     system("cls");
 
-    int consoleW = 120;
+    int consoleW = CONSOLE_COLS;
     string prompt = "Chon toc do xem lai (phim mui ten hoac A/D)";
-    int frameW = prompt.length() + 12;
-    int frameX = (consoleW - frameW) / 2;
+    int frameW = static_cast<int>(prompt.length()) + 12;
+    int frameX = CenterConsoleX(frameW, consoleW);
     int startY = 8;
 
     DrawFrame(frameX, startY, frameW, 5);
@@ -38,7 +43,7 @@ void ChooseReplaySpeed(float& speed, int& delay) {
 
     int btnCols = BTN_NORMAL_W * 2;
     int totalBtnW = btnCols * 3 + 20; // 3 nút, cách nhau 10 khoảng trắng
-    int startX = (consoleW - totalBtnW) / 2;
+    int startX = CenterConsoleX(totalBtnW, consoleW);
     int btnY = startY + 8;
 
     int bgNorm = BTN_NORMAL[BTN_NORMAL_H / 2][BTN_NORMAL_W / 2];
@@ -52,12 +57,12 @@ void ChooseReplaySpeed(float& speed, int& delay) {
                 int bX = startX + i * (btnCols + 10);
                 if (choice == i) {
                     DrawSolidImage(BTN_HOVER, BTN_HOVER_W, BTN_HOVER_H, bX, btnY);
-                    GotoXY(bX + (btnCols - opts[i].length()) / 2, btnY + BTN_HOVER_H / 2);
+                    GotoXY(bX + (btnCols - static_cast<int>(opts[i].length())) / 2, btnY + BTN_HOVER_H / 2);
                     SetColor(0, bgHov); cout << opts[i];
                 }
                 else {
                     DrawSolidImage(BTN_NORMAL, BTN_NORMAL_W, BTN_NORMAL_H, bX, btnY);
-                    GotoXY(bX + (btnCols - opts[i].length()) / 2, btnY + BTN_NORMAL_H / 2);
+                    GotoXY(bX + (btnCols - static_cast<int>(opts[i].length())) / 2, btnY + BTN_NORMAL_H / 2);
                     SetColor(0, bgNorm); cout << opts[i];
                 }
             }
@@ -65,11 +70,23 @@ void ChooseReplaySpeed(float& speed, int& delay) {
         }
 
         SetColor(0, 15);
-        char ch = _getch();
-        if (ch == -32 || ch == 0) ch = _getch();
-        if (ch == 75 || ch == 'a' || ch == 'A') { if (choice > 0) choice--; }
-        else if (ch == 77 || ch == 'd' || ch == 'D') { if (choice < 2) choice++; }
-        else if (ch == 13) break;
+        int ch = ReadMenuKey();
+        if (ch == 75 || ch == 'A') {
+            if (choice > 0) {
+                choice--;
+                PlayMenuSound();
+            }
+        }
+        else if (ch == 77 || ch == 'D') {
+            if (choice < 2) {
+                choice++;
+                PlayMenuSound();
+            }
+        }
+        else if (ch == 13) {
+            PlayMenuSound();
+            break;
+        }
     }
 
     if (choice == 0) { speed = 0.5f; delay = (int)(500 / 0.5f); }
@@ -87,17 +104,18 @@ void RedrawBoard(int step) {
     }
     //vẽ lại bàn cờ
     system("cls");
+    DrawIngameBackground();
     DrawBoard(BOARD_SIZE);
 
     //ghi chú các nút
     SetColor(0, 15);
-    GotoXY(LEFT + 67, TOP + 5);
+    GotoXY(REPLAY_HELP_X, TOP + 5);
     cout << "<- / A : Tua lui 5s";
-    GotoXY(LEFT + 67, TOP + 6);
+    GotoXY(REPLAY_HELP_X, TOP + 6);
     cout << "-> / D : Tua toi 5s";
-    GotoXY(LEFT + 67, TOP + 7);
+    GotoXY(REPLAY_HELP_X, TOP + 7);
     cout << "Space/P: Dung/Phat";
-    GotoXY(LEFT + 67, TOP + 8);
+    GotoXY(REPLAY_HELP_X, TOP + 8);
     cout << "Esc    : Thoat";
 
     //cập nhật mảng bàn cờ 
@@ -105,7 +123,7 @@ void RedrawBoard(int step) {
         int r = moveHistory[i].row;
         int c = moveHistory[i].col;
         _A[r][c].c = moveHistory[i].c;
-        DrawCell(_A[r][c].x, _A[r][c].y, 15);
+        DrawCell(_A[r][c].x, _A[r][c].y, BOARD_BG_COLOR);
     }
 }
 
@@ -114,6 +132,7 @@ void PlayReplay(int delay) {
     int totalMoves = currentStep;
     int step = 0;
     int movesToSkipFor5s = 5000 / delay;
+    if (movesToSkipFor5s < 1) movesToSkipFor5s = 1;
 
     RedrawBoard(0); // vẽ khung và ghi chú
 
@@ -122,32 +141,34 @@ void PlayReplay(int delay) {
 
     while (step < totalMoves) {
         bool skipTriggered = false;
-        DWORD startTime = GetTickCount64();
+        ULONGLONG startTime = GetTickCount64();
 
         //vòng lặp chờ để tạo delay, kết hợp bắt phím
         while (isPaused || (GetTickCount64() - startTime < delay)) {
             if (_kbhit()) {
-                char ch = _getch();
-                if (ch == -32 || ch == 0) ch = _getch();
+                int ch = ReadMenuKey();
 
                 if (ch == 27) { // Esc
+                    PlayMenuSound();
                     exitReplay = true;
                     break;
                 }
-                else if (ch == 'p' || ch == 'P' || ch == 32) { // Phím Space hoặc P
+                else if (ch == 'P' || ch == 32) { // Phím Space hoặc P
+                    PlayMenuSound();
                     isPaused = !isPaused;
                     if (isPaused) {
-                        GotoXY(LEFT + 67, TOP + 16);
+                        GotoXY(REPLAY_HELP_X, TOP + 16);
                         SetColor(12, 15);
                         cout << "|| PAUSED  ";
                     }
                     else {
-                        GotoXY(LEFT + 67, TOP + 16);
+                        GotoXY(REPLAY_HELP_X, TOP + 16);
                         cout << "           ";
                         startTime = GetTickCount64(); //reset timer để đi tiếp mượt mà
                     }
                 }
-                else if (ch == 75 || ch == 'a' || ch == 'A') { //tua lui
+                else if (ch == 75 || ch == 'A') { //tua lui
+                    PlayMenuSound();
                     int targetStep = step - movesToSkipFor5s;
                     if (targetStep < 0) targetStep = 0;
 
@@ -156,16 +177,17 @@ void PlayReplay(int delay) {
                         int r = moveHistory[i].row;
                         int c = moveHistory[i].col;
                         _A[r][c].c = 0;
-                        DrawCell(_A[r][c].x, _A[r][c].y, 15); //vẽ khoảng trắng khi c=0
+                        DrawCell(_A[r][c].x, _A[r][c].y, BOARD_BG_COLOR);
                     }
                     step = targetStep;
 
-                    GotoXY(LEFT + 67, TOP + 14);
+                    GotoXY(REPLAY_HELP_X, TOP + 14);
                     SetColor(12, 15); cout << "<<  -5s  ";
                     skipTriggered = true;
                     break;
                 }
-                else if (ch == 77 || ch == 'd' || ch == 'D') { // tua tới
+                else if (ch == 77 || ch == 'D') { // tua tới
+                    PlayMenuSound();
                     int targetStep = step + movesToSkipFor5s;
                     if (targetStep > totalMoves) targetStep = totalMoves;
 
@@ -174,11 +196,11 @@ void PlayReplay(int delay) {
                         int r = moveHistory[i].row;
                         int c = moveHistory[i].col;
                         _A[r][c].c = moveHistory[i].c;
-                        DrawCell(_A[r][c].x, _A[r][c].y, 15);
+                        DrawCell(_A[r][c].x, _A[r][c].y, BOARD_BG_COLOR);
                     }
                     step = targetStep;
 
-                    GotoXY(LEFT + 67, TOP + 15);
+                    GotoXY(REPLAY_HELP_X, TOP + 15);
                     SetColor(12, 15); cout << ">>  +5s  ";
                     skipTriggered = true;
                     break;
@@ -194,8 +216,8 @@ void PlayReplay(int delay) {
 
         if (skipTriggered) {
             Sleep(400); //dừng xíu cho người ta kịp nhìn chữ tua
-            GotoXY(LEFT + 67, TOP + 14); cout << "         ";
-            GotoXY(LEFT + 67, TOP + 15); cout << "         ";
+            GotoXY(REPLAY_HELP_X, TOP + 14); cout << "         ";
+            GotoXY(REPLAY_HELP_X, TOP + 15); cout << "         ";
             continue; //đã cập nhật step lúc tua nên bỏ qua bước đánh thông thường
         }
 
@@ -204,7 +226,7 @@ void PlayReplay(int delay) {
             int r = moveHistory[step].row;
             int c = moveHistory[step].col;
             _A[r][c].c = moveHistory[step].c;
-            DrawCell(_A[r][c].x, _A[r][c].y, 15);
+            DrawCell(_A[r][c].x, _A[r][c].y, BOARD_BG_COLOR);
             step++;
         }
     }
@@ -212,6 +234,12 @@ void PlayReplay(int delay) {
 
 //hàm quản lý tổng luồng
 void HandleReplayOption() {
+    // Save board state before replay
+    _POINT savedBoard[BOARD_SIZE][BOARD_SIZE];
+    for (int i = 0; i < BOARD_SIZE; i++)
+        for (int j = 0; j < BOARD_SIZE; j++)
+            savedBoard[i][j] = _A[i][j];
+
     system("cls");
     while (AskForReplay()) {
         float speed;
@@ -222,5 +250,25 @@ void HandleReplayOption() {
         //chạy xong Replay (hoặc nhấn Esc thoát), màn hình xóa đi và hỏi lại
         system("cls");
     }
+
+    // Restore board state after replay
+    for (int i = 0; i < BOARD_SIZE; i++)
+        for (int j = 0; j < BOARD_SIZE; j++)
+            _A[i][j] = savedBoard[i][j];
+
     system("cls");
+    DrawIngameBackground();
+    DrawBoard(BOARD_SIZE);
+    DrawPlayerInfo();
+    UpdateTurnInfo();
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if (_A[i][j].c != 0) {
+                DrawCell(_A[i][j].x, _A[i][j].y, BOARD_BG_COLOR);
+            }
+        }
+    }
+    DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
+    ingamedisplay(CharacterASelect, true);
+    ingamedisplay(CharacterBSelect, false);
 }

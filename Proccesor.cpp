@@ -37,20 +37,18 @@ void loadBotMove(bool& isPlaying){
     isPaused = true;
     {
         lock_guard<mutex>lock(consoleMutex);
-        GotoXY(60, 20);
-        SetColor(12, 15);
-        cout << "Bot dang suy nghi...         ";
+        PrintTextWithBg(BOT_MSG_X, BOT_MSG_Y, "BOT DANG SUY NGHI...              ", 12);
     }
 
     _POINT botMove = FindBotMove(1, _BOT_DIFFICULTY);
 
     if (botMove.x != -1) {
-        DrawCell(_X, _Y, 15);
+        DrawCell(_X, _Y, BOARD_BG_COLOR);
         _X = botMove.x;
         _Y = botMove.y;
 
         int checkRes = CheckBoard(_X, _Y); //lưu giá trị c
-        DrawCell(_X, _Y, 11);
+        DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
         int finishStatus; // Biến tạm lưu kết quả kiểm tra thắng thua
         {
             lock_guard<mutex>lock(consoleMutex);
@@ -63,23 +61,22 @@ void loadBotMove(bool& isPlaying){
             moveHistory.push_back({ r, c, checkRes });
             currentStep++;
 
-            GotoXY(60, 20);
-            SetColor(0, 15);
-            cout << "                             ";
-            // Kiểm tra trạng thái ván cờ ngay trong lúc khóa luồng
-            finishStatus = ProcessFinish(TestBoard());
-            if (finishStatus != 2) {
-                GotoXY(60, TOP + 21); cout << "                                ";
-                GotoXY(60, TOP + 22); cout << "                                ";
-            }
+            PrintTextWithBg(BOT_MSG_X, BOT_MSG_Y, "                                  ", 15);
         } // <-- GIẢI PHÓNG MUTEX TẠI ĐÂY
+
+        finishStatus = ProcessFinish(TestBoard());
+        if (finishStatus != 2) {
+            lock_guard<mutex>lock(consoleMutex);
+            GotoXY(TIMER_X, TIMER_Y); cout << "                                        ";
+            GotoXY(TIMER_X, TIMER_Y + 1); cout << "                                        ";
+        }
 
             // Xử lý Replay bên ngoài khóa mutex
         switch (finishStatus) {
 		case -1: case 1: case 0: // Ván cờ kết thúc, hỏi người chơi có muốn xem lại không
             isPaused = true;
-            GotoXY(60, TOP + 21); cout << "                                ";
-            GotoXY(60, TOP + 22); cout << "                                ";
+            GotoXY(TIMER_X, TIMER_Y); cout << "                                        ";
+            GotoXY(TIMER_X, TIMER_Y + 1); cout << "                                        ";
 
             char ch;
             do {
@@ -103,6 +100,10 @@ void loadBotMove(bool& isPlaying){
 
         isPaused = false;
         timeLeft = TURN_TIME_LIMIT;
+    }
+    else {
+        isPaused = false;
+        ProcessFinish(TestBoard());
     }
 }
 bool loadGameMenu(bool& isPlaying) {
@@ -132,4 +133,5 @@ bool loadGameMenu(bool& isPlaying) {
     else if (mode == 2) {
         return false;
     }
+    return false;
 }

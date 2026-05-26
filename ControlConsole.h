@@ -14,3 +14,4 @@ void SetColor(int color, int bgColor);
 void SetBgColor(int color, int bgColor);
 void FixConsoleWindow();
 void SetConsoleWindow(int width, int height);
+void ConfigureConsoleSize(int cols, int lines);

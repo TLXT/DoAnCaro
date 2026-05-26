@@ -1,24 +1,28 @@
-﻿#include "GamePlay.h"
+#include "GamePlay.h"
 #include "GameStatus.h"
 #include "DrawBoard.h"
 #include "ControlConsole.h"
 #include "UserInfo.h"
 #include "FinishProcess.h"
 #include "GameTimer.h"
-#include "CharSprite.h"   // <<< THÊM MỚI: hệ thống sprite nhân vật
+#include "Character.h"
+#include "DrawBackground.hpp"
 
 using namespace std;
 
 void DrawCell(int x, int y, int bg_color) {
     lock_guard<std::mutex> lock(consoleMutex);
     int c = 0;
+    bool found = false;
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
             if (_A[i][j].x == x && _A[i][j].y == y) {
                 c = _A[i][j].c;
+                found = true;
                 break;
             }
         }
+        if (found) break;
     }
 
     GotoXY(x, y);
@@ -41,48 +45,51 @@ void DrawCell(int x, int y, int bg_color) {
 void StartGame() {
     system("color F0");
     system("cls");
-    SetConsoleWindow(1000, 800);   // <<< TĂNG chiều cao cửa sổ
+    ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
+    SetConsoleWindow(1460, 730);
     HideCursor();
     ResetData();
 
+    DrawIngameBackground();
     DrawBoard(BOARD_SIZE);         // Vẽ bàn cờ (giữa màn hình, LEFT=38)
     DrawPlayerInfo();              // Vẽ panel thông tin (bên phải)
-    DrawBothSprites();             // <<< THÊM MỚI: vẽ sprite 2 nhân vật
+    ingamedisplay(CharacterASelect, true);
+    ingamedisplay(CharacterBSelect, false);
     UpdateTurnInfo();
 
     GotoXY(_X, _Y);
-    DrawCell(_X, _Y, 11);
+    DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
 }
 
 void MoveRight() {
     if (_X < _A[BOARD_SIZE - 1][BOARD_SIZE - 1].x) {
-        DrawCell(_X, _Y, 15);
+        DrawCell(_X, _Y, BOARD_BG_COLOR);
         _X += 4;
-        DrawCell(_X, _Y, 11);
+        DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
     }
 }
 
 void MoveLeft() {
     if (_X > _A[0][0].x) {
-        DrawCell(_X, _Y, 15);
+        DrawCell(_X, _Y, BOARD_BG_COLOR);
         _X -= 4;
-        DrawCell(_X, _Y, 11);
+        DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
     }
 }
 
 void MoveDown() {
     if (_Y < _A[BOARD_SIZE - 1][BOARD_SIZE - 1].y) {
-        DrawCell(_X, _Y, 15);
+        DrawCell(_X, _Y, BOARD_BG_COLOR);
         _Y += 2;
-        DrawCell(_X, _Y, 11);
+        DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
     }
 }
 
 void MoveUp() {
     if (_Y > _A[0][0].y) {
-        DrawCell(_X, _Y, 15);
+        DrawCell(_X, _Y, BOARD_BG_COLOR);
         _Y -= 2;
-        DrawCell(_X, _Y, 11);
+        DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
     }
 }
 
@@ -111,7 +118,7 @@ void ProcessMove(int _COMMAND, bool validEnter, bool& isPlaying) {
             validEnter = false;
         }
         else {
-            DrawCell(_X, _Y, 11);
+            DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
 
             int r = (_Y - TOP - 1) / 2;
             int c = (_X - LEFT - 2) / 4;
@@ -149,7 +156,7 @@ void PlayRandomMove() {
                 emptyCells.push_back({ i, j });
 
     if (!emptyCells.empty()) {
-        DrawCell(_X, _Y, 15);
+        DrawCell(_X, _Y, BOARD_BG_COLOR);
         srand((unsigned int)time(NULL));
         int index = rand() % emptyCells.size();
         int r = emptyCells[index].first;
@@ -164,7 +171,7 @@ void PlayRandomMove() {
         moveHistory.push_back({ r, c, checkRes });
         currentStep++;
 
-        DrawCell(_X, _Y, 11);
+        DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
         GotoXY(_X, _Y);
     }
 }
@@ -179,17 +186,23 @@ void UndoMove() {
         currentStep--;
         MoveNode& move = moveHistory[currentStep];
         _A[move.row][move.col].c = 0;
-        DrawCell(_A[move.row][move.col].x, _A[move.row][move.col].y, 15);
+        DrawCell(_A[move.row][move.col].x, _A[move.row][move.col].y, BOARD_BG_COLOR);
         _TURN = !_TURN;
     }
 
     UpdateTurnInfo();
 
-    MoveNode& lastUndo = moveHistory[currentStep];
-    DrawCell(_X, _Y, 15);
-    _X = _A[lastUndo.row][lastUndo.col].x;
-    _Y = _A[lastUndo.row][lastUndo.col].y;
-    DrawCell(_X, _Y, 11);
+    DrawCell(_X, _Y, BOARD_BG_COLOR);
+    if (currentStep > 0) {
+        MoveNode& lastMove = moveHistory[currentStep - 1];
+        _X = _A[lastMove.row][lastMove.col].x;
+        _Y = _A[lastMove.row][lastMove.col].y;
+    }
+    else {
+        _X = _A[0][0].x;
+        _Y = _A[0][0].y;
+    }
+    DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
 }
 
 void RedoMove() {
@@ -201,7 +214,7 @@ void RedoMove() {
         if (currentStep >= (int)moveHistory.size()) break;
         MoveNode& move = moveHistory[currentStep];
         _A[move.row][move.col].c = move.c;
-        DrawCell(_A[move.row][move.col].x, _A[move.row][move.col].y, 15);
+        DrawCell(_A[move.row][move.col].x, _A[move.row][move.col].y, BOARD_BG_COLOR);
         currentStep++;
         _TURN = !_TURN;
     }
@@ -209,8 +222,8 @@ void RedoMove() {
     UpdateTurnInfo();
 
     MoveNode& lastRedo = moveHistory[currentStep - 1];
-    DrawCell(_X, _Y, 15);
+    DrawCell(_X, _Y, BOARD_BG_COLOR);
     _X = _A[lastRedo.row][lastRedo.col].x;
     _Y = _A[lastRedo.row][lastRedo.col].y;
-    DrawCell(_X, _Y, 11);
+    DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
 }

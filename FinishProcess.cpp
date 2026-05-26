@@ -2,12 +2,105 @@
 #include "GameStatus.h"
 #include "ControlConsole.h"
 #include "UserInfo.h"
+#include "Sound.h"
 
 #include "Menu.h"
 #include "btn_normal.h"
 #include "btn_hover.h"
+#include <utility>
+#include <vector>
+#include <windows.h>
 
 using namespace std;
+
+static bool CollectWinningCells(int winner, vector<pair<int, int>>& cells) {
+    if (winner == 0 || winner == 2) return false;
+
+    const int dirs[4][2] = {
+        {0, 1},
+        {1, 0},
+        {1, 1},
+        {-1, 1}
+    };
+
+    for (int r = 0; r < BOARD_SIZE; r++) {
+        for (int c = 0; c < BOARD_SIZE; c++) {
+            if (_A[r][c].c != winner) continue;
+
+            for (int d = 0; d < 4; d++) {
+                cells.clear();
+                bool ok = true;
+
+                for (int k = 0; k < 5; k++) {
+                    int rr = r + dirs[d][0] * k;
+                    int cc = c + dirs[d][1] * k;
+
+                    if (rr < 0 || rr >= BOARD_SIZE || cc < 0 || cc >= BOARD_SIZE || _A[rr][cc].c != winner) {
+                        ok = false;
+                        break;
+                    }
+                    cells.push_back({ rr, cc });
+                }
+
+                if (ok) return true;
+            }
+        }
+    }
+
+    cells.clear();
+    return false;
+}
+
+static void DrawWinningCell(int r, int c) {
+    int x = _A[r][c].x;
+    int y = _A[r][c].y;
+    char mark = (_A[r][c].c == -1) ? 'X' : 'O';
+
+    GotoXY(x - 1, y);
+    SetColor((_A[r][c].c == -1) ? 12 : 10, 14);
+    cout << " " << mark << " ";
+}
+
+static void RestoreWinningCell(int r, int c) {
+    int x = _A[r][c].x;
+    int y = _A[r][c].y;
+
+    GotoXY(x - 1, y);
+    SetColor(0, BOARD_BG_COLOR);
+    cout << "   ";
+
+    if (_A[r][c].c == -1) {
+        GotoXY(x, y);
+        SetColor(12, BOARD_BG_COLOR);
+        cout << "X";
+    }
+    else if (_A[r][c].c == 1) {
+        GotoXY(x, y);
+        SetColor(10, BOARD_BG_COLOR);
+        cout << "O";
+    }
+
+    SetColor(0, 15);
+}
+
+static void HighlightWinningLine(int winner) {
+    vector<pair<int, int>> cells;
+    if (!CollectWinningCells(winner, cells)) return;
+
+    PlayWinSound();
+
+    for (const auto& cell : cells) {
+        DrawWinningCell(cell.first, cell.second);
+    }
+    GotoXY(_X, _Y);
+
+    Sleep(5000);
+
+    for (const auto& cell : cells) {
+        RestoreWinningCell(cell.first, cell.second);
+    }
+    GotoXY(_X, _Y);
+}
 
 void GarbageCollect() {
     for (int i = 0; i < BOARD_SIZE; i++)
@@ -21,9 +114,13 @@ void ExitGame() {
 }
 
 int ProcessFinish(int pWhoWin) {
-    // Hiển thị kết quả ngay dưới bàn cờ, căn với cột LEFT của bàn cờ
-    // _A[11][11].y = 2*11 + TOP + 1 = 22 + 3 + 1 = 26  =>  +2 = dòng 28
-    GotoXY(LEFT, _A[BOARD_SIZE - 1][BOARD_SIZE - 1].y + 2);
+    if (pWhoWin == -1 || pWhoWin == 1) {
+        HighlightWinningLine(pWhoWin);
+    }
+
+    GotoXY(RESULT_X, RESULT_Y);
+    cout << string(80, ' ');
+    GotoXY(RESULT_X, RESULT_Y);
 
     SetColor(1, 15);  // Chữ xanh dương, nền trắng
 

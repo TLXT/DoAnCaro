@@ -1,6 +1,8 @@
-﻿#pragma once
+#pragma once
 #include "GameStatus.h"
 #include <vector>
+#include <cstdint>
+#include <utility>
 using namespace std;
 
 void InitZobrist();

@@ -1,9 +1,10 @@
-﻿#include "SaveLoad.h"
+#include "SaveLoad.h"
 #include "GameStatus.h"
 #include "ControlConsole.h"
 #include "DrawBoard.h"
 #include "GamePlay.h"
 #include "UserInfo.h"
+#include "Character.h"
 
 // Tích hợp cả thư viện vẽ background (từ bản 1) và nút bấm (từ bản 2)
 #include "DrawBackground.hpp"
@@ -30,7 +31,7 @@ string TypeFileName() {
                 cout << "\b \b";
             }
         }
-        else if (isalnum(c) || c == '-' || c == '_') {
+        else if (isalnum((unsigned char)c) || c == '-' || c == '_') {
             res += c;
             cout << c;
         }
@@ -45,10 +46,10 @@ string SaveGame() {
     DrawLoadgameBackground();   // [Merged] Vẽ nền xịn từ file gốc
 
     while (true) {
-        GotoXY(5, 27);
+        GotoXY(30, 27);
         cout << "                                                                    ";
 
-        GotoXY(5, 27);
+        GotoXY(30, 27);
         // [Merged] Dùng ANSI code để màu chữ đỏ sắc nét đè trên nền game
         printf("\x1b[38;2;255;50;50m\x1b[48;2;20;20;20m");
         cout << "Nhap ten file de luu: ";
@@ -58,8 +59,8 @@ string SaveGame() {
         HideCursor();
 
         if (filename == "") {
-            GotoXY(5, 27); cout << "                                                                    ";
-            GotoXY(5, 28); cout << "                                                                    ";
+            GotoXY(30, 27); cout << "                                                                    ";
+            GotoXY(30, 28); cout << "                                                                    ";
             SetColor(0, 15);
             GotoXY(_X, _Y);
             return"";
@@ -69,12 +70,12 @@ string SaveGame() {
         if (checkFile.is_open()) {
             checkFile.close();
 
-            GotoXY(5, 28);
+            GotoXY(30, 28);
             SetColor(12, 15); // Màu đỏ
             cout << "Ten file da ton tai! Vui long nhap ten khac... (Nhan phim bat ky)";
             _getch();
 
-            GotoXY(5, 28);
+            GotoXY(30, 28);
             cout << "                                                                    ";
         }
         else {
@@ -95,25 +96,32 @@ string SaveGame() {
         for (int i = 0; i < currentStep; i++) {
             outFile << moveHistory[i].row << " " << moveHistory[i].col << " " << moveHistory[i].c << endl;
         }
+        // Save character selection and game mode
+        outFile << CharacterASelect << " " << CharacterBSelect << endl;
+        outFile << (_BOT_MODE ? 1 : 0) << " " << _BOT_DIFFICULTY << endl;
+        outFile << _PLAYER1_NAME << endl;
+        outFile << _PLAYER2_NAME << endl;
         outFile.close();
 
-        GotoXY(5, 28);
+        GotoXY(30, 28);
         SetColor(10, 15);
         cout << "Luu thanh cong! Nhan phim bat ky de tiep tuc...";
+        _getch();
         return filename;
     }
     else {
-        GotoXY(5, 28);
+        GotoXY(30, 28);
         SetColor(12, 15);
         cout << "Loi tao file! Nhan phim bat ky...";
     }
 
     _getch();
 
-    GotoXY(5, 27); cout << "                                                                    ";
-    GotoXY(5, 28); cout << "                                                                    ";
+    GotoXY(30, 27); cout << "                                                                    ";
+    GotoXY(30, 28); cout << "                                                                    ";
     SetColor(0, 15);
     GotoXY(_X, _Y);
+    return "";
 }
 
 // [Merged] Logic lấy file mới nhất bằng Struct từ bản thứ 2
@@ -179,6 +187,24 @@ bool LoadGame() {
         else {
             currentStep = 0;
         }
+        // Load character selection and game mode (backward compatible)
+        int charA = 0, charB = 4;
+        if (inFile >> charA >> charB) {
+            CharacterASelect = (charA >= 0 && charA <= 4) ? charA : 0;
+            CharacterBSelect = (charB >= 0 && charB <= 4) ? charB : 4;
+            int botMode = 0, botDiff = 2;
+            if (inFile >> botMode >> botDiff) {
+                _BOT_MODE = (botMode != 0);
+                _BOT_DIFFICULTY = botDiff;
+            }
+            inFile.ignore(1000, '\n'); // skip rest of line
+            string p1, p2;
+            if (getline(inFile, p1) && !p1.empty()) _PLAYER1_NAME = p1;
+            if (getline(inFile, p2) && !p2.empty()) _PLAYER2_NAME = p2;
+        } else {
+            CharacterASelect = 0;
+            CharacterBSelect = 4;
+        }
         inFile.close();
 
         system("cls");
@@ -191,11 +217,13 @@ bool LoadGame() {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 // [Merged] Fix lỗi hiển thị: Chỉ vẽ các ô đã có quân
                 if (_A[i][j].c != 0) {
-                    DrawCell(_A[i][j].x, _A[i][j].y, 15);
+                    DrawCell(_A[i][j].x, _A[i][j].y, BOARD_BG_COLOR);
                 }
             }
         }
-        DrawCell(_X, _Y, 11);
+        DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
+        ingamedisplay(CharacterASelect, true);
+        ingamedisplay(CharacterBSelect, false);
 
         return true;
     }
@@ -234,11 +262,11 @@ string ChooseFileMenu() {
         int lastStartIndex = -1;
         bool isLooping = true;
 
-        int consoleW = 120;
+        int consoleW = CONSOLE_COLS;
         string title = "DANH SACH CAC VAN DA LUU";
-        int frameW = title.length() + 8;
+        int frameW = static_cast<int>(title.length()) + 8;
         int btnCols = BTN_NORMAL_W * 2;
-        int startX = (consoleW - btnCols) / 2;
+        int startX = CenterConsoleX(btnCols, consoleW);
         int startY_Base = 10;
 
         int bgNorm = BTN_NORMAL[BTN_NORMAL_H / 2][BTN_NORMAL_W / 2];
@@ -251,11 +279,11 @@ string ChooseFileMenu() {
                 DrawLoadgameBackground(); // Vẽ lại nền sau khi clean
 
                 // Vẽ Title bằng text ANSI để tiệp với không gian nền
-                GotoXY(40, 5);
+                GotoXY(CenterConsoleX(35, consoleW), 5);
                 printf("\x1b[38;2;255;50;50m\x1b[48;2;30;30;30m");
                 cout << "=== DANH SACH CAC VAN DA LUU ===";
 
-                GotoXY(30, startY_Base + maxDisplay * (BTN_NORMAL_H + 1) + 2);
+                GotoXY(CenterConsoleX(58, consoleW), startY_Base + maxDisplay * (BTN_NORMAL_H + 1) + 2);
                 printf("\x1b[38;2;150;150;150m\x1b[48;2;20;20;20m");
                 cout << "(W/S: Chon | Enter: Tai game | X: Xoa file | ESC: Huy)";
 
@@ -273,12 +301,12 @@ string ChooseFileMenu() {
 
                     if (i == currentSelect) {
                         DrawSolidImage(BTN_HOVER, BTN_HOVER_W, BTN_HOVER_H, startX, startY);
-                        GotoXY(startX + (btnCols - files[i].length()) / 2, startY + BTN_HOVER_H / 2);
+                        GotoXY(startX + (btnCols - static_cast<int>(files[i].length())) / 2, startY + BTN_HOVER_H / 2);
                         SetColor(0, bgHov); cout << files[i];
                     }
                     else {
                         DrawSolidImage(BTN_NORMAL, BTN_NORMAL_W, BTN_NORMAL_H, startX, startY);
-                        GotoXY(startX + (btnCols - files[i].length()) / 2, startY + BTN_NORMAL_H / 2);
+                        GotoXY(startX + (btnCols - static_cast<int>(files[i].length())) / 2, startY + BTN_NORMAL_H / 2);
                         SetColor(0, bgNorm); cout << files[i];
                     }
                 }
@@ -287,22 +315,27 @@ string ChooseFileMenu() {
 
             // Xử lý phím
             SetColor(0, 15);
-            int key = toupper(_getch());
-            if (key == 0 || key == 224) key = toupper(_getch());
+            int key = ReadMenuKey();
 
             if (key == 27) return ""; // ESC
             else if (key == 'W' || key == 72) {
                 currentSelect--;
-                if (currentSelect < 0) currentSelect = files.size() - 1;
+                if (currentSelect < 0) currentSelect = static_cast<int>(files.size()) - 1;
+                PlayMenuSound();
             }
             else if (key == 'S' || key == 80) {
                 currentSelect++;
-                if (currentSelect >= files.size()) currentSelect = 0;
+                if (currentSelect >= static_cast<int>(files.size())) currentSelect = 0;
+                PlayMenuSound();
             }
-            else if (key == 13) return files[currentSelect]; // Enter
+            else if (key == 13) {
+                PlayMenuSound();
+                return files[currentSelect];
+            }
             else if (key == 'X') {
                 string fileToDelete = files[currentSelect] + ".caro";
                 DeleteFileA(fileToDelete.c_str());
+                PlayMenuSound();
                 isLooping = false; // Bấm xóa sẽ kích hoạt reset lại file
             }
 
@@ -362,8 +395,10 @@ bool loadPresent() {
     for (int i = 0; i < BOARD_SIZE; i++)
         for (int j = 0; j < BOARD_SIZE; j++)
             if (_A[i][j].c != 0) { // [Merged] Chỉ vẽ lên ô có quân
-                DrawCell(_A[i][j].x, _A[i][j].y, 15);
+                DrawCell(_A[i][j].x, _A[i][j].y, BOARD_BG_COLOR);
             }
-    DrawCell(_X, _Y, 11);
+    DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
+    ingamedisplay(CharacterASelect, true);
+    ingamedisplay(CharacterBSelect, false);
     return true;
 }

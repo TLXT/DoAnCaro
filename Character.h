@@ -285,4 +285,5 @@ public:
 	}
 };
 void outsidedisplay(int option);
-void ingamedisplay(int option);
+void ingamedisplay(int option, bool isPlayer1);
+void DrawBothSprites();

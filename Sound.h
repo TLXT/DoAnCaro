@@ -5,7 +5,7 @@
 #include<mmsystem.h>
 #include<vector>
 #include<string>
-#include <mmsystem.h>
+#include<cwchar>
 
 using namespace std;
 
@@ -14,6 +14,7 @@ void setVolume();
 bool MusicStatus();
 
 void PlayMenuSound();
+void PlayWinSound();
 void setSFXVolume(int volume);
 
 extern int volumeLevel;

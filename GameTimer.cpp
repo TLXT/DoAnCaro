@@ -1,6 +1,8 @@
-﻿#include "GameTimer.h"
+#include "GameTimer.h"
 #include "ControlConsole.h"
 #include "GameStatus.h"
+#include "Menu.h"
+#include "UserInfo.h"
 #include <chrono>
 #include <string>
 
@@ -23,56 +25,47 @@ void TimerLogic() {
             timeLeft--;
             lock_guard<mutex> lock(consoleMutex);
             int curX = _X, curY = _Y;
-            SetColor(0, 15);
 
-            // In chữ ở góc trái (X = 10)
-            GotoXY(15, TOP + 21);
-            cout << "THOI GIAN CON LAI: ";
-            {
-                // Chữ "THOI GIAN CON LAI: " dài khoảng 19 ký tự. 
-                // Do đó vị trí in số sẽ bắt đầu từ X = 29 ngay sát bên cạnh.
-                GotoXY(29, TOP + 21); cout << "          "; // Xóa vùng số cũ
+            PrintTextWithBg(TIMER_X, TIMER_Y, "THOI GIAN: " + to_string(timeLeft.load()) + "s      ", (timeLeft <= 5) ? 12 : 11);
 
-                GotoXY(29, TOP + 21);
-                if (timeLeft <= 5) SetColor(12, 15);
-                else SetColor(0, 15);
-                cout << (int)timeLeft << "s";
-
-                // In trạng thái Pause/Play cũng ở lề trái (X = 10) ngay dòng dưới (TOP + 22)
-                GotoXY(15, TOP + 22);
-                if (isPaused) {
-                    SetColor(14, 0);
-                    cout << " >>> DANG TAM DUNG (PAUSED) <<< ";
-                }
-                else {
-                    SetColor(10, 15);
-                    cout << "      DANG CHOI (PLAYING)       ";
-                }
-
-                SetColor(0, 15);
-                GotoXY(curX, curY); // Trả lại con trỏ cho người chơi
+            if (isPaused) {
+                DrawStatusInfo(true);
             }
+            else {
+                DrawStatusInfo(false);
+            }
+
+            GotoXY(curX, curY); // Trả lại con trỏ cho người chơi
         }
     }
 }
 
+static std::thread timerThread;
+
 void StartTimerThread() {
     if (isTimerRunning) return;
+    // Join any old thread first
+    if (timerThread.joinable()) timerThread.join();
     isTimerRunning = true;
     timeLeft = TURN_TIME_LIMIT;
     isPaused = false;
-    thread t(TimerLogic);
-    t.detach(); // Chạy độc lập với luồng chính
+    {
+        lock_guard<mutex> lock(consoleMutex);
+        PrintTextWithBg(TIMER_X, TIMER_Y, "THOI GIAN: " + to_string(timeLeft.load()) + "s      ", 11);
+        DrawStatusInfo(false);
+        GotoXY(_X, _Y);
+    }
+    timerThread = std::thread(TimerLogic);
 }
 
 void StopTimerThread() {
     isTimerRunning = false;
-    this_thread::sleep_for(chrono::milliseconds(150));
+    if (timerThread.joinable()) timerThread.join();
     {
         lock_guard<mutex> lock(consoleMutex);
-        // Khi xóa cũng phải dời X về 10 để xóa sạch góc trái
-        GotoXY(10, TOP + 21); cout << "                                        ";
-        GotoXY(10, TOP + 22); cout << "                                        ";
-        GotoXY(10, TOP + 23); cout << "                                        ";
+        GotoXY(TIMER_X, TIMER_Y); cout << "                    ";
+        GotoXY(TURN_INFO_X, TURN_INFO_Y); cout << "              ";
+        GotoXY(STATUS_X, STATUS_Y); cout << "                              ";
+        GotoXY(BOT_MSG_X, BOT_MSG_Y); cout << "                                  ";
     }
 }

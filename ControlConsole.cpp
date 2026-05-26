@@ -68,3 +68,22 @@ void SetConsoleWindow(int width, int height) {
     GetWindowRect(consoleWindow, &r);
     MoveWindow(consoleWindow, r.left, r.top, width, height, TRUE);
 }
+
+void ConfigureConsoleSize(int cols, int lines) {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    SMALL_RECT minimalWindow = { 0, 0, 1, 1 };
+    SetConsoleWindowInfo(hOut, TRUE, &minimalWindow);
+
+    COORD bufferSize;
+    bufferSize.X = static_cast<SHORT>(cols);
+    bufferSize.Y = static_cast<SHORT>(lines);
+    SetConsoleScreenBufferSize(hOut, bufferSize);
+
+    SMALL_RECT windowRect;
+    windowRect.Left = 0;
+    windowRect.Top = 0;
+    windowRect.Right = static_cast<SHORT>(cols - 1);
+    windowRect.Bottom = static_cast<SHORT>(lines - 1);
+    SetConsoleWindowInfo(hOut, TRUE, &windowRect);
+}

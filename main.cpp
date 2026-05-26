@@ -13,8 +13,11 @@
 #include "CaroBot.h"
 #include "GameTimer.h"
 #include "Replay.h"
-#include"Sound.h"
-#include"Proccesor.h"
+#include "Sound.h"
+#include "Character.h"
+#include "Proccesor.h"
+
+
 
 using namespace std;
 
@@ -48,13 +51,14 @@ int main() {
     // 1. Khởi tạo môi trường đồ họa cho Console
     EnableRGBColor();
     SetConsoleOutputCP(CP_UTF8); // Bật Font UTF-8 để vẽ box và text tiếng Việt
-    SetConsoleFontSize(10, 15);
+    SetConsoleFontSize(12, 16);
 
     FixConsoleWindow();
 
     // Đảm bảo lưới Console đủ 120 cột và 50 dòng để chứa được giao diện mới (800px)
-    system("MODE CON COLS=120 LINES=50");
-    SetConsoleWindow(1000, 800);
+    system("MODE CON COLS=120 LINES=40");
+    ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
+    SetConsoleWindow(1460, 730);
     HideCursor();
 
     while (true) {
@@ -67,7 +71,6 @@ int main() {
             if (mode == 0) {  // Player vs Player
                 _BOT_MODE = false;
                 InputPlayerNames(false);
-                CharacterSelectMenu();   // Gọi Menu chọn nhân vật mới
                 StartGame();
                 isPlaying = true;
             }
@@ -78,7 +81,6 @@ int main() {
                 _BOT_MODE = true;
                 _BOT_DIFFICULTY = diff + 1;
                 InputPlayerNames(true);
-                CharacterSelectMenu();   // Gọi Menu chọn nhân vật mới
                 StartGame();
                 isPlaying = true;
             }
@@ -88,7 +90,8 @@ int main() {
         }
         else if (choice == 1) {  // CHỌN: LOAD GAME
             if (LoadGame() == true) {
-                DrawBothSprites();       // Vẽ lại sprite 2 bên sau khi load
+                ingamedisplay(CharacterASelect, true);
+                ingamedisplay(CharacterBSelect, false);
                 isPlaying = true;
             }
         }
@@ -189,18 +192,21 @@ int main() {
                         else if (gamechoice == 1) {
                             SaveGame();
                             if (loadPresent()) {
-                                DrawBothSprites();     // Vẽ lại sprite sau save/load
+                                ingamedisplay(CharacterASelect, true);
+                                ingamedisplay(CharacterBSelect, false);
                                 timeLeft = TURN_TIME_LIMIT;
                             }
                         }
                         else if (gamechoice == 2) {
                             if (LoadGame()) {
-                                DrawBothSprites();     // Vẽ lại sprite sau load
+                                ingamedisplay(CharacterASelect, true);
+                                ingamedisplay(CharacterBSelect, false);
                                 timeLeft = TURN_TIME_LIMIT;
                             }
                             else {
                                 loadPresent();
-                                DrawBothSprites();     // Vẽ lại sprite nếu load fail
+                                ingamedisplay(CharacterASelect, true);
+                                ingamedisplay(CharacterBSelect, false);
                             }
                         }
                         else if (gamechoice == 3) {
@@ -209,7 +215,8 @@ int main() {
                         }
                         else if (gamechoice == 4) {
                             loadPresent();
-                            DrawBothSprites();         // Vẽ lại sprite
+                            ingamedisplay(CharacterASelect, true);
+                            ingamedisplay(CharacterBSelect, false);
                         }
 
                         isPaused = false;
@@ -219,16 +226,7 @@ int main() {
                     else if (_COMMAND == 'P') {
                         isPaused = !isPaused;
                         lock_guard<mutex> lock(consoleMutex);
-                        GotoXY(TIMER_X, TIMER_Y + 1);
-                        if (isPaused) {
-                            SetColor(14, 0);
-                            cout << " >>> DANG TAM DUNG (PAUSED) <<< ";
-                            SetColor(0, 15);
-                        }
-                        else {
-                            SetColor(10, 15);
-                            cout << "      DANG CHOI (PLAYING)       ";
-                        }
+                        DrawStatusInfo(isPaused);
                         GotoXY(_X, _Y);
                     }
                     // --- CÁC PHÍM DI CHUYỂN / ĐÁNH CỜ (chỉ khi đang chơi) ---
@@ -247,8 +245,8 @@ int main() {
                         else if (_COMMAND == 13) {  // ENTER: Đánh cờ
                             int checkRes = CheckBoard(_X, _Y);
                             switch (checkRes) {
-                            case -1: DrawCell(_X, _Y, 11); break;
-                            case  1: DrawCell(_X, _Y, 11); break;
+                            case -1: DrawCell(_X, _Y, BOARD_CURSOR_COLOR); break;
+                            case  1: DrawCell(_X, _Y, BOARD_CURSOR_COLOR); break;
                             case  0: validEnter = false;   break;
                             }
 
