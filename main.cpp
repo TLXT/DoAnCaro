@@ -98,10 +98,7 @@ int main() {
         else if (choice == 2) { // CHỌN: SETTINGS
             loadSettingMenu();
         }
-        else if (choice == 3) {
-            loadmusic();
-        }
-        else if (choice == 4) { // CHỌN: EXIT
+        else if (choice == 3) { // CHỌN: EXIT
             ExitGame();
             return 0;
         }
@@ -111,6 +108,8 @@ int main() {
         // ============================================================
         if (isPlaying) {
             bool validEnter = true;
+            bool actionBarActive = false;
+            int actionSelect = 0;
             StartTimerThread();  // Kích hoạt luồng đếm ngược
 
             while (isPlaying) {
@@ -180,6 +179,43 @@ int main() {
 
                     if (_COMMAND == 0) continue;
 
+                    if (actionBarActive) {
+                        if (_COMMAND == 'A') {
+                            actionSelect--;
+                            if (actionSelect < 0) actionSelect = GetActionCount() - 1;
+                            DrawActionBar(actionSelect);
+                            PlayMenuSound();
+                            continue;
+                        }
+                        if (_COMMAND == 'D') {
+                            actionSelect++;
+                            if (actionSelect >= GetActionCount()) actionSelect = 0;
+                            DrawActionBar(actionSelect);
+                            PlayMenuSound();
+                            continue;
+                        }
+                        if (_COMMAND == 'W') {
+                            actionBarActive = false;
+                            DrawActionBar(-1);
+                            GotoXY(_X, _Y);
+                            PlayMenuSound();
+                            continue;
+                        }
+                        if (_COMMAND == 'S') {
+                            continue;
+                        }
+                        if (_COMMAND == 13) {
+                            actionBarActive = false;
+                            DrawActionBar(-1);
+                            PlayMenuSound();
+
+                            if (actionSelect == 0) _COMMAND = 'Z';
+                            else if (actionSelect == 1) _COMMAND = 'Y';
+                            else if (actionSelect == 2) _COMMAND = 'P';
+                            else if (actionSelect == 3) _COMMAND = 'M';
+                        }
+                    }
+
                     // --- MỞ MENU PHỤ (M hoặc ESC) ---
                     if (_COMMAND == 'M' || _COMMAND == 27) {
                         isPaused = true;
@@ -210,7 +246,7 @@ int main() {
                             }
                         }
                         else if (gamechoice == 3) {
-                            loadmusic();
+                            loadSettingMenu();
                             loadPresent();
                         }
                         else if (gamechoice == 4) {
@@ -239,7 +275,17 @@ int main() {
                         }
                         else if (_COMMAND == 'A' || _COMMAND == 75) MoveLeft();
                         else if (_COMMAND == 'W' || _COMMAND == 72) MoveUp();
-                        else if (_COMMAND == 'S' || _COMMAND == 80) MoveDown();
+                        else if (_COMMAND == 'S' || _COMMAND == 80) {
+                            if (_Y >= _A[BOARD_SIZE - 1][0].y) {
+                                actionBarActive = true;
+                                actionSelect = 0;
+                                DrawActionBar(actionSelect);
+                                PlayMenuSound();
+                            }
+                            else {
+                                MoveDown();
+                            }
+                        }
                         else if (_COMMAND == 'D' || _COMMAND == 77) MoveRight();
 
                         else if (_COMMAND == 13) {  // ENTER: Đánh cờ

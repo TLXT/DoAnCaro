@@ -3,6 +3,7 @@
 #include"ControlConsole.h"
 #include "bg_game.h"
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <string>
 
@@ -116,10 +117,92 @@ static void DrawCharacterName(const string& text, int startX, int startY, int wi
     int offset = (width - labelW) / 2;
     if (offset < 0) offset = 0;
     int labelX = startX + offset;
-    GotoXY(labelX, startY);
+    GotoXY(startX, startY);
     printf("\x1b[38;2;235;240;245m\x1b[48;2;25;25;30m");
+    cout << string(width, ' ');
+    GotoXY(labelX, startY);
     cout << " " << label << " ";
     printf("\x1b[0m");
+}
+
+static string UpperAscii(string text) {
+    for (char& ch : text) {
+        ch = (char)toupper((unsigned char)ch);
+    }
+    return text;
+}
+
+static void FillConsoleRect(int x, int y, int w, int h, int bgColor) {
+    SetColor(0, bgColor);
+    string row(w, ' ');
+    for (int i = 0; i < h; i++) {
+        GotoXY(x, y + i);
+        cout << row;
+    }
+    SetColor(0, 15);
+}
+
+static void DrawPreviewFrame(int x, int y, int w, int h, bool selected, bool disabled) {
+    int borderColor = disabled ? 7 : (selected ? 14 : 11);
+    int bgColor = disabled ? 8 : (selected ? 3 : 1);
+    char horizontal = selected ? '=' : '-';
+
+    FillConsoleRect(x, y, w, h, bgColor);
+    SetColor(borderColor, bgColor);
+    GotoXY(x, y);
+    cout << "+";
+    for (int i = 0; i < w - 2; i++) cout << horizontal;
+    cout << "+";
+
+    for (int row = 1; row < h - 1; row++) {
+        GotoXY(x, y + row);
+        cout << "|";
+        GotoXY(x + w - 1, y + row);
+        cout << "|";
+    }
+
+    GotoXY(x, y + h - 1);
+    cout << "+";
+    for (int i = 0; i < w - 2; i++) cout << horizontal;
+    cout << "+";
+    SetColor(0, 15);
+}
+
+static void DrawCharacterPreviewBox(Character& character, int x, int y, int boxW, int boxH, bool selected, bool disabled) {
+    DrawPreviewFrame(x, y, boxW, boxH, selected, disabled);
+
+    int spriteW = min(20, boxW - 6);
+    int spriteH = min(10, boxH - 5);
+    int spriteX = x + (boxW - spriteW) / 2;
+    int spriteY = y + 2;
+    DrawCharacterPixelsScaled(character.GetDisplay(), spriteX, spriteY, spriteW, spriteH, false);
+
+    string label = disabled ? "DA CHON" : UpperAscii(character.GetName());
+    if (selected && !disabled) label = "> " + label + " <";
+    DrawCharacterName(label, x + 1, y + boxH - 2, boxW - 2);
+}
+
+void DrawCharacterPreview(int option, int x, int y, int boxW, int boxH, bool selected, bool disabled) {
+    if (option == 0) {
+        Knight character;
+        DrawCharacterPreviewBox(character, x, y, boxW, boxH, selected, disabled);
+    }
+    else if (option == 1) {
+        Assassin character;
+        DrawCharacterPreviewBox(character, x, y, boxW, boxH, selected, disabled);
+    }
+    else if (option == 2) {
+        Vampire character;
+        DrawCharacterPreviewBox(character, x, y, boxW, boxH, selected, disabled);
+    }
+    else if (option == 3) {
+        Paladin character;
+        DrawCharacterPreviewBox(character, x, y, boxW, boxH, selected, disabled);
+    }
+    else {
+        Officer character;
+        DrawCharacterPreviewBox(character, x, y, boxW, boxH, selected, disabled);
+    }
 }
 
 void outsidedisplay(int option) {

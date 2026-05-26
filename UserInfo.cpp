@@ -8,6 +8,17 @@
 
 using namespace std;
 
+static const string ACTION_LABELS[] = {
+    "UNDO",
+    "REDO",
+    u8"T\u1EA0M D\u1EEANG",
+    "MENU"
+};
+
+int GetActionCount() {
+    return static_cast<int>(sizeof(ACTION_LABELS) / sizeof(ACTION_LABELS[0]));
+}
+
 static void ClearHudLine(int y) {
     GotoXY(0, y);
     printf("\x1b[48;2;15;15;20m");
@@ -32,9 +43,47 @@ static string ClipText(const string& text, int maxLen) {
 
 static void PrintHudCentered(int y, const string& text, int color) {
     ClearHudLine(y);
-    int x = (CONSOLE_COLS - static_cast<int>(text.length())) / 2;
+    int x = (CONSOLE_COLS - TextDisplayWidth(text)) / 2;
     if (x < 0) x = 0;
     PrintTextWithBg(x, y, text, color);
+}
+
+static void DrawActionBox(int x, int y, const string& text, bool selected) {
+    int bg = selected ? 14 : 1;
+    int fg = selected ? 0 : 11;
+    SetColor(fg, bg);
+    GotoXY(x, y);
+    cout << " " << text << " ";
+    SetColor(0, 15);
+}
+
+void DrawActionBar(int selectedAction) {
+    static int lastSelected = -1;
+
+    int totalW = 0;
+    for (int i = 0; i < GetActionCount(); i++) {
+        totalW += TextDisplayWidth(ACTION_LABELS[i]) + 2;
+        if (i + 1 < GetActionCount()) totalW += 2;
+    }
+
+    int x = CenterConsoleX(totalW, CONSOLE_COLS);
+    int positions[8] = {};
+    for (int i = 0; i < GetActionCount(); i++) {
+        positions[i] = x;
+        x += TextDisplayWidth(ACTION_LABELS[i]) + 4;
+    }
+
+    if (selectedAction < 0 || lastSelected < 0) {
+        ClearHudLine(HUD_HELP_Y);
+        for (int i = 0; i < GetActionCount(); i++) {
+            DrawActionBox(positions[i], HUD_HELP_Y, ACTION_LABELS[i], i == selectedAction);
+        }
+    }
+    else if (selectedAction != lastSelected) {
+        DrawActionBox(positions[lastSelected], HUD_HELP_Y, ACTION_LABELS[lastSelected], false);
+        DrawActionBox(positions[selectedAction], HUD_HELP_Y, ACTION_LABELS[selectedAction], true);
+    }
+    lastSelected = selectedAction;
 }
 
 void DrawPlayerInfo() {
@@ -45,10 +94,10 @@ void DrawPlayerInfo() {
     string p1 = ClipText(_PLAYER1_NAME, 14);
     string p2 = ClipText(_PLAYER2_NAME, 14);
     string playerLine = "[X] " + p1 + "   vs   [O] " + p2;
-    string helpLine = "[WASD] Di chuyen   [Enter] Danh   [Z/Y] Undo/Redo   [P] Pause   [M] Menu";
+    string helpLine = "";
 
     PrintHudCentered(HUD_PLAYER_Y, playerLine, 15);
-    PrintHudCentered(HUD_HELP_Y, helpLine, 11);
+    DrawActionBar(-1);
     PrintTextWithBg(TIMER_X, TIMER_Y, "THOI GIAN: 30s      ", 11);
     DrawStatusInfo(false);
 }

@@ -13,6 +13,190 @@
 
 using namespace std;
 
+static int gLastFinishResult = 2;
+
+static string FinishWinnerName() {
+    if (gLastFinishResult == -1) return _PLAYER1_NAME;
+    if (gLastFinishResult == 1) return _PLAYER2_NAME;
+    return "";
+}
+
+static int FinishWinnerCharacter() {
+    if (gLastFinishResult == -1) return CharacterASelect;
+    if (gLastFinishResult == 1) return CharacterBSelect;
+    return -1;
+}
+
+static string CharacterNameFromOption(int option) {
+    switch (option) {
+    case 0: return "KNIGHT";
+    case 1: return "ASSASSIN";
+    case 2: return "VAMPIRE";
+    case 3: return "PALADIN";
+    default: return "OFFICER";
+    }
+}
+
+int GetLastFinishResult() {
+    return gLastFinishResult;
+}
+
+static void PrintPlainText(int x, int y, const string& text, int colorCode) {
+    int r = 255, g = 255, b = 255;
+    if (colorCode == 11) { r = 0; g = 255; b = 255; }
+    else if (colorCode == 14) { r = 255; g = 255; b = 0; }
+    else if (colorCode == 12) { r = 255; g = 70; b = 70; }
+    else if (colorCode == 10) { r = 90; g = 255; b = 90; }
+
+    GotoXY(x, y);
+    printf("\x1b[38;2;%d;%d;%dm", r, g, b);
+    cout << text;
+    printf("\x1b[0m");
+}
+
+static void DrawOutlineFrame(int x, int y, int w, int h, int color) {
+    SetColor(color, 0);
+    GotoXY(x, y);
+    cout << "+";
+    for (int i = 0; i < w - 2; i++) cout << "-";
+    cout << "+";
+
+    for (int row = 1; row < h - 1; row++) {
+        GotoXY(x, y + row);
+        cout << "|";
+        GotoXY(x + w - 1, y + row);
+        cout << "|";
+    }
+
+    GotoXY(x, y + h - 1);
+    cout << "+";
+    for (int i = 0; i < w - 2; i++) cout << "-";
+    cout << "+";
+    SetColor(0, 15);
+}
+
+static void DrawSparseLine(int x, int y, const string& text, int colorCode) {
+    for (int i = 0; i < (int)text.length(); i++) {
+        if (text[i] == ' ') continue;
+        PrintPlainText(x + i, y, string(1, text[i]), colorCode);
+    }
+}
+
+static void DrawSwordArt(int centerX, int y) {
+    DrawSparseLine(centerX - 6, y,     "     /\\     ", 14);
+    DrawSparseLine(centerX - 6, y + 1, "    /  \\    ", 14);
+    DrawSparseLine(centerX - 6, y + 2, "   /====\\   ", 14);
+    DrawSparseLine(centerX - 6, y + 3, "     ||     ", 15);
+    DrawSparseLine(centerX - 6, y + 4, "  ---||---  ", 15);
+    DrawSparseLine(centerX - 6, y + 5, "     []     ", 14);
+}
+
+static void DrawChoiceButton(int x, int y, int w, int h, const string& text, bool selected) {
+    int bg = selected ? 12 : 1;
+    int fg = 15;
+    int border = selected ? 14 : 11;
+    string fill(w, ' ');
+
+    SetColor(fg, bg);
+    for (int row = 0; row < h; row++) {
+        GotoXY(x, y + row);
+        cout << fill;
+    }
+
+    SetColor(border, bg);
+    GotoXY(x, y);
+    cout << "+";
+    for (int i = 0; i < w - 2; i++) cout << (selected ? '=' : '-');
+    cout << "+";
+    for (int row = 1; row < h - 1; row++) {
+        GotoXY(x, y + row);
+        cout << "|";
+        GotoXY(x + w - 1, y + row);
+        cout << "|";
+    }
+    GotoXY(x, y + h - 1);
+    cout << "+";
+    for (int i = 0; i < w - 2; i++) cout << (selected ? '=' : '-');
+    cout << "+";
+
+    SetColor(fg, bg);
+    GotoXY(x + (w - TextDisplayWidth(text)) / 2, y + h / 2);
+    cout << text;
+    SetColor(0, 15);
+}
+
+void DrawFinishCelebrationScreen() {
+    system("cls");
+    DrawUIBackground();
+
+    int panelW = 94;
+    int panelH = 34;
+    int panelX = CenterConsoleX(panelW, CONSOLE_COLS);
+    int panelY = 1;
+    DrawOutlineFrame(panelX, panelY, panelW, panelH, 15);
+
+    if (gLastFinishResult == -1 || gLastFinishResult == 1) {
+        int character = FinishWinnerCharacter();
+        DrawCharacterPreview(character, CenterConsoleX(34, CONSOLE_COLS), panelY + 2, 34, 14, true, false);
+
+        string winner = u8"NG\u01AF\u1EDCI TH\u1EAENG: " + FinishWinnerName();
+
+        PrintPlainText(CenterConsoleX(7, CONSOLE_COLS), panelY + 17, "VICTORY", 14);
+        PrintPlainText(CenterConsoleX(TextDisplayWidth(winner), CONSOLE_COLS), panelY + 19, winner, 14);
+    }
+    else {
+        string drawText = u8"HAI NG\u01AF\u1EDCI CH\u01A0I \u0110\u00C3 H\u00D2A NHAU.";
+        PrintPlainText(CenterConsoleX(4, CONSOLE_COLS), panelY + 10, "DRAW", 14);
+        PrintPlainText(CenterConsoleX(TextDisplayWidth(drawText), CONSOLE_COLS), panelY + 13, drawText, 11);
+    }
+}
+
+bool DrawFinishQuestion(const string& prompt) {
+    DrawFinishCelebrationScreen();
+
+    const int questionW = 64;
+    const int questionH = 8;
+    const int questionX = CenterConsoleX(questionW, CONSOLE_COLS);
+    const int questionY = 22;
+    const int promptY = questionY + 1;
+    const int btnY = questionY + 4;
+    const int btnW = 18;
+    const int btnH = 3;
+    const int totalBtnW = btnW * 2 + 12;
+    const int startX = CenterConsoleX(totalBtnW, CONSOLE_COLS);
+
+    DrawOutlineFrame(questionX, questionY, questionW, questionH, 14);
+    PrintPlainText(CenterConsoleX(TextDisplayWidth(prompt), CONSOLE_COLS), promptY, prompt, 14);
+
+    int choice = 0;
+    int lastChoice = -1;
+    while (true) {
+        if (choice != lastChoice) {
+            int yesX = startX;
+            int noX = startX + btnW + 12;
+
+            DrawChoiceButton(yesX, btnY, btnW, btnH, "CO", choice == 0);
+            DrawChoiceButton(noX, btnY, btnW, btnH, "KHONG", choice == 1);
+
+            SetColor(0, 15);
+            lastChoice = choice;
+        }
+
+        int ch = ReadMenuKey();
+        int oldChoice = choice;
+        if (ch == 75 || ch == 'A') choice = 0;
+        else if (ch == 77 || ch == 'D') choice = 1;
+        else if (ch == 13) {
+            PlayMenuSound();
+            return choice == 0;
+        }
+
+        if (choice != oldChoice) {
+            PlayMenuSound();
+        }
+    }
+}
+
 static bool CollectWinningCells(int winner, vector<pair<int, int>>& cells) {
     if (winner == 0 || winner == 2) return false;
 
@@ -114,6 +298,8 @@ void ExitGame() {
 }
 
 int ProcessFinish(int pWhoWin) {
+    gLastFinishResult = pWhoWin;
+
     if (pWhoWin == -1 || pWhoWin == 1) {
         HighlightWinningLine(pWhoWin);
     }
@@ -146,9 +332,7 @@ int ProcessFinish(int pWhoWin) {
 }
 
 int AskContinue() {
-    // Gọi màn hình Yes/No căn giữa, không xóa màn hình
-    bool yes = GraphicalYesNo("Ban co muon choi tiep khong?", 10, false,
-        BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
+    bool yes = DrawFinishQuestion(u8"CH\u01A0I L\u1EA0I KH\u00D4NG?");
     return yes ? 'Y' : 'N';
 }
 

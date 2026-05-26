@@ -124,7 +124,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CaroBot.cpp" />
-    <ClCompile Include="CharSprite.cpp" />
+    <ClCompile Include="Character.cpp" />
     <ClCompile Include="ControlConsole.cpp" />
     <ClCompile Include="DrawBoard.cpp" />
     <ClCompile Include="FinishProcess.cpp" />
@@ -133,8 +133,10 @@
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="Proccesor.cpp" />
     <ClCompile Include="Replay.cpp" />
     <ClCompile Include="SaveLoad.cpp" />
+    <ClCompile Include="Sound.cpp" />
     <ClCompile Include="UserInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -145,7 +147,7 @@
     <ClInclude Include="btn_hover.h" />
     <ClInclude Include="btn_normal.h" />
     <ClInclude Include="CaroBot.h" />
-    <ClInclude Include="CharSprite.h" />
+    <ClInclude Include="Character.h" />
     <ClInclude Include="ControlConsole.h" />
     <ClInclude Include="DrawBackground.h" />
     <ClInclude Include="DrawBackground.hpp" />
@@ -155,9 +157,31 @@
     <ClInclude Include="GameStatus.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="Proccesor.h" />
     <ClInclude Include="Replay.h" />
     <ClInclude Include="SaveLoad.h" />
+    <ClInclude Include="Sound.h" />
     <ClInclude Include="UserInfo.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="menu_sound_effect.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="music1.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="music2.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="music3.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="music4.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="music5.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

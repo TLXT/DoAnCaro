@@ -29,6 +29,9 @@ void loadSettingMenu() {
             ClearAllData();
         }
         else if (setChoice == 1) {
+            loadmusic();
+        }
+        else if (setChoice == 2) {
             break;
         }
     }

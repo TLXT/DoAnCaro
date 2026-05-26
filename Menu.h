@@ -18,14 +18,14 @@ void DrawMenuTitle(const string& title, int y, int consoleW);
 
 // --- Khai báo các hàm Menu chính ---
 int GenericMenu(string options[], int size, string title);
-int GenericCharacterMenu(string options[], int size, string title);
+int GenericCharacterMenu(string options[], int size, string title, int disabledOption = -1);
 int MainMenu();
 int PlayGameMenu();
 int DifficultyMenu();
 int SettingsMenu();
 int GameMenu();
 int MusicMenu();
-int CharacterSelectionMenu();
+int CharacterSelectionMenu(int disabledOption = -1);
 void VolumeMenu();
 void InputPlayerNames(bool isBotMode);
 
@@ -62,6 +62,14 @@ inline int CenterConsoleX(int width, int consoleW = CONSOLE_COLS) {
     return x < 0 ? 0 : x;
 }
 
+inline int TextDisplayWidth(const string& text) {
+    int width = 0;
+    for (unsigned char ch : text) {
+        if ((ch & 0xC0) != 0x80) width++;
+    }
+    return width;
+}
+
 // --- CÁC HÀM GIAO DIỆN CHUNG (Định nghĩa trực tiếp dùng Template) ---
 
 template <size_t BtnW>
@@ -74,18 +82,25 @@ int GraphicalMenu(string options[], int size, string title,
     DrawUIBackground();
 
     int consoleW = CONSOLE_COLS;
+    bool hideTitle = title.empty() || title == "MENU TAM DUNG" || title == "CHARACTER MENU";
 
     if (title == "GAME CARO") {
         DrawMenuTitle("CARO", 1, consoleW);
     }
-    else {
-        DrawMenuTitle(title, 2, consoleW);
+    else if (!hideTitle) {
+        DrawMenuTitle(title, 4, consoleW);
     }
 
     int btnCols = btnW * 2;
     int startX = CenterConsoleX(btnCols, consoleW);
     int totalMenuH = size * btnH + (size - 1);
-    int startY_Base = (title == "GAME CARO") ? 10 : 12;
+    int startY_Base = 12;
+    if (title == "GAME CARO") {
+        startY_Base = 10;
+    }
+    else if (hideTitle) {
+        startY_Base = (CONSOLE_LINES - totalMenuH) / 2;
+    }
     if (startY_Base + totalMenuH >= 40) {
         startY_Base = 39 - totalMenuH;
     }
@@ -99,23 +114,33 @@ int GraphicalMenu(string options[], int size, string title,
 
     while (true) {
         if (currentSelect != lastSelect) {
-            for (int i = 0; i < size; i++) {
+            auto drawMenuItem = [&](int i, bool selected) {
                 int startY = startY_Base + i * (btnH + 1);
 
-                if (i == currentSelect) {
+                if (selected) {
                     DrawSolidImage(btnHover, btnW, btnH, startX, startY);
-                    int textLen = static_cast<int>(options[i].length());
+                    int textLen = TextDisplayWidth(options[i]);
                     GotoXY(startX + (btnCols - textLen) / 2, startY + btnH / 2);
                     SetColor(0, bgHover); // Chữ đen, nền theo màu nút
                     cout << options[i];
                 }
                 else {
                     DrawSolidImage(btnNormal, btnW, btnH, startX, startY);
-                    int textLen = static_cast<int>(options[i].length());
+                    int textLen = TextDisplayWidth(options[i]);
                     GotoXY(startX + (btnCols - textLen) / 2, startY + btnH / 2);
                     SetColor(0, bgNormal);
                     cout << options[i];
                 }
+            };
+
+            if (lastSelect == -1) {
+                for (int i = 0; i < size; i++) {
+                    drawMenuItem(i, i == currentSelect);
+                }
+            }
+            else {
+                drawMenuItem(lastSelect, false);
+                drawMenuItem(currentSelect, true);
             }
             lastSelect = currentSelect;
         }
@@ -164,7 +189,7 @@ bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
         }
     }
 
-    int frameW = static_cast<int>(prompt.length()) + 12;
+    int frameW = min(consoleW - 4, TextDisplayWidth(prompt) + 12);
     int frameX = CenterConsoleX(frameW, consoleW);
 
     DrawFrame(frameX, startY, frameW, 5); // Khung này sẽ tự xóa rác bên trong

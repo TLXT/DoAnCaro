@@ -51,7 +51,13 @@
     <ClCompile Include="GameTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CharSprite.cpp">
+    <ClCompile Include="Character.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Proccesor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,9 +95,6 @@
     <ClInclude Include="Replay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CharSprite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DrawBackground.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -116,5 +119,34 @@
     <ClInclude Include="btn_normal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Proccesor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="menu_sound_effect.wav">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="music1.mp3">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="music2.mp3">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="music3.mp3">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="music4.mp3">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="music5.mp3">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

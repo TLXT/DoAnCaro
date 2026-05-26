@@ -3,6 +3,7 @@
 #include "ControlConsole.h"
 #include "GamePlay.h"
 #include "GameStatus.h"
+#include "FinishProcess.h"
 #include <conio.h>
 #include <windows.h>
 #include <string>
@@ -21,8 +22,7 @@ static const int REPLAY_HELP_X = LEFT + BOARD_SIZE * 4 + 6;
 
 //hỏi người dùng có muốn replay không
 bool AskForReplay() {
-    return GraphicalYesNo("Ban co muon xem lai van dau khong?", 10, true,
-        BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
+    return DrawFinishQuestion(u8"XEM L\u1EA0I V\u00C1N \u0110\u1EA4U?");
 }
 
 //chọn tốc độ
