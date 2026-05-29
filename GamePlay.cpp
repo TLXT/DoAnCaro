@@ -39,11 +39,11 @@ void DrawCell(int x, int y, int bg_color) {
         cout << "O";
     }
 
-    SetColor(0, 15);
+    SetColor(15, 0);
 }
 
 void StartGame() {
-    system("color F0");
+    system("color 0F");
     system("cls");
     ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
     SetConsoleWindow(1460, 730);

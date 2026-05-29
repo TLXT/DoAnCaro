@@ -125,6 +125,73 @@ static void DrawCharacterName(const string& text, int startX, int startY, int wi
     printf("\x1b[0m");
 }
 
+static void DrawIngameCharacterName(const string& text, int startX, int startY, int width) {
+    string label = text;
+    if ((int)label.length() > width - 2) {
+        label = label.substr(0, max(0, width - 5)) + "...";
+    }
+
+    const int groundR = 92;
+    const int groundG = 58;
+    const int groundB = 32;
+    int labelW = min(width, (int)label.length() + 2);
+    int offset = (width - labelW) / 2;
+    if (offset < 0) offset = 0;
+
+    GotoXY(startX, startY);
+    printf("\x1b[38;2;235;240;245m\x1b[48;2;%d;%d;%dm", groundR, groundG, groundB);
+    cout << string(width, ' ');
+    GotoXY(startX + offset, startY);
+    cout << " " << label << " ";
+    printf("\x1b[0m");
+}
+
+static void DrawBadgePixel(int x, int y, int color) {
+    GotoXY(x, y);
+    SetColor(color, color);
+    cout << "  ";
+}
+
+static void DrawTurnBadge(int startX, char mark, bool active) {
+    static const char* X_GLYPH[5] = {
+        "10001",
+        "01010",
+        "00100",
+        "01010",
+        "10001"
+    };
+    static const char* O_GLYPH[5] = {
+        "01110",
+        "10001",
+        "10001",
+        "10001",
+        "01110"
+    };
+
+    const char** glyph = (mark == 'X') ? X_GLYPH : O_GLYPH;
+    int color = active ? ((mark == 'X') ? 12 : 10) : 8;
+    int badgeW = 10;
+    int x = startX + (SPRITE_DRAW_W - badgeW) / 2;
+    int y = 0;
+
+    RestoreGameBackgroundRect(startX, y, SPRITE_DRAW_W, 5);
+
+    for (int row = 0; row < 5; row++) {
+        for (int col = 0; col < 5; col++) {
+            if (glyph[row][col] == '1') {
+                DrawBadgePixel(x + col * 2, y + row, color);
+            }
+        }
+    }
+    SetColor(15, 0);
+}
+
+void DrawIngameTurnBadges() {
+    DrawTurnBadge(LEFT_SPRITE_X, 'X', _TURN == true);
+    DrawTurnBadge(RIGHT_SPRITE_X, 'O', _TURN == false);
+    GotoXY(_X, _Y);
+}
+
 static string UpperAscii(string text) {
     for (char& ch : text) {
         ch = (char)toupper((unsigned char)ch);
@@ -145,26 +212,25 @@ static void FillConsoleRect(int x, int y, int w, int h, int bgColor) {
 static void DrawPreviewFrame(int x, int y, int w, int h, bool selected, bool disabled) {
     int borderColor = disabled ? 7 : (selected ? 14 : 11);
     int bgColor = disabled ? 8 : (selected ? 3 : 1);
-    char horizontal = selected ? '=' : '-';
 
     FillConsoleRect(x, y, w, h, bgColor);
     SetColor(borderColor, bgColor);
     GotoXY(x, y);
-    cout << "+";
-    for (int i = 0; i < w - 2; i++) cout << horizontal;
-    cout << "+";
+    cout << "\xE2\x94\x8C";
+    for (int i = 0; i < w - 2; i++) cout << (selected ? "\xE2\x95\x90" : "\xE2\x94\x80");
+    cout << "\xE2\x94\x90";
 
     for (int row = 1; row < h - 1; row++) {
         GotoXY(x, y + row);
-        cout << "|";
+        cout << "\xE2\x94\x82";
         GotoXY(x + w - 1, y + row);
-        cout << "|";
+        cout << "\xE2\x94\x82";
     }
 
     GotoXY(x, y + h - 1);
-    cout << "+";
-    for (int i = 0; i < w - 2; i++) cout << horizontal;
-    cout << "+";
+    cout << "\xE2\x94\x94";
+    for (int i = 0; i < w - 2; i++) cout << (selected ? "\xE2\x95\x90" : "\xE2\x94\x80");
+    cout << "\xE2\x94\x98";
     SetColor(0, 15);
 }
 
@@ -172,9 +238,9 @@ static void DrawCharacterPreviewBox(Character& character, int x, int y, int boxW
     DrawPreviewFrame(x, y, boxW, boxH, selected, disabled);
 
     int spriteW = min(20, boxW - 6);
-    int spriteH = min(10, boxH - 5);
+    int spriteH = min(9, boxH - 4);
     int spriteX = x + (boxW - spriteW) / 2;
-    int spriteY = y + 2;
+    int spriteY = y + 1;
     DrawCharacterPixelsScaled(character.GetDisplay(), spriteX, spriteY, spriteW, spriteH, false);
 
     string label = disabled ? "DA CHON" : UpperAscii(character.GetName());
@@ -265,12 +331,14 @@ void Character::DrawOnChoosingMenu() {
     DrawCharacterName(GetName(), 18, 26, 40);
 }
 void Character::DrawLeftSizeInGame() {
-    RestoreGameBackgroundRect(LEFT_SPRITE_X, SPRITE_START_Y, SPRITE_DRAW_W, SPRITE_DRAW_H + 2);
+    RestoreGameBackgroundRect(LEFT_SPRITE_X, 0, SPRITE_DRAW_W, SPRITE_START_Y + SPRITE_DRAW_H + 2);
+    DrawTurnBadge(LEFT_SPRITE_X, 'X', _TURN == true);
     DrawCharacterPixelsScaled(GetDisplay(), LEFT_SPRITE_X, SPRITE_START_Y, SPRITE_DRAW_W, SPRITE_DRAW_H, false);
-    DrawCharacterName(GetName(), LEFT_SPRITE_X, SPRITE_START_Y + SPRITE_DRAW_H + 1, SPRITE_DRAW_W);
+    DrawIngameCharacterName(GetName(), LEFT_SPRITE_X, SPRITE_START_Y + SPRITE_DRAW_H + 1, SPRITE_DRAW_W);
 }
 void Character::DrawRightSizeInGame() {
-    RestoreGameBackgroundRect(RIGHT_SPRITE_X, SPRITE_START_Y, SPRITE_DRAW_W, SPRITE_DRAW_H + 2);
+    RestoreGameBackgroundRect(RIGHT_SPRITE_X, 0, SPRITE_DRAW_W, SPRITE_START_Y + SPRITE_DRAW_H + 2);
+    DrawTurnBadge(RIGHT_SPRITE_X, 'O', _TURN == false);
     DrawCharacterPixelsScaled(GetDisplay(), RIGHT_SPRITE_X, SPRITE_START_Y, SPRITE_DRAW_W, SPRITE_DRAW_H, true);
-    DrawCharacterName(GetName(), RIGHT_SPRITE_X, SPRITE_START_Y + SPRITE_DRAW_H + 1, SPRITE_DRAW_W);
+    DrawIngameCharacterName(GetName(), RIGHT_SPRITE_X, SPRITE_START_Y + SPRITE_DRAW_H + 1, SPRITE_DRAW_W);
 }

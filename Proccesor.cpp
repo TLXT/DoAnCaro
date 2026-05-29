@@ -1,4 +1,6 @@
 ﻿#include"Proccesor.h"
+#include "Language.h"
+
 void loadmusic() {
     while (true) {
         int choice = MusicMenu();
@@ -32,6 +34,10 @@ void loadSettingMenu() {
             loadmusic();
         }
         else if (setChoice == 2) {
+            ToggleLanguage();
+            PlayMenuSound();
+        }
+        else if (setChoice == 3) {
             break;
         }
     }
@@ -40,7 +46,7 @@ void loadBotMove(bool& isPlaying){
     isPaused = true;
     {
         lock_guard<mutex>lock(consoleMutex);
-        PrintTextWithBg(BOT_MSG_X, BOT_MSG_Y, "BOT DANG SUY NGHI...              ", 12);
+        PrintHudTextWithBg(BOT_MSG_X, BOT_MSG_Y, L(TextId::BotThinking) + "              ", 12);
     }
 
     _POINT botMove = FindBotMove(1, _BOT_DIFFICULTY);
@@ -64,28 +70,22 @@ void loadBotMove(bool& isPlaying){
             moveHistory.push_back({ r, c, checkRes });
             currentStep++;
 
-            PrintTextWithBg(BOT_MSG_X, BOT_MSG_Y, "                                  ", 15);
+            PrintHudTextWithBg(BOT_MSG_X, BOT_MSG_Y, "                                  ", 15);
         } // <-- GIẢI PHÓNG MUTEX TẠI ĐÂY
 
         finishStatus = ProcessFinish(TestBoard());
         if (finishStatus != 2) {
             lock_guard<mutex>lock(consoleMutex);
-            GotoXY(TIMER_X, TIMER_Y); cout << "                                        ";
-            GotoXY(TIMER_X, TIMER_Y + 1); cout << "                                        ";
+            PrintHudTextWithBg(TIMER_X, TIMER_Y, string(40, ' '), 15);
+            PrintHudTextWithBg(TIMER_X, TIMER_Y + 1, string(40, ' '), 15);
         }
 
             // Xử lý Replay bên ngoài khóa mutex
         switch (finishStatus) {
 		case -1: case 1: case 0: // Ván cờ kết thúc, hỏi người chơi có muốn xem lại không
             isPaused = true;
-            GotoXY(TIMER_X, TIMER_Y); cout << "                                        ";
-            GotoXY(TIMER_X, TIMER_Y + 1); cout << "                                        ";
-
-            char ch;
-            do {
-                ch = _getch();
-                if (ch == -32 || ch == 0) _getch();
-            } while (ch != 13);
+            PrintHudTextWithBg(TIMER_X, TIMER_Y, string(40, ' '), 15);
+            PrintHudTextWithBg(TIMER_X, TIMER_Y + 1, string(40, ' '), 15);
 
             HandleReplayOption();
             if (AskContinue() != 'Y') {

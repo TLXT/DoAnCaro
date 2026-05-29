@@ -1,0 +1,85 @@
+#pragma once
+#include <string>
+
+enum class GameLanguage {
+    Vietnamese,
+    English
+};
+
+enum class TextId {
+    MainPlayGame,
+    MainLoadGame,
+    MainSettings,
+    MainExit,
+    ModeTitle,
+    ModePvp,
+    ModePvb,
+    Back,
+    DifficultyTitle,
+    DifficultyEasy,
+    DifficultyMedium,
+    DifficultyHard,
+    SettingsTitle,
+    SettingsClearData,
+    SettingsMusic,
+    SettingsLanguage,
+    PauseExitGame,
+    PauseSaveGame,
+    PauseLoadGame,
+    PauseExitMenu,
+    MusicOff,
+    MusicVolume,
+    MusicSfx,
+    MusicExit,
+    VolumeTitle,
+    VolumeHelp,
+    VolumeLabel,
+    EnterPlayerX,
+    EnterPlayerO,
+    EnterPlayerBot,
+    DuplicateName,
+    ChooseCharacterP1,
+    ChooseCharacterP2,
+    Chosen,
+    HudPause,
+    HudMenu,
+    HudTime,
+    HudTurn,
+    HudStatusPaused,
+    HudStatusPlaying,
+    BotThinking,
+    ReplayQuestion,
+    PlayAgainQuestion,
+    Yes,
+    No,
+    Victory,
+    Winner,
+    Symbol,
+    Character,
+    Draw,
+    DrawMessage,
+    ReplaySpeedPrompt,
+    ReplayHelpBack,
+    ReplayHelpForward,
+    ReplayHelpPause,
+    ReplayHelpExit,
+    SavePrompt,
+    SaveDuplicate,
+    SaveSuccess,
+    SaveCreateError,
+    LoadReadError,
+    LoadNoData,
+    LoadTitle,
+    LoadHelp,
+    ClearNoData,
+    ClearConfirmPrefix,
+    ClearConfirmSuffix,
+    ClearDone,
+    ClearCanceled
+};
+
+std::string L(TextId id);
+GameLanguage GetLanguage();
+void SetLanguage(GameLanguage language);
+void ToggleLanguage();
+std::string CurrentLanguageName();

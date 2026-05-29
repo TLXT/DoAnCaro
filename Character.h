@@ -286,5 +286,6 @@ public:
 };
 void outsidedisplay(int option);
 void ingamedisplay(int option, bool isPlayer1);
+void DrawIngameTurnBadges();
 void DrawBothSprites();
 void DrawCharacterPreview(int option, int x, int y, int boxW, int boxH, bool selected, bool disabled);

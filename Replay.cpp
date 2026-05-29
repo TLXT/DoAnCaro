@@ -15,6 +15,7 @@
 #include "Character.h"
 #include "DrawBackground.hpp"
 #include "UserInfo.h"
+#include "Language.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ static const int REPLAY_HELP_X = LEFT + BOARD_SIZE * 4 + 6;
 
 //hỏi người dùng có muốn replay không
 bool AskForReplay() {
-    return DrawFinishQuestion(u8"XEM L\u1EA0I V\u00C1N \u0110\u1EA4U?");
+    return DrawFinishQuestion(L(TextId::ReplayQuestion));
 }
 
 //chọn tốc độ
@@ -31,8 +32,8 @@ void ChooseReplaySpeed(float& speed, int& delay) {
     system("cls");
 
     int consoleW = CONSOLE_COLS;
-    string prompt = "Chon toc do xem lai (phim mui ten hoac A/D)";
-    int frameW = static_cast<int>(prompt.length()) + 12;
+    string prompt = L(TextId::ReplaySpeedPrompt);
+    int frameW = TextDisplayWidth(prompt) + 12;
     int frameX = CenterConsoleX(frameW, consoleW);
     int startY = 8;
 
@@ -110,13 +111,13 @@ void RedrawBoard(int step) {
     //ghi chú các nút
     SetColor(0, 15);
     GotoXY(REPLAY_HELP_X, TOP + 5);
-    cout << "<- / A : Tua lui 5s";
+    cout << L(TextId::ReplayHelpBack);
     GotoXY(REPLAY_HELP_X, TOP + 6);
-    cout << "-> / D : Tua toi 5s";
+    cout << L(TextId::ReplayHelpForward);
     GotoXY(REPLAY_HELP_X, TOP + 7);
-    cout << "Space/P: Dung/Phat";
+    cout << L(TextId::ReplayHelpPause);
     GotoXY(REPLAY_HELP_X, TOP + 8);
-    cout << "Esc    : Thoat";
+    cout << L(TextId::ReplayHelpExit);
 
     //cập nhật mảng bàn cờ 
     for (int i = 0; i < step; i++) {

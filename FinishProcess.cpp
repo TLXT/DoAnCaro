@@ -3,6 +3,7 @@
 #include "ControlConsole.h"
 #include "UserInfo.h"
 #include "Sound.h"
+#include "Language.h"
 
 #include "Menu.h"
 #include "btn_normal.h"
@@ -57,21 +58,31 @@ static void PrintPlainText(int x, int y, const string& text, int colorCode) {
 static void DrawOutlineFrame(int x, int y, int w, int h, int color) {
     SetColor(color, 0);
     GotoXY(x, y);
-    cout << "+";
-    for (int i = 0; i < w - 2; i++) cout << "-";
-    cout << "+";
+    cout << "\xE2\x94\x8C";
+    for (int i = 0; i < w - 2; i++) cout << "\xE2\x94\x80";
+    cout << "\xE2\x94\x90";
 
     for (int row = 1; row < h - 1; row++) {
         GotoXY(x, y + row);
-        cout << "|";
+        cout << "\xE2\x94\x82";
         GotoXY(x + w - 1, y + row);
-        cout << "|";
+        cout << "\xE2\x94\x82";
     }
 
     GotoXY(x, y + h - 1);
-    cout << "+";
-    for (int i = 0; i < w - 2; i++) cout << "-";
-    cout << "+";
+    cout << "\xE2\x94\x94";
+    for (int i = 0; i < w - 2; i++) cout << "\xE2\x94\x80";
+    cout << "\xE2\x94\x98";
+    SetColor(15, 0);
+}
+
+static void FillConsoleBlock(int x, int y, int w, int h, int bgColor) {
+    SetColor(15, bgColor);
+    string line(w, ' ');
+    for (int row = 0; row < h; row++) {
+        GotoXY(x, y + row);
+        cout << line;
+    }
     SetColor(0, 15);
 }
 
@@ -105,24 +116,24 @@ static void DrawChoiceButton(int x, int y, int w, int h, const string& text, boo
 
     SetColor(border, bg);
     GotoXY(x, y);
-    cout << "+";
-    for (int i = 0; i < w - 2; i++) cout << (selected ? '=' : '-');
-    cout << "+";
+    cout << "\xE2\x94\x8C";
+    for (int i = 0; i < w - 2; i++) cout << (selected ? "\xE2\x95\x90" : "\xE2\x94\x80");
+    cout << "\xE2\x94\x90";
     for (int row = 1; row < h - 1; row++) {
         GotoXY(x, y + row);
-        cout << "|";
+        cout << "\xE2\x94\x82";
         GotoXY(x + w - 1, y + row);
-        cout << "|";
+        cout << "\xE2\x94\x82";
     }
     GotoXY(x, y + h - 1);
-    cout << "+";
-    for (int i = 0; i < w - 2; i++) cout << (selected ? '=' : '-');
-    cout << "+";
+    cout << "\xE2\x94\x94";
+    for (int i = 0; i < w - 2; i++) cout << (selected ? "\xE2\x95\x90" : "\xE2\x94\x80");
+    cout << "\xE2\x94\x98";
 
     SetColor(fg, bg);
     GotoXY(x + (w - TextDisplayWidth(text)) / 2, y + h / 2);
     cout << text;
-    SetColor(0, 15);
+    SetColor(15, 0);
 }
 
 void DrawFinishCelebrationScreen() {
@@ -139,14 +150,14 @@ void DrawFinishCelebrationScreen() {
         int character = FinishWinnerCharacter();
         DrawCharacterPreview(character, CenterConsoleX(34, CONSOLE_COLS), panelY + 2, 34, 14, true, false);
 
-        string winner = u8"NG\u01AF\u1EDCI TH\u1EAENG: " + FinishWinnerName();
+        string winner = L(TextId::Winner) + FinishWinnerName();
 
-        PrintPlainText(CenterConsoleX(7, CONSOLE_COLS), panelY + 17, "VICTORY", 14);
+        PrintPlainText(CenterConsoleX(TextDisplayWidth(L(TextId::Victory)), CONSOLE_COLS), panelY + 17, L(TextId::Victory), 14);
         PrintPlainText(CenterConsoleX(TextDisplayWidth(winner), CONSOLE_COLS), panelY + 19, winner, 14);
     }
     else {
-        string drawText = u8"HAI NG\u01AF\u1EDCI CH\u01A0I \u0110\u00C3 H\u00D2A NHAU.";
-        PrintPlainText(CenterConsoleX(4, CONSOLE_COLS), panelY + 10, "DRAW", 14);
+        string drawText = L(TextId::DrawMessage);
+        PrintPlainText(CenterConsoleX(TextDisplayWidth(L(TextId::Draw)), CONSOLE_COLS), panelY + 10, L(TextId::Draw), 14);
         PrintPlainText(CenterConsoleX(TextDisplayWidth(drawText), CONSOLE_COLS), panelY + 13, drawText, 11);
     }
 }
@@ -165,8 +176,9 @@ bool DrawFinishQuestion(const string& prompt) {
     const int totalBtnW = btnW * 2 + 12;
     const int startX = CenterConsoleX(totalBtnW, CONSOLE_COLS);
 
+    FillConsoleBlock(questionX, questionY, questionW, questionH, 1);
     DrawOutlineFrame(questionX, questionY, questionW, questionH, 14);
-    PrintPlainText(CenterConsoleX(TextDisplayWidth(prompt), CONSOLE_COLS), promptY, prompt, 14);
+    PrintTextWithBg(CenterConsoleX(TextDisplayWidth(prompt), CONSOLE_COLS), promptY, prompt, 14);
 
     int choice = 0;
     int lastChoice = -1;
@@ -175,8 +187,8 @@ bool DrawFinishQuestion(const string& prompt) {
             int yesX = startX;
             int noX = startX + btnW + 12;
 
-            DrawChoiceButton(yesX, btnY, btnW, btnH, "CO", choice == 0);
-            DrawChoiceButton(noX, btnY, btnW, btnH, "KHONG", choice == 1);
+            DrawChoiceButton(yesX, btnY, btnW, btnH, L(TextId::Yes), choice == 0);
+            DrawChoiceButton(noX, btnY, btnW, btnH, L(TextId::No), choice == 1);
 
             SetColor(0, 15);
             lastChoice = choice;
@@ -278,7 +290,13 @@ static void HighlightWinningLine(int winner) {
     }
     GotoXY(_X, _Y);
 
-    Sleep(5000);
+    for (int i = 0; i < 50; i++) {
+        if (_kbhit()) {
+            int key = ReadMenuKey();
+            if (key == 13) break;
+        }
+        Sleep(100);
+    }
 
     for (const auto& cell : cells) {
         RestoreWinningCell(cell.first, cell.second);
@@ -312,13 +330,28 @@ int ProcessFinish(int pWhoWin) {
 
     switch (pWhoWin) {
     case -1:
-        cout << _PLAYER1_NAME << " (X) da THANG va " << _PLAYER2_NAME << " (O) da THUA!          ";
+        if (GetLanguage() == GameLanguage::Vietnamese) {
+            cout << _PLAYER1_NAME << " (X) da THANG va " << _PLAYER2_NAME << " (O) da THUA!          ";
+        }
+        else {
+            cout << _PLAYER1_NAME << " (X) WON and " << _PLAYER2_NAME << " (O) LOST!          ";
+        }
         break;
     case  1:
-        cout << _PLAYER2_NAME << " (O) da THANG va " << _PLAYER1_NAME << " (X) da THUA!          ";
+        if (GetLanguage() == GameLanguage::Vietnamese) {
+            cout << _PLAYER2_NAME << " (O) da THANG va " << _PLAYER1_NAME << " (X) da THUA!          ";
+        }
+        else {
+            cout << _PLAYER2_NAME << " (O) WON and " << _PLAYER1_NAME << " (X) LOST!          ";
+        }
         break;
     case  0:
-        cout << "Tran dau HOA! Ban co da het o trong.                          ";
+        if (GetLanguage() == GameLanguage::Vietnamese) {
+            cout << "Tran dau HOA! Ban co da het o trong.                          ";
+        }
+        else {
+            cout << "DRAW! The board has no empty cells.                          ";
+        }
         break;
     case  2:
         _TURN = !_TURN;
@@ -332,7 +365,7 @@ int ProcessFinish(int pWhoWin) {
 }
 
 int AskContinue() {
-    bool yes = DrawFinishQuestion(u8"CH\u01A0I L\u1EA0I KH\u00D4NG?");
+    bool yes = DrawFinishQuestion(L(TextId::PlayAgainQuestion));
     return yes ? 'Y' : 'N';
 }
 

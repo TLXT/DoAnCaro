@@ -17,7 +17,8 @@ inline void DrawMenuBackground() {
         GotoXY(0, i);
 
         string row_buf = "";
-        for (int j = 0; j < BG_MENU_W; j++) {
+        int drawW = (i == CONSOLE_LINES - 1) ? BG_MENU_W - 1 : BG_MENU_W;
+        for (int j = 0; j < drawW; j++) {
             int r_top = BG_MENU[i * 2][j][0];
             int g_top = BG_MENU[i * 2][j][1];
             int b_top = BG_MENU[i * 2][j][2];
@@ -45,7 +46,8 @@ inline void DrawIngameBackground() {
         GotoXY(0, i);
 
         string row_buf = "";
-        for (int j = 0; j < BG_GAME_W; j++) {
+        int drawW = (i == CONSOLE_LINES - 1) ? BG_GAME_W - 1 : BG_GAME_W;
+        for (int j = 0; j < drawW; j++) {
             int r_top = BG_GAME[i * 2][j][0];
             int g_top = BG_GAME[i * 2][j][1];
             int b_top = BG_GAME[i * 2][j][2];
@@ -74,7 +76,8 @@ inline void DrawLoadgameBackground() {
         GotoXY(0, i);
 
         string row_buf = "";
-        for (int j = 0; j < BG_LOAD_W; j++) {
+        int drawW = (i == CONSOLE_LINES - 1) ? BG_LOAD_W - 1 : BG_LOAD_W;
+        for (int j = 0; j < drawW; j++) {
             int r_top = BG_LOAD[i * 2][j][0];
             int g_top = BG_LOAD[i * 2][j][1];
             int b_top = BG_LOAD[i * 2][j][2];

@@ -8,6 +8,7 @@
 #include "ControlConsole.h" 
 #include "GameStatus.h"
 #include "Sound.h"
+#include "Language.h"
 
 using namespace std;
 
@@ -25,7 +26,7 @@ int DifficultyMenu();
 int SettingsMenu();
 int GameMenu();
 int MusicMenu();
-int CharacterSelectionMenu(int disabledOption = -1);
+int CharacterSelectionMenu(int disabledOption = -1, string chooserTitle = "");
 void VolumeMenu();
 void InputPlayerNames(bool isBotMode);
 
@@ -88,7 +89,7 @@ int GraphicalMenu(string options[], int size, string title,
         DrawMenuTitle("CARO", 1, consoleW);
     }
     else if (!hideTitle) {
-        DrawMenuTitle(title, 4, consoleW);
+        DrawMenuTitle(title, 2, consoleW);
     }
 
     int btnCols = btnW * 2;
@@ -96,6 +97,12 @@ int GraphicalMenu(string options[], int size, string title,
     int totalMenuH = size * btnH + (size - 1);
     int startY_Base = 12;
     if (title == "GAME CARO") {
+        startY_Base = 10;
+    }
+    else if (title == "MENU TAM DUNG") {
+        startY_Base = 9;
+    }
+    else if (!hideTitle) {
         startY_Base = 10;
     }
     else if (hideTitle) {
@@ -212,28 +219,30 @@ bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
         if (choice != lastChoice) {
             // Nút YES
             int yesX = startX;
+            string yesText = L(TextId::Yes);
+            string noText = L(TextId::No);
             if (choice == 0) {
                 DrawSolidImage(btnHover, btnW, btnH, yesX, btnY);
-                GotoXY(yesX + (btnCols - 3) / 2, btnY + btnH / 2);
-                SetColor(0, bgHover); cout << "YES";
+                GotoXY(yesX + (btnCols - TextDisplayWidth(yesText)) / 2, btnY + btnH / 2);
+                SetColor(0, bgHover); cout << yesText;
             }
             else {
                 DrawSolidImage(btnNormal, btnW, btnH, yesX, btnY);
-                GotoXY(yesX + (btnCols - 3) / 2, btnY + btnH / 2);
-                SetColor(0, bgNormal); cout << "YES";
+                GotoXY(yesX + (btnCols - TextDisplayWidth(yesText)) / 2, btnY + btnH / 2);
+                SetColor(0, bgNormal); cout << yesText;
             }
 
             // Nút NO
             int noX = startX + btnCols + 10;
             if (choice == 1) {
                 DrawSolidImage(btnHover, btnW, btnH, noX, btnY);
-                GotoXY(noX + (btnCols - 2) / 2, btnY + btnH / 2);
-                SetColor(0, bgHover); cout << "NO";
+                GotoXY(noX + (btnCols - TextDisplayWidth(noText)) / 2, btnY + btnH / 2);
+                SetColor(0, bgHover); cout << noText;
             }
             else {
                 DrawSolidImage(btnNormal, btnW, btnH, noX, btnY);
-                GotoXY(noX + (btnCols - 2) / 2, btnY + btnH / 2);
-                SetColor(0, bgNormal); cout << "NO";
+                GotoXY(noX + (btnCols - TextDisplayWidth(noText)) / 2, btnY + btnH / 2);
+                SetColor(0, bgNormal); cout << noText;
             }
             lastChoice = choice;
         }

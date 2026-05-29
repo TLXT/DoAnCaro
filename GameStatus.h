@@ -22,11 +22,11 @@ using namespace std;
 //  Trái : cols  2 – 33  (gap 4 đến board)
 //  Phải : cols 91 – 122 (gap 4 sau board kết thúc col 86)
 // ============================================================
-#define SPRITE_DRAW_W   28
-#define SPRITE_DRAW_H   22
-#define LEFT_SPRITE_X   3
-#define RIGHT_SPRITE_X  (CONSOLE_COLS - SPRITE_DRAW_W - 3)
-#define SPRITE_START_Y  1
+#define SPRITE_DRAW_W   22
+#define SPRITE_DRAW_H   16
+#define LEFT_SPRITE_X   6
+#define RIGHT_SPRITE_X  (CONSOLE_COLS - SPRITE_DRAW_W - 6)
+#define SPRITE_START_Y  6
 
 // ============================================================
 //  Vị trí panel thông tin (bên phải, bên dưới sprite phải)
@@ -34,7 +34,7 @@ using namespace std;
 //  Panel bắt đầu từ dòng 24
 // ============================================================
 #define INFO_X  0
-#define INFO_Y  (TOP + BOARD_SIZE * 2 + 1)
+#define INFO_Y  (TOP + BOARD_SIZE * 2 + 2)
 
 // ============================================================
 //  Vị trí đồng hồ đếm ngược (bên dưới panel thông tin)

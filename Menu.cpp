@@ -7,6 +7,7 @@
 #include "DrawBackground.hpp"
 #include "btn_normal.h"
 #include "btn_hover.h"
+#include "Language.h"
 #include <windows.h>
 #include <cctype>
 
@@ -35,6 +36,40 @@ void PrintTextWithBg(int startX, int startY, string text, int textColorCode) {
     printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;15;15;20m", tr, tg, tb);
     cout << text;
     printf("\x1b[0m");
+}
+
+static void FillConsoleRect(int x, int y, int w, int h, int bgColor) {
+    SetColor(0, bgColor);
+    string row(w, ' ');
+    for (int i = 0; i < h; i++) {
+        GotoXY(x, y + i);
+        cout << row;
+    }
+    SetColor(15, 0);
+}
+
+static void DrawNameInputFrame(int frameX, int y, int frameW, const string& label, const string& value, bool active) {
+    const int inputW = 20;
+    const int inputX = frameX + frameW - inputW - 7;
+
+    DrawFrame(frameX, y, frameW, 3);
+    FillConsoleRect(inputX, y + 1, inputW, 1, active ? 1 : 8);
+
+    PrintTextWithBg(frameX + 4, y + 1, label, active ? 11 : 14);
+
+    if (!active && !value.empty()) {
+        int valueX = inputX;
+        GotoXY(valueX, y + 1);
+        SetColor(15, 8);
+        cout << value.substr(0, inputW);
+        SetColor(15, 0);
+    }
+}
+
+static void BeginNameInput(int inputX, int inputY, int inputW) {
+    FillConsoleRect(inputX, inputY, inputW, 1, 1);
+    GotoXY(inputX, inputY);
+    SetColor(15, 1);
 }
 
 // Gradient màu xanh băng từ trên xuống (7 màu cho 6 dòng ASCII art)
@@ -343,33 +378,49 @@ int GenericMenu(string options[], int size, string title) {
 
 // --- Menu dùng Đồ Họa Cải Tiến (GraphicalMenu) ---
 int MainMenu() {
-    string options[4] = { u8"CH\u01A0I GAME", u8"T\u1EA2I GAME", u8"C\u00C0I \u0110\u1EB6T", u8"THO\u00C1T" };
+    string options[4] = { L(TextId::MainPlayGame), L(TextId::MainLoadGame), L(TextId::MainSettings), L(TextId::MainExit) };
     return GraphicalMenu(options, 4, "GAME CARO", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int PlayGameMenu() {
-    string options[3] = { u8"NG\u01AF\u1EDCI VS NG\u01AF\u1EDCI", u8"NG\u01AF\u1EDCI VS BOT", u8"QUAY L\u1EA0I" };
-    return GraphicalMenu(options, 3, "", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
+    string options[3] = { L(TextId::ModePvp), L(TextId::ModePvb), L(TextId::Back) };
+    return GraphicalMenu(options, 3, L(TextId::ModeTitle), BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int DifficultyMenu() {
-    string options[4] = { u8"D\u1EC4", u8"TRUNG B\u00CCNH", u8"KH\u00D3", u8"QUAY L\u1EA0I" };
-    return GraphicalMenu(options, 4, u8"Ch\u1ECDn \u0111\u1ED9 kh\u00F3", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
+    string options[4] = { L(TextId::DifficultyEasy), L(TextId::DifficultyMedium), L(TextId::DifficultyHard), L(TextId::Back) };
+    return GraphicalMenu(options, 4, L(TextId::DifficultyTitle), BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int SettingsMenu() {
-    string options[3] = { u8"X\u00D3A D\u1EEE LI\u1EC6U", u8"C\u00C0I \u0110\u1EB6T NH\u1EA0C", u8"QUAY L\u1EA0I" };
-    return GraphicalMenu(options, 3, "", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
+    string options[4] = {
+        L(TextId::SettingsClearData),
+        L(TextId::SettingsMusic),
+        L(TextId::SettingsLanguage) + CurrentLanguageName(),
+        L(TextId::Back)
+    };
+    return GraphicalMenu(options, 4, L(TextId::SettingsTitle), BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int GameMenu() {
-    string options[5] = { u8"THO\u00C1T GAME", u8"L\u01AFU GAME", u8"T\u1EA2I GAME", u8"C\u00C0I \u0110\u1EB6T", u8"THO\u00C1T MENU" };
+    string options[5] = { L(TextId::PauseExitGame), L(TextId::PauseSaveGame), L(TextId::PauseLoadGame), L(TextId::MainSettings), L(TextId::PauseExitMenu) };
     return GraphicalMenu(options, 5, "MENU TAM DUNG", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int MusicMenu() {
     string sfxToggle = isSFXOn ? "ON" : "OFF";
-    string options[9] = { "1. MUSIC 1", "2. MUSIC 2", "3. MUSIC 3", "4. MUSIC 4", "5. MUSIC 5", u8"6. T\u1EAET NH\u1EA0C", u8"7. THAY \u0110\u1ED4I \u00C2M L\u01AF\u1EE2NG", u8"8. HI\u1EC6U \u1EE8NG \u00C2M THANH: [" + sfxToggle + "]", u8"9. THO\u00C1T MENU" };
+    string musicWord = (GetLanguage() == GameLanguage::Vietnamese) ? u8"NH\u1EA0C " : "MUSIC ";
+    string options[9] = {
+        "1. " + musicWord + "1",
+        "2. " + musicWord + "2",
+        "3. " + musicWord + "3",
+        "4. " + musicWord + "4",
+        "5. " + musicWord + "5",
+        "6. " + L(TextId::MusicOff),
+        "7. " + L(TextId::MusicVolume),
+        "8. " + L(TextId::MusicSfx) + "[" + sfxToggle + "]",
+        "9. " + L(TextId::MusicExit)
+    };
     return GenericMenu(options, 9, "");
 }
 
@@ -379,7 +430,7 @@ void VolumeMenu() {
 
     system("cls");
     DrawMenuBackground();
-    DrawMenuTitle(u8"\u00C2M L\u01AF\u1EE2NG", 4, CONSOLE_COLS);
+    DrawMenuTitle(L(TextId::VolumeTitle), 4, CONSOLE_COLS);
 
     int panelW = 112;
     int panelX = CenterConsoleX(panelW, CONSOLE_COLS);
@@ -388,7 +439,7 @@ void VolumeMenu() {
     int barY = panelY + 5;
 
     DrawFrame(panelX, panelY, panelW, 10);
-    PrintTextWithBg(panelX + 6, panelY + 8, u8"A/D HO\u1EB6C M\u0168I T\u00CAN TR\u00C1I/PH\u1EA2I \u0110\u1EC2 CH\u1EC8NH, ENTER \u0110\u1EC2 L\u01AFU", 11);
+    PrintTextWithBg(panelX + 6, panelY + 8, L(TextId::VolumeHelp), 11);
 
     while (true) {
         if (currentSelect < 0) currentSelect = 0;
@@ -397,7 +448,7 @@ void VolumeMenu() {
         int percent = currentSelect / 10;
 
         if (percent != lastPercent) {
-            PrintTextWithBg(panelX + 6, panelY + 2, u8"\u00C2M L\u01AF\u1EE2NG: " + to_string(percent) + "%   ", 14);
+            PrintTextWithBg(panelX + 6, panelY + 2, L(TextId::VolumeLabel) + to_string(percent) + "%   ", 14);
 
             SetColor(0, 15);
             GotoXY(barX, barY - 1);
@@ -508,26 +559,22 @@ string TypeName() {
 void InputPlayerNames(bool isBotMode) {
     system("cls");
     DrawMenuBackground(); // Nền xịn từ Menu cũ
+    DrawMenuTitle("GAME CARO", 1, CONSOLE_COLS);
 
     int consoleW = CONSOLE_COLS;
-    int frameW = 56;
+    int frameW = 72;
     int frameX = CenterConsoleX(frameW, consoleW);
-    int inputX = frameX + 33;
+    int inputW = 20;
+    int inputX = frameX + frameW - inputW - 7;
     int p1Y = 11;
     int p2Y = 17;
 
     // Frame Nhập Tên Player 1
-    DrawFrame(frameX, p1Y, frameW, 3);
-    PrintTextWithBg(frameX + 4, p1Y + 1, u8"NH\u1EACP T\u00CAN NG\u01AF\u1EDCI CH\u01A0I (X): ", 12);
-
+    DrawNameInputFrame(frameX, p1Y, frameW, L(TextId::EnterPlayerX), "", true);
     UnhideCursor();
-    GotoXY(inputX, p1Y + 1);
+    BeginNameInput(inputX, p1Y + 1, inputW);
 
     // Tích hợp hệ thống quét pixel nền thông minh
-    int r1, g1, b1;
-    SampleMenuBackground(inputX, p1Y + 1, r1, g1, b1);
-    printf("\x1b[38;2;255;255;0m\x1b[48;2;%d;%d;%dm", r1, g1, b1);
-
     _PLAYER1_NAME = TypeName();
     printf("\x1b[0m");
     HideCursor();
@@ -536,8 +583,7 @@ void InputPlayerNames(bool isBotMode) {
     system("cls");
     DrawMenuBackground();
     DrawMenuTitle("GAME CARO", 1, consoleW);
-    DrawFrame(frameX, p1Y, frameW, 3);
-    PrintTextWithBg(frameX + 4, p1Y + 1, u8"NH\u1EACP T\u00CAN NG\u01AF\u1EDCI CH\u01A0I (X): " + _PLAYER1_NAME, 11);
+    DrawNameInputFrame(frameX, p1Y, frameW, L(TextId::EnterPlayerX), _PLAYER1_NAME, false);
 
     // Frame Nhập Tên Player 2 (Hoặc Bot)
     if (isBotMode) {
@@ -545,39 +591,29 @@ void InputPlayerNames(bool isBotMode) {
         else if (_BOT_DIFFICULTY == 2) _PLAYER2_NAME = "Bot (Trung Binh)";
         else _PLAYER2_NAME = "Bot (Kho)";
 
-        DrawFrame(frameX, p2Y, frameW, 3);
-        PrintTextWithBg(frameX + 4, p2Y + 1, u8"NH\u1EACP T\u00CAN NG\u01AF\u1EDCI CH\u01A0I (BOT): " + _PLAYER2_NAME, 11);
+        DrawNameInputFrame(frameX, p2Y, frameW, L(TextId::EnterPlayerBot), _PLAYER2_NAME, false);
         Sleep(1000);
     }
     else {
-        DrawFrame(frameX, p2Y, frameW, 3);
-
         while (true) {
-            PrintTextWithBg(frameX + 4, p2Y + 1, u8"NH\u1EACP T\u00CAN NG\u01AF\u1EDCI CH\u01A0I (O): ", 11);
+            DrawNameInputFrame(frameX, p2Y, frameW, L(TextId::EnterPlayerO), "", true);
 
             // Xóa vùng text nhập tên bên trong Frame
-            GotoXY(inputX, p2Y + 1);
-            int r2, g2, b2;
-            SampleMenuBackground(inputX, p2Y + 1, r2, g2, b2);
-            printf("\x1b[48;2;%d;%d;%dm", r2, g2, b2);
-            cout << string(16, ' ');
-            GotoXY(inputX, p2Y + 1);
-
             UnhideCursor();
-            printf("\x1b[38;2;255;255;0m\x1b[48;2;%d;%d;%dm", r2, g2, b2);
+            BeginNameInput(inputX, p2Y + 1, inputW);
 
             _PLAYER2_NAME = TypeName();
             printf("\x1b[0m");
             HideCursor();
 
             if (_PLAYER1_NAME == _PLAYER2_NAME) {
-                string errorMsg = "Ten bi trung voi Player 1! Nhan phim bat ky de nhap lai...";
-                int errorX = CenterConsoleX(static_cast<int>(errorMsg.length()), consoleW);
+                string errorMsg = L(TextId::DuplicateName);
+                int errorX = CenterConsoleX(TextDisplayWidth(errorMsg), consoleW);
                 PrintTextWithBg(errorX, p2Y + 4, errorMsg, 12);
                 _getch();
 
                 // Tẩy xóa dòng báo lỗi
-                PrintTextWithBg(errorX, p2Y + 4, string(errorMsg.length(), ' '), 15);
+                PrintTextWithBg(errorX, p2Y + 4, string(TextDisplayWidth(errorMsg), ' '), 15);
             }
             else {
                 break;
@@ -585,13 +621,13 @@ void InputPlayerNames(bool isBotMode) {
         }
     }
 
-    CharacterASelect = CharacterSelectionMenu();
+    CharacterASelect = CharacterSelectionMenu(-1, L(TextId::ChooseCharacterP1));
 
     if (isBotMode) {
         CharacterBSelect = (CharacterASelect == 4) ? 0 : 4;
     }
     else {
-        CharacterBSelect = CharacterSelectionMenu(CharacterASelect);
+        CharacterBSelect = CharacterSelectionMenu(CharacterASelect, L(TextId::ChooseCharacterP2));
     }
 }
 
@@ -606,12 +642,12 @@ static int NextEnabledCharacter(int current, int delta, int size, int disabledOp
 static void DrawCharacterGrid(int currentSelect, int size, int disabledOption) {
     const int cols = 3;
     const int boxW = 30;
-    const int boxH = 14;
+    const int boxH = 12;
     const int gapX = 0;
     const int gapY = 1;
     const int totalW = cols * boxW + (cols - 1) * gapX;
     const int startX = CenterConsoleX(totalW, CONSOLE_COLS);
-    const int startY = 2;
+    const int startY = 3;
 
     for (int i = 0; i < size; i++) {
         int col = i % cols;
@@ -625,12 +661,12 @@ static void DrawCharacterGrid(int currentSelect, int size, int disabledOption) {
 static void DrawCharacterGridItem(int index, bool selected, int disabledOption) {
     const int cols = 3;
     const int boxW = 30;
-    const int boxH = 14;
+    const int boxH = 12;
     const int gapX = 0;
     const int gapY = 1;
     const int totalW = cols * boxW + (cols - 1) * gapX;
     const int startX = CenterConsoleX(totalW, CONSOLE_COLS);
-    const int startY = 2;
+    const int startY = 3;
     int col = index % cols;
     int row = index / cols;
     int x = startX + col * (boxW + gapX);
@@ -649,6 +685,9 @@ int GenericCharacterMenu(string options[], int size, string title, int disabledO
 
         system("cls");
         DrawMenuBackground();
+        if (!title.empty() && title != "CHARACTER MENU") {
+            PrintTextWithBg(CenterConsoleX(TextDisplayWidth(title), CONSOLE_COLS), 1, title, 14);
+        }
 
         while (true) {
             if (currentSelect != lastSelect) {
@@ -734,7 +773,7 @@ int GenericCharacterMenu(string options[], int size, string title, int disabledO
             if (i == disabledOption) {
                 SetColor(8, 0);
                 GotoXY(marginX + 5, 12 + i * 2);
-                cout << "   " << options[i] << u8" - \u0110\u00C3 CH\u1ECCN   ";
+                cout << "   " << options[i] << " - " << L(TextId::Chosen) << "   ";
             }
             else if (i == currentSelect) {
                 SetColor(0, 11); // Nền Cyan cho mục đang chọn
@@ -778,22 +817,22 @@ int GenericCharacterMenu(string options[], int size, string title, int disabledO
     }
 }
 
-int CharacterSelectionMenu(int disabledOption) {
+int CharacterSelectionMenu(int disabledOption, string chooserTitle) {
     string options[5] = { "1. KNIGHT", "2. ASSASSIN", "3. VAMPIRE", "4. PALADIN", "5. OFFICER" };
-    return GenericCharacterMenu(options, 5, "CHARACTER MENU", disabledOption);
+    return GenericCharacterMenu(options, 5, chooserTitle.empty() ? "CHARACTER MENU" : chooserTitle, disabledOption);
 }
 
 void DrawFrame(int x, int y, int w, int h) {
     printf("\x1b[38;2;255;255;255m\x1b[48;2;15;15;20m");
     GotoXY(x, y);
-    cout << "+"; for (int i = 0; i < w - 2; i++) cout << "-"; cout << "+";
+    cout << "\xE2\x94\x8C"; for (int i = 0; i < w - 2; i++) cout << "\xE2\x94\x80"; cout << "\xE2\x94\x90";
     for (int i = 1; i < h - 1; i++) {
-        GotoXY(x, y + i); cout << "|";
+        GotoXY(x, y + i); cout << "\xE2\x94\x82";
         GotoXY(x + 1, y + i); cout << string(w - 2, ' ');
-        GotoXY(x + w - 1, y + i); cout << "|";
+        GotoXY(x + w - 1, y + i); cout << "\xE2\x94\x82";
     }
     GotoXY(x, y + h - 1);
-    cout << "+"; for (int i = 0; i < w - 2; i++) cout << "-"; cout << "+";
+    cout << "\xE2\x94\x94"; for (int i = 0; i < w - 2; i++) cout << "\xE2\x94\x80"; cout << "\xE2\x94\x98";
     printf("\x1b[0m");
 }
 
@@ -802,7 +841,10 @@ void DrawMenuTitle(const string& title, int y, int consoleW) {
         DrawTitleArt(CenterConsoleX(TITLE_ART_W, consoleW), y);
     }
     else if (!title.empty() && title != "MENU TAM DUNG" && title != "CHARACTER MENU") {
-        int titleW = TextDisplayWidth(title);
-        PrintTextWithBg(CenterConsoleX(titleW, consoleW), y, title, 14);
+        int titleW = TextDisplayWidth(title) + 16;
+        int titleX = CenterConsoleX(titleW, consoleW);
+        DrawFrame(titleX, y, titleW, 5);
+        int textX = CenterConsoleX(TextDisplayWidth(title), consoleW);
+        PrintTextWithBg(textX, y + 2, title, 14);
     }
 }

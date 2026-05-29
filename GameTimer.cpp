@@ -3,6 +3,7 @@
 #include "GameStatus.h"
 #include "Menu.h"
 #include "UserInfo.h"
+#include "Language.h"
 #include <chrono>
 #include <string>
 
@@ -26,7 +27,7 @@ void TimerLogic() {
             lock_guard<mutex> lock(consoleMutex);
             int curX = _X, curY = _Y;
 
-            PrintTextWithBg(TIMER_X, TIMER_Y, "THOI GIAN: " + to_string(timeLeft.load()) + "s      ", (timeLeft <= 5) ? 12 : 11);
+            PrintHudTextWithBg(TIMER_X, TIMER_Y, L(TextId::HudTime) + to_string(timeLeft.load()) + "s      ", (timeLeft <= 5) ? 12 : 11);
 
             if (isPaused) {
                 DrawStatusInfo(true);
@@ -51,7 +52,7 @@ void StartTimerThread() {
     isPaused = false;
     {
         lock_guard<mutex> lock(consoleMutex);
-        PrintTextWithBg(TIMER_X, TIMER_Y, "THOI GIAN: " + to_string(timeLeft.load()) + "s      ", 11);
+        PrintHudTextWithBg(TIMER_X, TIMER_Y, L(TextId::HudTime) + to_string(timeLeft.load()) + "s      ", 11);
         DrawStatusInfo(false);
         GotoXY(_X, _Y);
     }
@@ -63,9 +64,9 @@ void StopTimerThread() {
     if (timerThread.joinable()) timerThread.join();
     {
         lock_guard<mutex> lock(consoleMutex);
-        GotoXY(TIMER_X, TIMER_Y); cout << "                    ";
-        GotoXY(TURN_INFO_X, TURN_INFO_Y); cout << "              ";
-        GotoXY(STATUS_X, STATUS_Y); cout << "                              ";
-        GotoXY(BOT_MSG_X, BOT_MSG_Y); cout << "                                  ";
+        PrintHudTextWithBg(TIMER_X, TIMER_Y, string(20, ' '), 15);
+        PrintHudTextWithBg(TURN_INFO_X, TURN_INFO_Y, string(14, ' '), 15);
+        PrintHudTextWithBg(STATUS_X, STATUS_Y, string(30, ' '), 15);
+        PrintHudTextWithBg(BOT_MSG_X, BOT_MSG_Y, string(34, ' '), 15);
     }
 }

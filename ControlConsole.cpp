@@ -58,8 +58,18 @@ void SetBgColor(int color, int bgColor) {
 void FixConsoleWindow() {
     HWND consoleWindow = GetConsoleWindow();
     LONG style = GetWindowLong(consoleWindow, GWL_STYLE);
-    style = style & ~(WS_MAXIMIZEBOX) & ~(WS_THICKFRAME);
+    style &= ~(WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_THICKFRAME | WS_SIZEBOX);
     SetWindowLong(consoleWindow, GWL_STYLE, style);
+
+    HMENU systemMenu = GetSystemMenu(consoleWindow, FALSE);
+    if (systemMenu != NULL) {
+        DeleteMenu(systemMenu, SC_SIZE, MF_BYCOMMAND);
+        DeleteMenu(systemMenu, SC_MAXIMIZE, MF_BYCOMMAND);
+        DeleteMenu(systemMenu, SC_MINIMIZE, MF_BYCOMMAND);
+    }
+
+    SetWindowPos(consoleWindow, NULL, 0, 0, 0, 0,
+        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 }
 
 void SetConsoleWindow(int width, int height) {
@@ -67,6 +77,7 @@ void SetConsoleWindow(int width, int height) {
     RECT r;
     GetWindowRect(consoleWindow, &r);
     MoveWindow(consoleWindow, r.left, r.top, width, height, TRUE);
+    FixConsoleWindow();
 }
 
 void ConfigureConsoleSize(int cols, int lines) {
@@ -86,4 +97,5 @@ void ConfigureConsoleSize(int cols, int lines) {
     windowRect.Right = static_cast<SHORT>(cols - 1);
     windowRect.Bottom = static_cast<SHORT>(lines - 1);
     SetConsoleWindowInfo(hOut, TRUE, &windowRect);
+    FixConsoleWindow();
 }

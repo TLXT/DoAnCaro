@@ -60,6 +60,7 @@ int main() {
     ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
     SetConsoleWindow(1460, 730);
     HideCursor();
+    PlayMusic(static_cast<int>(GetTickCount64() % 5), volumeLevel);
 
     while (true) {
         int choice = MainMenu();
@@ -125,15 +126,9 @@ int main() {
                         isPaused = true;
                         {
                             lock_guard<mutex> lock(consoleMutex);
-                            GotoXY(TIMER_X, TIMER_Y);     cout << "                                        ";
-                            GotoXY(TIMER_X, TIMER_Y + 1); cout << "                                        ";
+                            PrintHudTextWithBg(TIMER_X, TIMER_Y, string(40, ' '), 15);
+                            PrintHudTextWithBg(TIMER_X, TIMER_Y + 1, string(40, ' '), 15);
                         }
-
-                        char ch;
-                        do {
-                            ch = _getch();
-                            if (ch == -32 || ch == 0) _getch();
-                        } while (ch != 13);
 
                         HandleReplayOption();
 
@@ -211,13 +206,13 @@ int main() {
 
                             if (actionSelect == 0) _COMMAND = 'Z';
                             else if (actionSelect == 1) _COMMAND = 'Y';
-                            else if (actionSelect == 2) _COMMAND = 'P';
+                            else if (actionSelect == 2) _COMMAND = 'M';
                             else if (actionSelect == 3) _COMMAND = 'M';
                         }
                     }
 
                     // --- MỞ MENU PHỤ (M hoặc ESC) ---
-                    if (_COMMAND == 'M' || _COMMAND == 27) {
+                    if (_COMMAND == 'M' || _COMMAND == 'P' || _COMMAND == 27) {
                         isPaused = true;
                         future<int> SecondThreadchoice = async(launch::async, GameMenu);
                         int gamechoice = SecondThreadchoice.get();
@@ -310,16 +305,8 @@ int main() {
                                     isPaused = true;
                                     {
                                         lock_guard<mutex> lock(consoleMutex);
-                                        GotoXY(TIMER_X, TIMER_Y);     cout << "                                        ";
-                                        GotoXY(TIMER_X, TIMER_Y + 1); cout << "                                        ";
-                                    }
-
-                                    {
-                                        char ch_player;
-                                        do {
-                                            ch_player = _getch();
-                                            if (ch_player == -32 || ch_player == 0) _getch();
-                                        } while (ch_player != 13);
+                                        PrintHudTextWithBg(TIMER_X, TIMER_Y, string(40, ' '), 15);
+                                        PrintHudTextWithBg(TIMER_X, TIMER_Y + 1, string(40, ' '), 15);
                                     }
 
                                     HandleReplayOption();
