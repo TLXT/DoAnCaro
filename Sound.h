@@ -20,4 +20,6 @@ void setSFXVolume(int volume);
 
 extern int volumeLevel;
 extern int sfxVolumeLevel;
+extern int currentMusicChoice;
+extern bool isMusicOn;
 extern bool isSFXOn;

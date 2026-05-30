@@ -8,7 +8,12 @@ void loadmusic() {
             PlayMusic(choice, volumeLevel);
         }
         else if (choice == 5) {
-            PlayMusic(5, 0);
+            if (MusicStatus()) {
+                PlayMusic(5, 0);
+            }
+            else {
+                PlayMusic(currentMusicChoice, volumeLevel);
+            }
         }
         else if (choice == 6) {
             VolumeMenu();
@@ -38,6 +43,9 @@ void loadSettingMenu() {
             PlayMenuSound();
         }
         else if (setChoice == 3) {
+            ShowAboutGameScreen();
+        }
+        else if (setChoice == 4) {
             break;
         }
     }

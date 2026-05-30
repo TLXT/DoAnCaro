@@ -3,6 +3,8 @@
 
 int volumeLevel = 50;
 int sfxVolumeLevel = 800;
+int currentMusicChoice = 0;
+bool isMusicOn = false;
 bool isSFXOn = true;
 
 static bool FileExists(const wstring& path) {
@@ -49,6 +51,7 @@ static wstring ResolveAssetPath(const wstring& fileName) {
 void PlayMusic(int choice, int volume) {
     if (choice == 5) {
         mciSendStringW(L"close myMusic", NULL, 0, NULL);
+        isMusicOn = false;
         return;
     }
 
@@ -61,18 +64,27 @@ void PlayMusic(int choice, int volume) {
     };
     if (choice < 0 || choice >= static_cast<int>(musicFiles.size())) return;
 
+    currentMusicChoice = choice;
+
     mciSendStringW(L"close myMusic", NULL, 0, NULL);
 
     wstring fileName = ResolveAssetPath(musicFiles[choice]);
-    if (fileName.empty()) return;
+    if (fileName.empty()) {
+        isMusicOn = false;
+        return;
+    }
 
     wstring openCommand = L"open \"" + fileName + L"\" type mpegvideo alias myMusic";
     MCIERROR err = mciSendStringW(openCommand.c_str(), NULL, 0, NULL);
-    if (err != 0) return;
+    if (err != 0) {
+        isMusicOn = false;
+        return;
+    }
 
     wstring volumeCommand = L"setaudio myMusic volume to " + to_wstring(volume);
     mciSendStringW(volumeCommand.c_str(), NULL, 0, NULL);
-    mciSendStringW(L"play myMusic repeat", NULL, 0, NULL);
+    err = mciSendStringW(L"play myMusic repeat", NULL, 0, NULL);
+    isMusicOn = (err == 0);
 }
 
 void setVolume() {
@@ -83,7 +95,8 @@ void setVolume() {
 bool MusicStatus() {
     wchar_t status[128] = {};
     MCIERROR err = mciSendStringW(L"status myMusic mode", status, 128, NULL);
-    return err == 0 && wcscmp(status, L"playing") == 0;
+    isMusicOn = (err == 0 && wcscmp(status, L"playing") == 0);
+    return isMusicOn;
 }
 
 void PlayMenuSound() {

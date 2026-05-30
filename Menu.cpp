@@ -11,6 +11,7 @@
 #include "GameTimer.h"
 #include <windows.h>
 #include <cctype>
+#include <vector>
 
 using namespace std;
 
@@ -385,9 +386,126 @@ int GenericMenu(string options[], int size, string title) {
 }
 
 // --- Menu dùng Đồ Họa Cải Tiến (GraphicalMenu) ---
+static void DrawInfoTextLine(int x, int& y, const string& text, int color = 11) {
+    PrintTextWithBg(x, y, text, color);
+    y++;
+}
+
+static void WaitInfoScreenBack() {
+    HideCursor();
+    while (true) {
+        int key = ReadMenuKey();
+        if (key == 13 || key == 27 || key == 'B') {
+            PlayMenuSound();
+            return;
+        }
+    }
+}
+
+void ShowGuideScreen() {
+    system("cls");
+    DrawMenuBackground();
+    DrawMenuTitle(L(TextId::MainGuide), 1, CONSOLE_COLS);
+
+    const int panelW = 112;
+    const int panelH = 30;
+    const int panelX = CenterConsoleX(panelW, CONSOLE_COLS);
+    const int panelY = 7;
+    DrawFrame(panelX, panelY, panelW, panelH);
+
+    const bool vi = GetLanguage() == GameLanguage::Vietnamese;
+    int leftY = panelY + 2;
+    int rightY = panelY + 2;
+    const int leftX = panelX + 4;
+    const int rightX = panelX + 58;
+
+    DrawInfoTextLine(leftX, leftY, vi ? u8"C\u00C1CH CH\u01A0I" : "HOW TO PLAY", 14);
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- Hai ng\u01B0\u1EDDi l\u1EA7n l\u01B0\u1EE3t \u0111\u1EB7t X/O tr\u00EAn b\u00E0n c\u1EDD." : "- Players take turns placing X/O.");
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- Ai c\u00F3 5 qu\u00E2n li\u00EAn ti\u1EBFp tr\u01B0\u1EDBc s\u1EBD th\u1EAFng." : "- First 5 connected marks wins.");
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- H\u1EBFt gi\u1EDD: h\u1EC7 th\u1ED1ng t\u1EF1 \u0111\u00E1nh m\u1ED9t n\u01B0\u1EDBc." : "- Timeout makes an automatic move.");
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- C\u00F3 l\u01B0u/t\u1EA3i v\u00E1n, replay, nh\u00E2n v\u1EADt v\u00E0 \u00E2m thanh." : "- Save/load, replay, characters and sound are supported.");
+    leftY++;
+
+    DrawInfoTextLine(leftX, leftY, vi ? u8"TRONG TR\u1EACN" : "IN GAME", 14);
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- WASD/M\u0169i t\u00EAn: di chuy\u1EC3n con tr\u1ECF." : "- WASD/Arrows: move cursor.");
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- ENTER: \u0111\u00E1nh c\u1EDD t\u1EA1i \u00F4 \u0111ang ch\u1ECDn." : "- ENTER: place a mark.");
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- Y: Undo | U: Redo | R: Restart." : "- Y: Undo | U: Redo | R: Restart.");
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- SPACE/P/ESC: m\u1EDF menu t\u1EA1m d\u1EEBng." : "- SPACE/P/ESC: open pause menu.");
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- \u1EDE h\u00E0ng cu\u1ED1i b\u1EA5m S: v\u00E0o thanh n\u00FAt d\u01B0\u1EDBi." : "- Press S on last row to enter buttons.");
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- A/D \u0111\u1ED5i n\u00FAt, ENTER ch\u1ECDn n\u00FAt." : "- A/D changes button, ENTER selects.");
+    leftY++;
+
+    DrawInfoTextLine(leftX, leftY, vi ? u8"MENU T\u1EA0M D\u1EEANG" : "PAUSE MENU", 14);
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- L\u01B0u v\u00E1n, t\u1EA3i v\u00E1n, c\u00E0i \u0111\u1EB7t, tho\u00E1t." : "- Save, load, settings, exit.");
+    DrawInfoTextLine(leftX, leftY, vi ? u8"- Tho\u00E1t menu/ESC: quay l\u1EA1i tr\u1EADn \u0111\u1EA5u." : "- Close menu/ESC: return to match.");
+
+    DrawInfoTextLine(rightX, rightY, vi ? u8"C\u00C1C M\u00C0N MENU" : "MENU SCREENS", 14);
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- Menu ch\u00EDnh: W/S ho\u1EB7c m\u0169i t\u00EAn, ENTER ch\u1ECDn." : "- Main menu: W/S or arrows, ENTER.");
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- \u0110\u1EB7t t\u00EAn: TAB/m\u0169i t\u00EAn \u0111\u1ED5i \u00F4 nh\u1EADp." : "- Player setup: TAB/arrows switch fields.");
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- A/D t\u1EA1i \u00F4 th\u1EDDi gian: \u0111\u1ED5i gi\u1EDBi h\u1EA1n l\u01B0\u1EE3t." : "- A/D on time field changes turn limit.");
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- TI\u1EBEP T\u1EE4C ch\u1EC9 s\u00E1ng khi t\u00EAn h\u1EE3p l\u1EC7, kh\u00F4ng tr\u00F9ng." : "- NEXT enables only when names are valid.");
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- Ch\u1ECDn nh\u00E2n v\u1EADt: WASD/m\u0169i t\u00EAn, ENTER." : "- Character select: WASD/arrows, ENTER.");
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- Kh\u00F4ng th\u1EC3 ch\u1ECDn tr\u00F9ng nh\u00E2n v\u1EADt." : "- Duplicate characters are blocked.");
+    rightY++;
+
+    DrawInfoTextLine(rightX, rightY, "SAVE / LOAD", 14);
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- WASD/m\u0169i t\u00EAn: ch\u1ECDn slot." : "- WASD/arrows: select slot.");
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- ENTER: l\u01B0u/t\u1EA3i slot \u0111ang ch\u1ECDn." : "- ENTER: save/load selected slot.");
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- X: x\u00F3a file l\u01B0u | ESC: quay l\u1EA1i." : "- X: delete save | ESC: back.");
+    rightY++;
+
+    DrawInfoTextLine(rightX, rightY, vi ? u8"REPLAY & \u00C2M THANH" : "REPLAY & SOUND", 14);
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- Replay: A/D tua 5s, SPACE/P d\u1EEBng/ph\u00E1t." : "- Replay: A/D seek 5s, SPACE/P pause/play.");
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- ESC: tho\u00E1t replay." : "- ESC: exit replay.");
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- \u00C2m l\u01B0\u1EE3ng: A/D ho\u1EB7c m\u0169i t\u00EAn tr\u00E1i/ph\u1EA3i." : "- Volume: A/D or left/right arrows.");
+    DrawInfoTextLine(rightX, rightY, vi ? u8"- Menu nh\u1EA1c: ch\u1ECDn b\u00E0i, b\u1EADt/t\u1EAFt nh\u1EA1c, SFX." : "- Music menu: track, music on/off, SFX.");
+
+    string backText = vi ? u8"ENTER / ESC / B: QUAY L\u1EA0I" : "ENTER / ESC / B: BACK";
+    PrintTextWithBg(CenterConsoleX(TextDisplayWidth(backText), CONSOLE_COLS), panelY + panelH - 2, backText, 14);
+    WaitInfoScreenBack();
+}
+
+void ShowAboutGameScreen() {
+    system("cls");
+    DrawMenuBackground();
+    DrawMenuTitle(L(TextId::SettingsAbout), 1, CONSOLE_COLS);
+
+    const int panelW = 94;
+    const int panelH = 29;
+    const int panelX = CenterConsoleX(panelW, CONSOLE_COLS);
+    const int panelY = 7;
+    DrawFrame(panelX, panelY, panelW, panelH);
+
+    const bool vi = GetLanguage() == GameLanguage::Vietnamese;
+    int y = panelY + 2;
+    const int x = panelX + 5;
+
+    DrawInfoTextLine(x, y, vi ? u8"GI\u1EDAI THI\u1EC6U GAME" : "GAME INTRODUCTION", 14);
+    DrawInfoTextLine(x, y, vi ? u8"CARO l\u00E0 tr\u00F2 ch\u01A1i c\u1EDD caro tr\u00EAn console v\u1EDBi phong c\u00E1ch pixel art." : "CARO is a console gomoku game with pixel-art style.");
+    DrawInfoTextLine(x, y, vi ? u8"Ng\u01B0\u1EDDi ch\u01A1i c\u00F3 th\u1EC3 \u0111\u00E1nh PvP ho\u1EB7c PvBot, ch\u1ECDn nh\u00E2n v\u1EADt," : "Players can play PvP or PvBot, choose characters,");
+    DrawInfoTextLine(x, y, vi ? u8"l\u01B0u/t\u1EA3i v\u00E1n, xem replay, t\u00F9y ch\u1EC9nh nh\u1EA1c v\u00E0 ng\u00F4n ng\u1EEF." : "save/load matches, watch replays, and adjust music/language.");
+    y++;
+
+    DrawInfoTextLine(x, y, vi ? u8"TH\u00C0NH VI\u00CAN TH\u1EF0C HI\u1EC6N" : "DEVELOPMENT TEAM", 14);
+    DrawInfoTextLine(x, y, u8"24120136 - Tr\u1EA7n L\u00EA Xu\u00E2n T\u00E2n  (Nh\u00F3m tr\u01B0\u1EDFng)");
+    DrawInfoTextLine(x, y, u8"24120148 - \u0110inh V\u00F5 Th\u1EE7y Ti\u00EAn");
+    DrawInfoTextLine(x, y, u8"24120171 - Nguy\u1EC5n Kh\u00E1nh \u0110\u0103ng");
+    DrawInfoTextLine(x, y, u8"24120185 - Nguy\u1EC5n Gia H\u01B0ng");
+    DrawInfoTextLine(x, y, u8"24120199 - Tr\u1ECBnh Kim Mai");
+    y++;
+
+    DrawInfoTextLine(x, y, vi ? u8"M\u1EE4C TI\u00CAU" : "GOAL", 14);
+    DrawInfoTextLine(x, y, vi ? u8"D\u1EF1 \u00E1n t\u1EADp trung v\u00E0o gameplay caro \u0111\u1EA7y \u0111\u1EE7, giao di\u1EC7n r\u00F5 r\u00E0ng," : "The project focuses on complete gomoku gameplay, clear UI,");
+    DrawInfoTextLine(x, y, vi ? u8"\u00E2m thanh, l\u01B0u tr\u1EEF, replay v\u00E0 tr\u1EA3i nghi\u1EC7m console \u1ED5n \u0111\u1ECBnh." : "audio, save data, replay and a stable console experience.");
+
+    string backText = vi ? u8"ENTER / ESC / B: QUAY L\u1EA0I" : "ENTER / ESC / B: BACK";
+    PrintTextWithBg(CenterConsoleX(TextDisplayWidth(backText), CONSOLE_COLS), panelY + panelH - 2, backText, 14);
+    WaitInfoScreenBack();
+}
+
 int MainMenu() {
-    string options[4] = { L(TextId::MainPlayGame), L(TextId::MainLoadGame), L(TextId::MainSettings), L(TextId::MainExit) };
-    return GraphicalMenu(options, 4, "GAME CARO", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
+    string options[5] = { L(TextId::MainPlayGame), L(TextId::MainLoadGame), L(TextId::MainGuide), L(TextId::MainSettings), L(TextId::MainExit) };
+    return GraphicalMenu(options, 5, "GAME CARO", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int PlayGameMenu() {
@@ -401,13 +519,14 @@ int DifficultyMenu() {
 }
 
 int SettingsMenu() {
-    string options[4] = {
+    string options[5] = {
         L(TextId::SettingsClearData),
         L(TextId::SettingsMusic),
         L(TextId::SettingsLanguage) + CurrentLanguageName(),
+        L(TextId::SettingsAbout),
         L(TextId::Back)
     };
-    return GraphicalMenu(options, 4, L(TextId::SettingsTitle), BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
+    return GraphicalMenu(options, 5, L(TextId::SettingsTitle), BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int GameMenu() {
@@ -418,13 +537,14 @@ int GameMenu() {
 int MusicMenu() {
     string sfxToggle = isSFXOn ? "ON" : "OFF";
     string musicWord = (GetLanguage() == GameLanguage::Vietnamese) ? u8"NH\u1EA0C " : "MUSIC ";
+    string musicToggle = MusicStatus() ? L(TextId::MusicOff) : L(TextId::MusicOn);
     string options[9] = {
         "1. " + musicWord + "1",
         "2. " + musicWord + "2",
         "3. " + musicWord + "3",
         "4. " + musicWord + "4",
         "5. " + musicWord + "5",
-        "6. " + L(TextId::MusicOff),
+        "6. " + musicToggle,
         "7. " + L(TextId::MusicVolume),
         "8. " + L(TextId::MusicSfx) + "[" + sfxToggle + "]",
         "9. " + L(TextId::MusicExit)
@@ -655,15 +775,44 @@ string TypeName() {
 }
 
 static string BotDisplayName() {
-    if (_BOT_DIFFICULTY == 1) return "BOT (DE)";
-    if (_BOT_DIFFICULTY == 2) return "BOT (TRUNG BINH)";
-    return "BOT (KHO)";
+    if (GetLanguage() == GameLanguage::Vietnamese) {
+        if (_BOT_DIFFICULTY == 1) return u8"M\u00C1Y (D\u1EC4)";
+        if (_BOT_DIFFICULTY == 2) return u8"M\u00C1Y (TRUNG B\u00CCNH)";
+        return u8"M\u00C1Y (KH\u00D3)";
+    }
+
+    if (_BOT_DIFFICULTY == 1) return "BOT (EASY)";
+    if (_BOT_DIFFICULTY == 2) return "BOT (MEDIUM)";
+    return "BOT (HARD)";
+}
+
+static string TrimPlayerName(const string& name) {
+    size_t first = name.find_first_not_of(' ');
+    if (first == string::npos) return "";
+    size_t last = name.find_last_not_of(' ');
+    return name.substr(first, last - first + 1);
+}
+
+static string NormalizePlayerName(const string& name) {
+    string normalized = TrimPlayerName(name);
+    for (char& ch : normalized) {
+        ch = static_cast<char>(toupper(static_cast<unsigned char>(ch)));
+    }
+    return normalized;
+}
+
+static bool IsAllowedPlayerNameChar(int key) {
+    unsigned char ch = static_cast<unsigned char>(key);
+    return isalnum(ch);
 }
 
 static bool CanSubmitNames(const string& p1, const string& p2, bool isBotMode) {
-    if (p1.empty()) return false;
+    string name1 = TrimPlayerName(p1);
+    string name2 = TrimPlayerName(p2);
+
+    if (name1.empty()) return false;
     if (isBotMode) return true;
-    return !p2.empty() && p1 != p2;
+    return !name2.empty() && NormalizePlayerName(name1) != NormalizePlayerName(name2);
 }
 
 static int ClampTurnTime(int seconds) {
@@ -743,7 +892,10 @@ static void DrawNameSetupScreen(const string& p1, const string& p2, bool isBotMo
     const int fieldW = 28;
     const int buttonW = 16;
     const bool valid = CanSubmitNames(p1, p2, isBotMode);
-    const bool duplicate = !isBotMode && !p1.empty() && p1 == p2;
+    const bool duplicate = !isBotMode
+        && !TrimPlayerName(p1).empty()
+        && !TrimPlayerName(p2).empty()
+        && NormalizePlayerName(p1) == NormalizePlayerName(p2);
 
     static bool cacheReady = false;
     static string lastP1;
@@ -773,7 +925,7 @@ static void DrawNameSetupScreen(const string& p1, const string& p2, bool isBotMo
 
     string p1Label = (GetLanguage() == GameLanguage::Vietnamese) ? u8"NG\u01AF\u1EDCI CH\u01A0I 1 (X):" : "PLAYER 1 (X):";
     string p2Label = isBotMode
-        ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"NG\u01AF\u1EDCI CH\u01A0I 2 (O):" : "PLAYER 2 (O):")
+        ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"M\u00C1Y (O):" : "BOT (O):")
         : ((GetLanguage() == GameLanguage::Vietnamese) ? u8"NG\u01AF\u1EDCI CH\u01A0I 2 (O):" : "PLAYER 2 (O):");
 
     if (forceDraw || p1 != lastP1 || focus == 0 || lastFocus == 0) {
@@ -797,7 +949,8 @@ static void DrawNameSetupScreen(const string& p1, const string& p2, bool isBotMo
 
     int buttonX = CenterConsoleX(buttonW, CONSOLE_COLS);
     if (forceDraw || valid != lastValid || focus == 3 || lastFocus == 3) {
-        DrawNameSetupButton(buttonX, panelY + 14, buttonW, "NEXT", focus == 3, valid);
+        string continueLabel = (GetLanguage() == GameLanguage::Vietnamese) ? u8"TI\u1EBEP T\u1EE4C" : "NEXT";
+        DrawNameSetupButton(buttonX, panelY + 14, buttonW, continueLabel, focus == 3, valid);
     }
     if (forceDraw || focus == 4 || lastFocus == 4) {
         DrawNameSetupButton(buttonX, panelY + 16, buttonW, L(TextId::Back), focus == 4, true);
@@ -870,8 +1023,8 @@ static bool InputPlayerNamesSetup(bool isBotMode) {
         }
         else if (key == 13) {
             if (focus == 3 && CanSubmitNames(p1, p2, isBotMode)) {
-                _PLAYER1_NAME = p1;
-                _PLAYER2_NAME = isBotMode ? BotDisplayName() : p2;
+                _PLAYER1_NAME = TrimPlayerName(p1);
+                _PLAYER2_NAME = isBotMode ? BotDisplayName() : TrimPlayerName(p2);
                 turnTimeLimit = setupTurnTime;
                 timeLeft = turnTimeLimit;
                 HideCursor();
@@ -907,7 +1060,7 @@ static bool InputPlayerNamesSetup(bool isBotMode) {
                 if (key == 8) {
                     if (!target->empty()) target->pop_back();
                 }
-                else if ((isalnum((unsigned char)key) || key == ' ' || key == '_' || key == '-') && TextDisplayWidth(*target) < 15) {
+                else if (IsAllowedPlayerNameChar(key) && TextDisplayWidth(*target) < 15) {
                     target->push_back(static_cast<char>(key));
                 }
             }

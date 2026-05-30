@@ -27,6 +27,8 @@ int SettingsMenu();
 int GameMenu();
 int MusicMenu();
 int CharacterSelectionMenu(int disabledOption = -1, string chooserTitle = "");
+void ShowGuideScreen();
+void ShowAboutGameScreen();
 void VolumeMenu();
 bool InputPlayerNames(bool isBotMode);
 

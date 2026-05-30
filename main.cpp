@@ -96,10 +96,13 @@ int main() {
                 isPlaying = true;
             }
         }
-        else if (choice == 2) { // CHỌN: SETTINGS
+        else if (choice == 2) {
+            ShowGuideScreen();
+        }
+        else if (choice == 3) {
             loadSettingMenu();
         }
-        else if (choice == 3) { // CHỌN: EXIT
+        else if (choice == 4) {
             ExitGame();
             return 0;
         }

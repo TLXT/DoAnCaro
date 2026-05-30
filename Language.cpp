@@ -24,6 +24,7 @@ std::string L(TextId id) {
     switch (id) {
     case TextId::MainPlayGame: return vi ? u8"CH\u01A0I" : "PLAY GAME";
     case TextId::MainLoadGame: return vi ? u8"T\u1EA2I V\u00C1N" : "LOAD GAME";
+    case TextId::MainGuide: return vi ? u8"H\u01AF\u1EDANG D\u1EAAN" : "GUIDE";
     case TextId::MainSettings: return vi ? u8"C\u00C0I \u0110\u1EB6T" : "SETTINGS";
     case TextId::MainExit: return vi ? u8"THO\u00C1T" : "EXIT";
     case TextId::ModeTitle: return vi ? u8"CH\u1ECCN CH\u1EBE \u0110\u1ED8" : "SELECT MODE";
@@ -38,11 +39,13 @@ std::string L(TextId id) {
     case TextId::SettingsClearData: return vi ? u8"X\u00D3A D\u1EEE LI\u1EC6U" : "CLEAR DATA";
     case TextId::SettingsMusic: return vi ? u8"C\u00C0I \u0110\u1EB6T NH\u1EA0C" : "MUSIC SETTINGS";
     case TextId::SettingsLanguage: return vi ? u8"NG\u00D4N NG\u1EEE: " : "LANGUAGE: ";
+    case TextId::SettingsAbout: return vi ? u8"GI\u1EDAI THI\u1EC6U" : "ABOUT GAME";
     case TextId::PauseExitGame: return vi ? u8"THO\u00C1T TR\u00D2 CH\u01A0I" : "EXIT GAME";
     case TextId::PauseSaveGame: return vi ? u8"L\u01AFU V\u00C1N" : "SAVE GAME";
     case TextId::PauseLoadGame: return vi ? u8"T\u1EA2I V\u00C1N" : "LOAD GAME";
     case TextId::PauseExitMenu: return vi ? u8"THO\u00C1T MENU" : "CLOSE MENU";
     case TextId::MusicOff: return vi ? u8"T\u1EAET NH\u1EA0C" : "MUSIC OFF";
+    case TextId::MusicOn: return vi ? u8"B\u1EACT NH\u1EA0C" : "MUSIC ON";
     case TextId::MusicVolume: return vi ? u8"THAY \u0110\u1ED4I \u00C2M L\u01AF\u1EE2NG" : "CHANGE VOLUME";
     case TextId::MusicSfx: return vi ? u8"HI\u1EC6U \u1EE8NG \u00C2M THANH: " : "SOUND EFFECTS: ";
     case TextId::MusicExit: return vi ? u8"THO\u00C1T MENU" : "BACK";
@@ -51,7 +54,7 @@ std::string L(TextId id) {
     case TextId::VolumeLabel: return vi ? u8"\u00C2M L\u01AF\u1EE2NG: " : "VOLUME: ";
     case TextId::EnterPlayerX: return vi ? u8"NH\u1EACP T\u00CAN NG\u01AF\u1EDCI CH\u01A0I (X): " : "ENTER PLAYER NAME (X): ";
     case TextId::EnterPlayerO: return vi ? u8"NH\u1EACP T\u00CAN NG\u01AF\u1EDCI CH\u01A0I (O): " : "ENTER PLAYER NAME (O): ";
-    case TextId::EnterPlayerBot: return vi ? u8"NH\u1EACP T\u00CAN NG\u01AF\u1EDCI CH\u01A0I (BOT): " : "PLAYER NAME (BOT): ";
+    case TextId::EnterPlayerBot: return vi ? u8"NH\u1EACP T\u00CAN NG\u01AF\u1EDCI CH\u01A0I (M\u00C1Y): " : "PLAYER NAME (BOT): ";
     case TextId::DuplicateName: return vi ? u8"T\u00CAN B\u1ECA TR\u00D9NG V\u1EDAI NG\u01AF\u1EDCI CH\u01A0I 1! NH\u1EA4N PH\u00CDM B\u1EA4T K\u1EF2 \u0110\u1EC2 NH\u1EACP L\u1EA0I..." : "NAME MATCHES PLAYER 1! PRESS ANY KEY TO ENTER AGAIN...";
     case TextId::ChooseCharacterP1: return vi ? u8"NG\u01AF\u1EDCI CH\u01A0I 1 \u0110ANG CH\u1ECCN NH\u00C2N V\u1EACT" : "PLAYER 1 IS CHOOSING CHARACTER";
     case TextId::ChooseCharacterP2: return vi ? u8"NG\u01AF\u1EDCI CH\u01A0I 2 \u0110ANG CH\u1ECCN NH\u00C2N V\u1EACT" : "PLAYER 2 IS CHOOSING CHARACTER";
