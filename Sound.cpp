@@ -108,6 +108,14 @@ void PlayWinSound() {
     }).detach();
 }
 
+void PlayCountdownBeep() {
+    if (!isSFXOn) return;
+
+    std::thread([]() {
+        Beep(880, 90);
+    }).detach();
+}
+
 void setSFXVolume(int volume) {
     sfxVolumeLevel = volume;
 }

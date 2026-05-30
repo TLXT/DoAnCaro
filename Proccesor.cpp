@@ -93,16 +93,16 @@ void loadBotMove(bool& isPlaying){
             }
             else {
                 StartGame();
-                timeLeft = TURN_TIME_LIMIT;
+                timeLeft = turnTimeLimit;
             }
             break;
         case 2: // Ván cờ vẫn tiếp tục, chuyển lượt
-            timeLeft = TURN_TIME_LIMIT; // Đặt lại đồng hồ về 30 giây cho người tiếp theo
+            timeLeft = turnTimeLimit; // Đặt lại đồng hồ cho người tiếp theo
             break;
         }
 
         isPaused = false;
-        timeLeft = TURN_TIME_LIMIT;
+        timeLeft = turnTimeLimit;
     }
     else {
         isPaused = false;
@@ -114,7 +114,7 @@ bool loadGameMenu(bool& isPlaying) {
 
     if (mode == 0) {
         _BOT_MODE = false;
-        InputPlayerNames(false);
+        if (!InputPlayerNames(false)) return false;
         StartGame();
         isPlaying = true;
         return true;
@@ -127,7 +127,7 @@ bool loadGameMenu(bool& isPlaying) {
 
         _BOT_MODE = true;
         _BOT_DIFFICULTY = diff + 1;
-        InputPlayerNames(true);
+        if (!InputPlayerNames(true)) return false;
 
         StartGame();
         isPlaying = true;

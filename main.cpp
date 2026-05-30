@@ -58,7 +58,7 @@ int main() {
     // Đảm bảo lưới Console đủ 120 cột và 50 dòng để chứa được giao diện mới (800px)
     system("MODE CON COLS=120 LINES=40");
     ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
-    SetConsoleWindow(1460, 730);
+    SetConsoleWindow(CONSOLE_COLS * 12, CONSOLE_LINES * 16);
     HideCursor();
     PlayMusic(static_cast<int>(GetTickCount64() % 5), volumeLevel);
 
@@ -71,7 +71,7 @@ int main() {
 
             if (mode == 0) {  // Player vs Player
                 _BOT_MODE = false;
-                InputPlayerNames(false);
+                if (!InputPlayerNames(false)) continue;
                 StartGame();
                 isPlaying = true;
             }
@@ -81,7 +81,7 @@ int main() {
 
                 _BOT_MODE = true;
                 _BOT_DIFFICULTY = diff + 1;
-                InputPlayerNames(true);
+                if (!InputPlayerNames(true)) continue;
                 StartGame();
                 isPlaying = true;
             }
@@ -111,6 +111,16 @@ int main() {
             bool validEnter = true;
             bool actionBarActive = false;
             int actionSelect = 0;
+            auto RestartCurrentMatch = [&]() {
+                isPaused = true;
+                StopTimerThread();
+                StartGame();
+                StartTimerThread();
+                validEnter = true;
+                actionBarActive = false;
+                actionSelect = 0;
+                isPaused = false;
+            };
             StartTimerThread();  // Kích hoạt luồng đếm ngược
 
             while (isPlaying) {
@@ -137,12 +147,12 @@ int main() {
                         }
                         else {
                             StartGame();
-                            timeLeft = TURN_TIME_LIMIT;
+                            timeLeft = turnTimeLimit;
                             isPaused = false;
                         }
                     }
                     else {
-                        timeLeft = TURN_TIME_LIMIT;
+                        timeLeft = turnTimeLimit;
                     }
                     continue;
                 }
@@ -204,15 +214,20 @@ int main() {
                             DrawActionBar(-1);
                             PlayMenuSound();
 
-                            if (actionSelect == 0) _COMMAND = 'Z';
-                            else if (actionSelect == 1) _COMMAND = 'Y';
-                            else if (actionSelect == 2) _COMMAND = 'M';
-                            else if (actionSelect == 3) _COMMAND = 'M';
+                            if (actionSelect == 0) _COMMAND = 'Y';
+                            else if (actionSelect == 1) _COMMAND = 'U';
+                            else if (actionSelect == 2) _COMMAND = 'R';
+                            else if (actionSelect == 3) _COMMAND = ' ';
                         }
                     }
 
                     // --- MỞ MENU PHỤ (M hoặc ESC) ---
-                    if (_COMMAND == 'M' || _COMMAND == 'P' || _COMMAND == 27) {
+                    if (_COMMAND == 'R') {
+                        RestartCurrentMatch();
+                        continue;
+                    }
+
+                    if (_COMMAND == 'M' || _COMMAND == 'P' || _COMMAND == ' ' || _COMMAND == 27) {
                         isPaused = true;
                         future<int> SecondThreadchoice = async(launch::async, GameMenu);
                         int gamechoice = SecondThreadchoice.get();
@@ -225,14 +240,14 @@ int main() {
                             if (loadPresent()) {
                                 ingamedisplay(CharacterASelect, true);
                                 ingamedisplay(CharacterBSelect, false);
-                                timeLeft = TURN_TIME_LIMIT;
+                                timeLeft = turnTimeLimit;
                             }
                         }
                         else if (gamechoice == 2) {
                             if (LoadGame()) {
                                 ingamedisplay(CharacterASelect, true);
                                 ingamedisplay(CharacterBSelect, false);
-                                timeLeft = TURN_TIME_LIMIT;
+                                timeLeft = turnTimeLimit;
                             }
                             else {
                                 loadPresent();
@@ -254,19 +269,13 @@ int main() {
                     }
 
                     // --- TẠM DỪNG / TIẾP TỤC (P) ---
-                    else if (_COMMAND == 'P') {
-                        isPaused = !isPaused;
-                        lock_guard<mutex> lock(consoleMutex);
-                        DrawStatusInfo(isPaused);
-                        GotoXY(_X, _Y);
-                    }
                     // --- CÁC PHÍM DI CHUYỂN / ĐÁNH CỜ (chỉ khi đang chơi) ---
                     else if (!isPaused) {
-                        if (_COMMAND == 'Z') {
-                            if (!_BOT_MODE || _TURN) { UndoMove(); timeLeft = TURN_TIME_LIMIT; }
+                        if (_COMMAND == 'Y') {
+                            if (!_BOT_MODE || _TURN) { UndoMove(); timeLeft = turnTimeLimit; }
                         }
-                        else if (_COMMAND == 'Y') {
-                            if (!_BOT_MODE || _TURN) { RedoMove(); timeLeft = TURN_TIME_LIMIT; }
+                        else if (_COMMAND == 'U') {
+                            if (!_BOT_MODE || _TURN) { RedoMove(); timeLeft = turnTimeLimit; }
                         }
                         else if (_COMMAND == 'A' || _COMMAND == 75) MoveLeft();
                         else if (_COMMAND == 'W' || _COMMAND == 72) MoveUp();
@@ -316,13 +325,13 @@ int main() {
                                     }
                                     else {
                                         StartGame();
-                                        timeLeft = TURN_TIME_LIMIT;
+                                        timeLeft = turnTimeLimit;
                                         isPaused = false;
                                     }
                                     break;
 
                                 case 2:  // Ván cờ tiếp tục
-                                    timeLeft = TURN_TIME_LIMIT;
+                                    timeLeft = turnTimeLimit;
                                     break;
                                 }
                             }

@@ -12,6 +12,7 @@
 #include "btn_normal.h"
 #include "btn_hover.h"
 #include "Language.h"
+#include <ctime>
 
 using namespace std;
 
@@ -21,10 +22,228 @@ struct SaveSlotPreview {
     string fileName;
     string player1;
     string player2;
+    string saveTitle;
+    string savedAt;
     int moves = 0;
 };
 
 static string ChooseSaveSlotMenu(bool forSaving);
+
+static void FillNoticeRect(int x, int y, int w, int h, int r, int g, int b) {
+    printf("\x1b[48;2;%d;%d;%dm", r, g, b);
+    string row(w, ' ');
+    for (int i = 0; i < h; i++) {
+        GotoXY(x, y + i);
+        cout << row;
+    }
+    printf("\x1b[0m");
+}
+
+static void DrawNoticeFrame(int x, int y, int w, int h, int fr, int fg, int fb, int br, int bg, int bb) {
+    printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", fr, fg, fb, br, bg, bb);
+    GotoXY(x, y);
+    cout << "\xE2\x94\x8C";
+    for (int i = 0; i < w - 2; i++) cout << "\xE2\x94\x80";
+    cout << "\xE2\x94\x90";
+
+    for (int row = 1; row < h - 1; row++) {
+        GotoXY(x, y + row);
+        cout << "\xE2\x94\x82";
+        GotoXY(x + w - 1, y + row);
+        cout << "\xE2\x94\x82";
+    }
+
+    GotoXY(x, y + h - 1);
+    cout << "\xE2\x94\x94";
+    for (int i = 0; i < w - 2; i++) cout << "\xE2\x94\x80";
+    cout << "\xE2\x94\x98";
+    printf("\x1b[0m");
+}
+
+static void PrintNoticeText(int x, int y, const string& text, int fr, int fg, int fb, int br, int bg, int bb) {
+    GotoXY(x, y);
+    printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", fr, fg, fb, br, bg, bb);
+    cout << text;
+    printf("\x1b[0m");
+}
+
+static void PrintNoticeCentered(int x, int y, int w, const string& text, int fr, int fg, int fb, int br, int bg, int bb) {
+    int textX = x + (w - TextDisplayWidth(text)) / 2;
+    if (textX < x) textX = x;
+    PrintNoticeText(textX, y, text, fr, fg, fb, br, bg, bb);
+}
+
+static void DrawNoticeIcon(int centerX, int y, char type, int r, int g, int b, int br, int bg, int bb) {
+    static const char* CHECK[5] = {
+        "00001",
+        "00010",
+        "10100",
+        "01000",
+        "00000"
+    };
+    static const char* WARN[5] = {
+        "00100",
+        "01110",
+        "01110",
+        "00000",
+        "00100"
+    };
+    static const char* CROSS[5] = {
+        "10001",
+        "01010",
+        "00100",
+        "01010",
+        "10001"
+    };
+
+    const char** glyph = (type == 'x') ? CROSS : ((type == '!') ? WARN : CHECK);
+    int startX = centerX - 5;
+    for (int row = 0; row < 5; row++) {
+        for (int col = 0; col < 5; col++) {
+            if (glyph[row][col] != '1') continue;
+            GotoXY(startX + col * 2, y + row);
+            printf("\x1b[48;2;%d;%d;%dm  \x1b[0m", r, g, b);
+        }
+    }
+}
+
+static void ShowSaveNotice(const string& title, const string& message, char iconType, int accentR, int accentG, int accentB) {
+    system("cls");
+    DrawLoadgameBackground();
+
+    const int panelR = 12;
+    const int panelG = 16;
+    const int panelB = 24;
+    int panelW = max(64, min(CONSOLE_COLS - 16, max(TextDisplayWidth(title), TextDisplayWidth(message)) + 22));
+    int panelH = 15;
+    int panelX = CenterConsoleX(panelW, CONSOLE_COLS);
+    int panelY = 10;
+
+    FillNoticeRect(panelX, panelY, panelW, panelH, panelR, panelG, panelB);
+    DrawNoticeFrame(panelX, panelY, panelW, panelH, accentR, accentG, accentB, panelR, panelG, panelB);
+    DrawNoticeIcon(panelX + panelW / 2, panelY + 2, iconType, accentR, accentG, accentB, panelR, panelG, panelB);
+    PrintNoticeCentered(panelX, panelY + 8, panelW, title, 255, 245, 80, panelR, panelG, panelB);
+    PrintNoticeCentered(panelX, panelY + 10, panelW, message, 225, 245, 255, panelR, panelG, panelB);
+    PrintNoticeCentered(panelX, panelY + 12, panelW, L(TextId::NoticeContinue), 0, 255, 255, panelR, panelG, panelB);
+    _getch();
+    SetColor(15, 0);
+}
+
+static string FormatVietnamTime(time_t utcSeconds) {
+    time_t vietnamSeconds = utcSeconds + 7 * 60 * 60;
+    tm vietnamTime{};
+    gmtime_s(&vietnamTime, &vietnamSeconds);
+
+    char buffer[32];
+    strftime(buffer, sizeof(buffer), "%d/%m/%Y %H:%M", &vietnamTime);
+    return string(buffer) + " VN";
+}
+
+static string CurrentVietnamTimeString() {
+    return FormatVietnamTime(time(nullptr));
+}
+
+static string FileVietnamModifiedTime(const string& filePath) {
+    WIN32_FILE_ATTRIBUTE_DATA data{};
+    if (!GetFileAttributesExA(filePath.c_str(), GetFileExInfoStandard, &data)) {
+        return "";
+    }
+
+    ULARGE_INTEGER value{};
+    value.LowPart = data.ftLastWriteTime.dwLowDateTime;
+    value.HighPart = data.ftLastWriteTime.dwHighDateTime;
+
+    const unsigned long long windowsToUnix = 116444736000000000ULL;
+    if (value.QuadPart < windowsToUnix) return "";
+
+    time_t utcSeconds = static_cast<time_t>((value.QuadPart - windowsToUnix) / 10000000ULL);
+    return FormatVietnamTime(utcSeconds);
+}
+
+static void DrawSaveNamePrompt(const string& slotName, const string& saveTitle, bool showError, bool fullRedraw) {
+    const int panelW = 74;
+    const int panelH = 11;
+    const int panelX = CenterConsoleX(panelW, CONSOLE_COLS);
+    const int panelY = 11;
+    const int inputW = 32;
+    const int inputX = panelX + 29;
+    const int inputY = panelY + 4;
+
+    if (fullRedraw) {
+        system("cls");
+        DrawLoadgameBackground();
+
+        string title = (GetLanguage() == GameLanguage::Vietnamese) ? u8"\u0110\u1EB6T T\u00CAN B\u1EA2N L\u01AFU" : "SAVE NAME";
+        DrawMenuTitle(title, 2, CONSOLE_COLS);
+        DrawFrame(panelX, panelY, panelW, panelH);
+
+        string slotLabel = (GetLanguage() == GameLanguage::Vietnamese) ? u8"\u00D4 L\u01AFU: " : "SLOT: ";
+        PrintTextWithBg(panelX + 5, panelY + 2, slotLabel + slotName, 14);
+        PrintTextWithBg(panelX + 5, inputY, (GetLanguage() == GameLanguage::Vietnamese) ? u8"T\u00CAN B\u1EA2N L\u01AFU:" : "SAVE TITLE:", 11);
+
+        string help = (GetLanguage() == GameLanguage::Vietnamese)
+            ? u8"ENTER: L\u01AFU | ESC: H\u1EE6Y"
+            : "ENTER: SAVE | ESC: CANCEL";
+        PrintTextWithBg(CenterConsoleX(TextDisplayWidth(help), CONSOLE_COLS), panelY + 7, help, 11);
+    }
+
+    GotoXY(inputX, inputY);
+    SetColor(15, 1);
+    string shown = saveTitle;
+    if (TextDisplayWidth(shown) > inputW - 2) shown = shown.substr(0, inputW - 5) + "...";
+    cout << " " << shown;
+    int remain = inputW - 1 - TextDisplayWidth(shown);
+    if (remain > 0) cout << string(remain, ' ');
+    SetColor(15, 0);
+
+    FillNoticeRect(panelX + 2, panelY + 9, panelW - 4, 1, 15, 15, 20);
+
+    if (showError) {
+        string error = (GetLanguage() == GameLanguage::Vietnamese)
+            ? u8"T\u00CAN B\u1EA2N L\u01AFU KH\u00D4NG \u0110\u01AF\u1EE2C TR\u1ED0NG"
+            : "SAVE TITLE CANNOT BE EMPTY";
+        PrintTextWithBg(CenterConsoleX(TextDisplayWidth(error), CONSOLE_COLS), panelY + 9, error, 12);
+    }
+
+    UnhideCursor();
+    GotoXY(inputX + 1 + min(TextDisplayWidth(saveTitle), inputW - 2), inputY);
+}
+
+static string PromptSaveDisplayName(const string& slotName) {
+    string saveTitle;
+    bool showError = false;
+
+    DrawSaveNamePrompt(slotName, saveTitle, showError, true);
+
+    while (true) {
+        int key = _getch();
+
+        if (key == 27) {
+            HideCursor();
+            return "";
+        }
+        if (key == 13) {
+            if (!saveTitle.empty()) {
+                HideCursor();
+                return saveTitle;
+            }
+            showError = true;
+            DrawSaveNamePrompt(slotName, saveTitle, showError, false);
+            continue;
+        }
+        if (key == 8) {
+            if (!saveTitle.empty()) saveTitle.pop_back();
+            showError = false;
+            DrawSaveNamePrompt(slotName, saveTitle, showError, false);
+            continue;
+        }
+        if (key >= 32 && key <= 126 && TextDisplayWidth(saveTitle) < 24) {
+            saveTitle.push_back(static_cast<char>(key));
+            showError = false;
+            DrawSaveNamePrompt(slotName, saveTitle, showError, false);
+        }
+    }
+}
 
 string TypeFileName() {
     string res = "";
@@ -60,6 +279,14 @@ string SaveGame() {
             return "";
         }
 
+        string saveTitle = PromptSaveDisplayName(selectedFile);
+        if (saveTitle.empty()) {
+            SetColor(15, 0);
+            GotoXY(_X, _Y);
+            return "";
+        }
+        string savedAt = CurrentVietnamTimeString();
+
         ofstream outFile(selectedFile + ".caro", ios::trunc);
         if (outFile.is_open()) {
             outFile << _TURN << " " << _X << " " << _Y << endl;
@@ -77,24 +304,17 @@ string SaveGame() {
             outFile << (_BOT_MODE ? 1 : 0) << " " << _BOT_DIFFICULTY << endl;
             outFile << _PLAYER1_NAME << endl;
             outFile << _PLAYER2_NAME << endl;
+            outFile << "#META" << endl;
+            outFile << saveTitle << endl;
+            outFile << savedAt << endl;
             outFile.close();
 
-            system("cls");
-            DrawLoadgameBackground();
-            GotoXY(CenterConsoleX(TextDisplayWidth(L(TextId::SaveSuccess)), CONSOLE_COLS), 18);
-            SetColor(10, 15);
-            cout << L(TextId::SaveSuccess);
-            _getch();
+            ShowSaveNotice(L(TextId::SaveSuccessTitle), L(TextId::SaveSuccess), 'v', 60, 230, 120);
             SetColor(15, 0);
             return selectedFile;
         }
 
-        system("cls");
-        DrawLoadgameBackground();
-        GotoXY(CenterConsoleX(TextDisplayWidth(L(TextId::SaveCreateError)), CONSOLE_COLS), 18);
-        SetColor(12, 15);
-        cout << L(TextId::SaveCreateError);
-        _getch();
+        ShowSaveNotice(L(TextId::SaveCreateErrorTitle), L(TextId::SaveCreateError), '!', 255, 80, 80);
         SetColor(15, 0);
         return "";
     }
@@ -357,6 +577,8 @@ static SaveSlotPreview ReadSavePreview(const string& baseName, int slotNumber) {
     preview.occupied = SaveFileExists(baseName);
     preview.player1 = "X";
     preview.player2 = "O";
+    preview.saveTitle = baseName;
+    preview.savedAt = preview.occupied ? FileVietnamModifiedTime(baseName + ".caro") : "";
 
     if (!preview.occupied) return preview;
 
@@ -390,6 +612,13 @@ static SaveSlotPreview ReadSavePreview(const string& baseName, int slotNumber) {
             string p1, p2;
             if (getline(inFile, p1) && !p1.empty()) preview.player1 = p1;
             if (getline(inFile, p2) && !p2.empty()) preview.player2 = p2;
+
+            string marker;
+            if (getline(inFile, marker) && marker == "#META") {
+                string title, savedAt;
+                if (getline(inFile, title) && !title.empty()) preview.saveTitle = title;
+                if (getline(inFile, savedAt) && !savedAt.empty()) preview.savedAt = savedAt;
+            }
         }
     }
 
@@ -460,14 +689,17 @@ static void DrawSaveSlotCard(const SaveSlotPreview& slot, int x, int y, int w, i
     FillSlotArea(x, y, w, h, bg);
     DrawSlotBorder(x, y, w, h, selected, bg);
 
-    string title = "SLOT " + to_string(slot.slotNumber);
+    string slotWord = (GetLanguage() == GameLanguage::Vietnamese) ? u8"\u00D4 L\u01AFU " : "SLOT ";
+    string title = slotWord + to_string(slot.slotNumber);
     if (selected) title = "> " + title + " <";
 
     PrintSlotText(x + 2, y + 1, title, 22, selected ? 12 : 1, bg);
     if (slot.occupied) {
-        PrintSlotText(x + 2, y + 2, FitText(slot.player1, 8) + " VS " + FitText(slot.player2, 8), 24, 9, bg);
-        PrintSlotText(x + 2, y + 3, "MOVES: " + to_string(slot.moves), 24, 9, bg);
-        PrintSlotText(x + 2, y + 4, "FILE: " + slot.fileName, 24, 8, bg);
+        PrintSlotText(x + 2, y + 2, FitText(slot.saveTitle, 24), 24, 9, bg);
+        string versus = (GetLanguage() == GameLanguage::Vietnamese) ? u8" \u0110\u1EA4U " : " VS ";
+        string moveLabel = (GetLanguage() == GameLanguage::Vietnamese) ? u8"N\u01AF\u1EDAC: " : "MOVES: ";
+        PrintSlotText(x + 2, y + 3, FitText(slot.player1, 8) + versus + FitText(slot.player2, 8), 24, 9, bg);
+        PrintSlotText(x + 2, y + 4, slot.savedAt.empty() ? (moveLabel + to_string(slot.moves)) : slot.savedAt, 24, 8, bg);
         DrawFlowerIcon(x + w - 15, y + 1, bg);
     }
     else {
@@ -477,7 +709,8 @@ static void DrawSaveSlotCard(const SaveSlotPreview& slot, int x, int y, int w, i
             : ((GetLanguage() == GameLanguage::Vietnamese) ? u8"CH\u01AFA C\u00D3 D\u1EEE LI\u1EC6U" : "NO DATA");
         PrintSlotText(x + 2, y + 2, emptyText, 24, 8, bg);
         PrintSlotText(x + 2, y + 3, actionText, 24, 8, bg);
-        PrintSlotText(x + 2, y + 4, "FILE: " + SaveSlotBaseName(slot.slotNumber - 1), 24, 8, bg);
+        string fileLabel = (GetLanguage() == GameLanguage::Vietnamese) ? u8"T\u1EC6P: " : "FILE: ";
+        PrintSlotText(x + 2, y + 4, fileLabel + SaveSlotBaseName(slot.slotNumber - 1), 24, 8, bg);
         DrawSaplingIcon(x + w - 15, y + 1, bg);
     }
 }
@@ -493,7 +726,7 @@ static void DrawSaveSlotScreen(const vector<SaveSlotPreview>& slots, int page, i
     DrawLoadgameBackground();
 
     string title = forSaving
-        ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"L\u01AFU GAME" : "SAVE GAME")
+        ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"L\u01AFU V\u00C1N" : "SAVE GAME")
         : L(TextId::LoadTitle);
     DrawMenuTitle(title, 1, CONSOLE_COLS);
 
@@ -520,7 +753,7 @@ static void DrawSaveSlotScreen(const vector<SaveSlotPreview>& slots, int page, i
     }
 
     string help = forSaving
-        ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"WASD: CH\u1ECCN | ENTER: L\u01AFU/GHI \u0110\u00C8 | X: X\u00D3A | ESC: QUAY L\u1EA0I" : "WASD: SELECT | ENTER: SAVE/OVERWRITE | X: DELETE | ESC: BACK")
+        ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"WASD: CH\u1ECCN | ENTER: L\u01AFU/GHI \u0110\u00C8 | X: X\u00D3A T\u1EC6P | ESC: QUAY L\u1EA0I" : "WASD: SELECT | ENTER: SAVE/OVERWRITE | X: DELETE FILE | ESC: BACK")
         : L(TextId::LoadHelp);
     int helpY = startY + 3 * (slotH + gapY);
     PrintSlotText(CenterConsoleX(TextDisplayWidth(help), CONSOLE_COLS), helpY, help, TextDisplayWidth(help), 11, 0);
@@ -541,6 +774,40 @@ static void DrawSaveSlotScreen(const vector<SaveSlotPreview>& slots, int page, i
     }
 }
 
+static void DrawSaveSlotSelectionItem(const vector<SaveSlotPreview>& slots, int page, int select, bool selected, bool forSaving) {
+    const int cols = 2;
+    const int slotW = 44;
+    const int slotH = 6;
+    const int gapX = 4;
+    const int gapY = 1;
+    const int totalW = cols * slotW + gapX;
+    const int startX = CenterConsoleX(totalW, CONSOLE_COLS);
+    const int startY = 7;
+    const int pageCount = static_cast<int>((slots.size() + 5) / 6);
+    const int helpY = startY + 3 * (slotH + gapY);
+
+    if (select >= 0 && select < 6) {
+        int slotIndex = page * 6 + select;
+        if (slotIndex >= static_cast<int>(slots.size())) return;
+
+        int col = select % cols;
+        int row = select / cols;
+        int x = startX + col * (slotW + gapX);
+        int y = startY + row * (slotH + gapY);
+        DrawSaveSlotCard(slots[slotIndex], x, y, slotW, slotH, selected, forSaving);
+    }
+    else if (select == 6 && page > 0) {
+        DrawPageButton(startX, helpY + 2, 22,
+            (GetLanguage() == GameLanguage::Vietnamese) ? u8"<< TRANG TR\u01AF\u1EDAC" : "<< PREV PAGE",
+            selected);
+    }
+    else if (select == 7 && page < pageCount - 1) {
+        DrawPageButton(startX + totalW - 22, helpY + 2, 22,
+            (GetLanguage() == GameLanguage::Vietnamese) ? u8"TRANG SAU >>" : "NEXT PAGE >>",
+            selected);
+    }
+}
+
 static string ChooseSaveSlotMenu(bool forSaving) {
     vector<SaveSlotPreview> slots = BuildSaveSlots(forSaving);
     int page = 0;
@@ -555,10 +822,17 @@ static string ChooseSaveSlotMenu(bool forSaving) {
         if (currentSelect == 6 && page == 0) currentSelect = 4;
         if (currentSelect == 7 && page >= pageCount - 1) currentSelect = 5;
 
-        if (currentSelect != lastSelect || page != lastPage) {
+        if (page != lastPage) {
             DrawSaveSlotScreen(slots, page, currentSelect, forSaving);
             lastSelect = currentSelect;
             lastPage = page;
+        }
+        else if (currentSelect != lastSelect) {
+            if (lastSelect >= 0) {
+                DrawSaveSlotSelectionItem(slots, page, lastSelect, false, forSaving);
+            }
+            DrawSaveSlotSelectionItem(slots, page, currentSelect, true, forSaving);
+            lastSelect = currentSelect;
         }
 
         int key = ReadMenuKey();
@@ -694,9 +968,6 @@ bool LoadGame() {
         system("cls");
         DrawIngameBackground(); // [Merged] Vẽ background ingame từ bản gốc
         DrawBoard(BOARD_SIZE);
-        DrawPlayerInfo();
-        UpdateTurnInfo();
-
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 // [Merged] Fix lỗi hiển thị: Chỉ vẽ các ô đã có quân
@@ -708,16 +979,13 @@ bool LoadGame() {
         DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
         ingamedisplay(CharacterASelect, true);
         ingamedisplay(CharacterBSelect, false);
+        DrawPlayerInfo();
+        UpdateTurnInfo();
 
         return true;
     }
     else {
-        system("cls");
-        DrawLoadgameBackground();
-        GotoXY(40, 15);
-        SetColor(12, 15);
-        cout << L(TextId::LoadReadError);
-        _getch();
+        ShowSaveNotice(L(TextId::LoadReadErrorTitle), L(TextId::LoadReadError), '!', 255, 80, 80);
         return false;
     }
 }
@@ -842,12 +1110,7 @@ string ChooseFileMenu() {
 void ClearAllData() {
     vector<string> files = GetSaveFiles();
     if (files.empty()) {
-        system("cls");
-        DrawLoadgameBackground(); // [Merged] Draw bg 
-        GotoXY(40, 15);
-        printf("\x1b[38;2;255;50;50m\x1b[48;2;20;20;20m");
-        cout << L(TextId::ClearNoData);
-        _getch();
+        ShowSaveNotice(L(TextId::ClearNoDataTitle), L(TextId::ClearNoData), '!', 255, 220, 80);
         return;
     }
 
@@ -855,30 +1118,22 @@ void ClearAllData() {
     string prompt = L(TextId::ClearConfirmPrefix) + to_string(files.size()) + L(TextId::ClearConfirmSuffix);
     bool confirm = GraphicalYesNo(prompt, 10, true, BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 
-    system("cls");
-    DrawLoadgameBackground();
-
     if (confirm) {
         for (string file : files) {
             string fullPath = file + ".caro";
             DeleteFileA(fullPath.c_str());
         }
-        GotoXY(35, 17);
-        SetColor(10, 15); cout << L(TextId::ClearDone);
+        ShowSaveNotice(L(TextId::ClearDoneTitle), L(TextId::ClearDone), 'v', 60, 230, 120);
     }
     else {
-        GotoXY(35, 17);
-        SetColor(8, 15); cout << L(TextId::ClearCanceled);
+        ShowSaveNotice(L(TextId::ClearCanceledTitle), L(TextId::ClearCanceled), 'x', 180, 190, 210);
     }
-    _getch();
 }
 
 bool loadPresent() {
     system("cls");
     DrawIngameBackground();
     DrawBoard(BOARD_SIZE);
-    DrawPlayerInfo();
-    UpdateTurnInfo();
     for (int i = 0; i < BOARD_SIZE; i++)
         for (int j = 0; j < BOARD_SIZE; j++)
             if (_A[i][j].c != 0) { // [Merged] Chỉ vẽ lên ô có quân
@@ -887,5 +1142,7 @@ bool loadPresent() {
     DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
     ingamedisplay(CharacterASelect, true);
     ingamedisplay(CharacterBSelect, false);
+    DrawPlayerInfo();
+    UpdateTurnInfo();
     return true;
 }

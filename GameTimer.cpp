@@ -4,10 +4,12 @@
 #include "Menu.h"
 #include "UserInfo.h"
 #include "Language.h"
+#include "Sound.h"
 #include <chrono>
 #include <string>
 
-atomic<int> timeLeft(TURN_TIME_LIMIT);
+int turnTimeLimit = DEFAULT_TURN_TIME_LIMIT;
+atomic<int> timeLeft(DEFAULT_TURN_TIME_LIMIT);
 atomic<bool> isPaused(false);
 atomic<bool> isTimerRunning(false);
 
@@ -23,11 +25,15 @@ void TimerLogic() {
         }
 
         if (!isPaused && timeLeft > 0) {
-            timeLeft--;
+            int remaining = timeLeft.fetch_sub(1) - 1;
+            if (remaining > 0 && remaining <= 5) {
+                PlayCountdownBeep();
+            }
+
             lock_guard<mutex> lock(consoleMutex);
             int curX = _X, curY = _Y;
 
-            PrintHudTextWithBg(TIMER_X, TIMER_Y, L(TextId::HudTime) + to_string(timeLeft.load()) + "s      ", (timeLeft <= 5) ? 12 : 11);
+            DrawTurnTimers(remaining);
 
             if (isPaused) {
                 DrawStatusInfo(true);
@@ -48,11 +54,11 @@ void StartTimerThread() {
     // Join any old thread first
     if (timerThread.joinable()) timerThread.join();
     isTimerRunning = true;
-    timeLeft = TURN_TIME_LIMIT;
+    timeLeft = turnTimeLimit;
     isPaused = false;
     {
         lock_guard<mutex> lock(consoleMutex);
-        PrintHudTextWithBg(TIMER_X, TIMER_Y, L(TextId::HudTime) + to_string(timeLeft.load()) + "s      ", 11);
+        DrawTurnTimers(timeLeft.load());
         DrawStatusInfo(false);
         GotoXY(_X, _Y);
     }
@@ -62,11 +68,4 @@ void StartTimerThread() {
 void StopTimerThread() {
     isTimerRunning = false;
     if (timerThread.joinable()) timerThread.join();
-    {
-        lock_guard<mutex> lock(consoleMutex);
-        PrintHudTextWithBg(TIMER_X, TIMER_Y, string(20, ' '), 15);
-        PrintHudTextWithBg(TURN_INFO_X, TURN_INFO_Y, string(14, ' '), 15);
-        PrintHudTextWithBg(STATUS_X, STATUS_Y, string(30, ' '), 15);
-        PrintHudTextWithBg(BOT_MSG_X, BOT_MSG_Y, string(34, ' '), 15);
-    }
 }

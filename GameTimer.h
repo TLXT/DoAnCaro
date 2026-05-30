@@ -7,8 +7,12 @@
 #include <iostream>
 using namespace std;
 
-const int TURN_TIME_LIMIT = 30;
+constexpr int DEFAULT_TURN_TIME_LIMIT = 30;
+constexpr int MIN_TURN_TIME_LIMIT = 5;
+constexpr int MAX_TURN_TIME_LIMIT = 120;
+constexpr int TURN_TIME_STEP = 5;
 
+extern int turnTimeLimit;
 extern atomic<int> timeLeft;
 extern atomic<bool> isPaused;
 extern atomic<bool> isTimerRunning;

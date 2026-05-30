@@ -8,6 +8,7 @@
 #include "btn_normal.h"
 #include "btn_hover.h"
 #include "Language.h"
+#include "GameTimer.h"
 #include <windows.h>
 #include <cctype>
 
@@ -249,9 +250,11 @@ static void DrawMenuButton(const string& text, int x, int y, bool selected) {
 int GenericMenu(string options[], int size, string title) {
     int currentSelect = 0;
     int lastSelect = -1;
-    const int titleW = 30;
-    const int titleX = CenterConsoleX(titleW, CONSOLE_COLS);
-    const int itemX = CenterConsoleX(34, CONSOLE_COLS);
+    int itemW = 34;
+    for (int i = 0; i < size; i++) {
+        itemW = max(itemW, TextDisplayWidth(options[i]) + 8);
+    }
+    const int itemX = CenterConsoleX(itemW, CONSOLE_COLS);
     system("cls");
     DrawMenuBackground();
 
@@ -332,27 +335,32 @@ int GenericMenu(string options[], int size, string title) {
         }
     }
 
+    auto drawTextOption = [&](int index, bool selected) {
+        string opt = selected ? (">> " + options[index] + " <<") : ("   " + options[index] + "   ");
+        int pad = itemW - TextDisplayWidth(opt);
+        if (pad > 0) opt += string(pad, ' ');
+        PrintTextWithBg(itemX, 12 + index * 2, opt, selected ? 14 : 11);
+    };
+
     while (true) {
         if (currentSelect != lastSelect) {
-            lastSelect = currentSelect;
-        if (title == "GAME CARO") {
-            DrawMenuTitle("CARO", 1, CONSOLE_COLS);
-        }
-        else {
-            DrawMenuTitle(title, 2, CONSOLE_COLS);
-        }
+            if (lastSelect == -1) {
+                if (title == "GAME CARO") {
+                    DrawMenuTitle("CARO", 1, CONSOLE_COLS);
+                }
+                else {
+                    DrawMenuTitle(title, 2, CONSOLE_COLS);
+                }
 
-        for (int i = 0; i < size; i++) {
-            if (i == currentSelect) {
-                string opt = ">> " + options[i] + " <<";
-                PrintTextWithBg(itemX, 12 + i * 2, opt, 14);
+                for (int i = 0; i < size; i++) {
+                    drawTextOption(i, i == currentSelect);
+                }
             }
             else {
-                string opt = "   " + options[i] + "   ";
-                PrintTextWithBg(itemX, 12 + i * 2, opt, 11);
+                drawTextOption(lastSelect, false);
+                drawTextOption(currentSelect, true);
             }
-        }
-
+            lastSelect = currentSelect;
         }
         int key = ReadMenuKey();
         if (key == 'W' || key == 72) {
@@ -424,6 +432,84 @@ int MusicMenu() {
     return GenericMenu(options, 9, "");
 }
 
+static void FillVolumeRgbRect(int x, int y, int w, int h, int r, int g, int b) {
+    printf("\x1b[48;2;%d;%d;%dm", r, g, b);
+    string row(w, ' ');
+    for (int i = 0; i < h; i++) {
+        GotoXY(x, y + i);
+        cout << row;
+    }
+    printf("\x1b[0m");
+}
+
+static void DrawVolumeRgbFrame(int x, int y, int w, int h, int fr, int fg, int fb, int br, int bg, int bb) {
+    printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", fr, fg, fb, br, bg, bb);
+    GotoXY(x, y);
+    cout << "\xE2\x94\x8C";
+    for (int i = 0; i < w - 2; i++) cout << "\xE2\x94\x80";
+    cout << "\xE2\x94\x90";
+
+    for (int row = 1; row < h - 1; row++) {
+        GotoXY(x, y + row);
+        cout << "\xE2\x94\x82";
+        GotoXY(x + w - 1, y + row);
+        cout << "\xE2\x94\x82";
+    }
+
+    GotoXY(x, y + h - 1);
+    cout << "\xE2\x94\x94";
+    for (int i = 0; i < w - 2; i++) cout << "\xE2\x94\x80";
+    cout << "\xE2\x94\x98";
+    printf("\x1b[0m");
+}
+
+static void PrintVolumeRgbText(int x, int y, const string& text, int fr, int fg, int fb, int br, int bg, int bb) {
+    GotoXY(x, y);
+    printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", fr, fg, fb, br, bg, bb);
+    cout << text;
+    printf("\x1b[0m");
+}
+
+static void PrintVolumeCenteredRgb(int x, int y, int w, const string& text, int fr, int fg, int fb, int br, int bg, int bb) {
+    int textX = x + (w - TextDisplayWidth(text)) / 2;
+    if (textX < x) textX = x;
+    PrintVolumeRgbText(textX, y, text, fr, fg, fb, br, bg, bb);
+}
+
+static void DrawVolumePill(int x, int y, int w, const string& text, bool highlighted) {
+    int bgR = highlighted ? 255 : 15;
+    int bgG = highlighted ? 240 : 82;
+    int bgB = highlighted ? 90 : 145;
+    int fgR = highlighted ? 20 : 230;
+    int fgG = highlighted ? 20 : 245;
+    int fgB = highlighted ? 20 : 255;
+    int borderR = highlighted ? 255 : 0;
+    int borderG = highlighted ? 240 : 255;
+    int borderB = highlighted ? 90 : 255;
+
+    FillVolumeRgbRect(x, y, w, 3, bgR, bgG, bgB);
+    DrawVolumeRgbFrame(x, y, w, 3, borderR, borderG, borderB, bgR, bgG, bgB);
+    PrintVolumeCenteredRgb(x, y + 1, w, text, fgR, fgG, fgB, bgR, bgG, bgB);
+}
+
+static void DrawVolumeProgress(int x, int y, int w, int percent) {
+    int barW = max(0, w - 2);
+    int filled = (barW * percent) / 100;
+    if (filled > barW) filled = barW;
+
+    GotoXY(x, y);
+    printf("\x1b[38;2;220;245;255m\x1b[48;2;12;16;24m[");
+    printf("\x1b[48;2;55;210;190m");
+    cout << string(filled, ' ');
+    printf("\x1b[48;2;48;54;70m");
+    cout << string(barW - filled, ' ');
+    printf("\x1b[48;2;12;16;24m]\x1b[0m");
+
+    int markerX = x + 1 + min(barW - 1, max(0, filled));
+    GotoXY(markerX, y - 1);
+    printf("\x1b[38;2;255;240;90m\x1b[48;2;12;16;24m%c\x1b[0m", 'V');
+}
+
 void VolumeMenu() {
     int currentSelect = volumeLevel;
     int lastPercent = -1;
@@ -432,14 +518,33 @@ void VolumeMenu() {
     DrawMenuBackground();
     DrawMenuTitle(L(TextId::VolumeTitle), 4, CONSOLE_COLS);
 
-    int panelW = 112;
+    const int panelR = 12;
+    const int panelG = 16;
+    const int panelB = 24;
+    const int accentR = 0;
+    const int accentG = 255;
+    const int accentB = 255;
+    int panelW = 94;
+    int panelH = 17;
     int panelX = CenterConsoleX(panelW, CONSOLE_COLS);
-    int panelY = 12;
-    int barX = panelX + 6;
-    int barY = panelY + 5;
+    int panelY = 11;
+    int barX = panelX + 10;
+    int barY = panelY + 8;
+    int barW = panelW - 20;
 
-    DrawFrame(panelX, panelY, panelW, 10);
-    PrintTextWithBg(panelX + 6, panelY + 8, L(TextId::VolumeHelp), 11);
+    FillVolumeRgbRect(panelX, panelY, panelW, panelH, panelR, panelG, panelB);
+    DrawVolumeRgbFrame(panelX, panelY, panelW, panelH, accentR, accentG, accentB, panelR, panelG, panelB);
+    PrintVolumeCenteredRgb(panelX, panelY + 2, panelW, L(TextId::VolumeTitle), 255, 245, 80, panelR, panelG, panelB);
+    PrintVolumeCenteredRgb(panelX, panelY + 4, panelW, L(TextId::VolumeHelp), 0, 255, 255, panelR, panelG, panelB);
+
+    int btnW = 18;
+    int gap = 4;
+    int totalBtnW = btnW * 3 + gap * 2;
+    int btnX = CenterConsoleX(totalBtnW, CONSOLE_COLS);
+    int btnY = panelY + 12;
+    DrawVolumePill(btnX, btnY, btnW, "A / <-", false);
+    DrawVolumePill(btnX + btnW + gap, btnY, btnW, "ENTER", true);
+    DrawVolumePill(btnX + (btnW + gap) * 2, btnY, btnW, "D / ->", false);
 
     while (true) {
         if (currentSelect < 0) currentSelect = 0;
@@ -448,23 +553,16 @@ void VolumeMenu() {
         int percent = currentSelect / 10;
 
         if (percent != lastPercent) {
-            PrintTextWithBg(panelX + 6, panelY + 2, L(TextId::VolumeLabel) + to_string(percent) + "%   ", 14);
+            FillVolumeRgbRect(panelX + 4, panelY + 6, panelW - 8, 5, panelR, panelG, panelB);
+            string label = L(TextId::VolumeLabel) + to_string(percent) + "%";
+            PrintVolumeCenteredRgb(panelX, panelY + 6, panelW, label, 255, 245, 80, panelR, panelG, panelB);
+            DrawVolumeProgress(barX, barY, barW, percent);
 
-            SetColor(0, 15);
-            GotoXY(barX, barY - 1);
-            cout << string(101, ' ');
-            GotoXY(barX, barY);
-            cout << string(101, '-');
-            GotoXY(barX + percent, barY - 1);
-            SetColor(12, 15);
-            cout << "V";
-
-            for (int i = 0; i <= 100; i += 10) {
-                GotoXY(barX + i, barY + 1);
-                SetColor(i == percent ? 0 : 11, i == percent ? 11 : 15);
-                cout << i;
+            for (int tick = 0; tick <= 100; tick += 25) {
+                int tickX = barX + 1 + ((barW - 2) * tick) / 100;
+                string tickText = to_string(tick);
+                PrintVolumeRgbText(tickX - (int)tickText.length() / 2, barY + 2, tickText, 120, 245, 255, panelR, panelG, panelB);
             }
-            SetColor(0, 15);
             lastPercent = percent;
         }
 
@@ -556,7 +654,276 @@ string TypeName() {
     return res;
 }
 
-void InputPlayerNames(bool isBotMode) {
+static string BotDisplayName() {
+    if (_BOT_DIFFICULTY == 1) return "BOT (DE)";
+    if (_BOT_DIFFICULTY == 2) return "BOT (TRUNG BINH)";
+    return "BOT (KHO)";
+}
+
+static bool CanSubmitNames(const string& p1, const string& p2, bool isBotMode) {
+    if (p1.empty()) return false;
+    if (isBotMode) return true;
+    return !p2.empty() && p1 != p2;
+}
+
+static int ClampTurnTime(int seconds) {
+    return max(MIN_TURN_TIME_LIMIT, min(MAX_TURN_TIME_LIMIT, seconds));
+}
+
+static int NextNameFocus(int focus, int delta, bool isBotMode) {
+    int items[5] = { 0, 1, 2, 3, 4 };
+    int count = isBotMode ? 4 : 5;
+    if (isBotMode) {
+        items[0] = 0;
+        items[1] = 2;
+        items[2] = 3;
+        items[3] = 4;
+    }
+
+    int idx = 0;
+    for (int i = 0; i < count; i++) {
+        if (items[i] == focus) {
+            idx = i;
+            break;
+        }
+    }
+    idx = (idx + delta + count) % count;
+    return items[idx];
+}
+
+static void DrawNameSetupField(int x, int y, int w, const string& label, const string& value, bool focused, bool disabled) {
+    PrintTextWithBg(x, y, label, disabled ? 15 : 11);
+
+    int bg = disabled ? 8 : (focused ? 1 : 7);
+    int fg = disabled ? 7 : 15;
+    GotoXY(x + 28, y);
+    SetColor(fg, bg);
+    string shown = value;
+    if (TextDisplayWidth(shown) > w - 2) shown = shown.substr(0, w - 5) + "...";
+    cout << " " << shown;
+    int remain = w - 1 - TextDisplayWidth(shown);
+    if (remain > 0) cout << string(remain, ' ');
+    SetColor(15, 0);
+}
+
+static void DrawNameSetupButton(int x, int y, int w, const string& text, bool focused, bool enabled) {
+    int bg = enabled ? (focused ? 14 : 1) : 8;
+    int fg = enabled ? (focused ? 0 : 11) : 7;
+    GotoXY(x, y);
+    SetColor(fg, bg);
+    cout << string(w, ' ');
+    GotoXY(x + (w - TextDisplayWidth(text)) / 2, y);
+    cout << text;
+    SetColor(15, 0);
+}
+
+static void DrawNameSetupTimeField(int x, int y, int w, int seconds, bool focused) {
+    string label = (GetLanguage() == GameLanguage::Vietnamese)
+        ? u8"TH\u1EDCI GIAN M\u1ED6I L\u01AF\u1EE2T:"
+        : "TURN TIME:";
+    PrintTextWithBg(x, y, label, 11);
+
+    int bg = focused ? 14 : 7;
+    int fg = focused ? 0 : 15;
+    string value = focused ? "< " + to_string(seconds) + "s >" : to_string(seconds) + "s";
+
+    GotoXY(x + 28, y);
+    SetColor(fg, bg);
+    cout << " " << value;
+    int remain = w - 1 - TextDisplayWidth(value);
+    if (remain > 0) cout << string(remain, ' ');
+    SetColor(15, 0);
+}
+
+static void DrawNameSetupScreen(const string& p1, const string& p2, bool isBotMode, int focus, int turnSeconds, bool fullRedraw) {
+    const int panelW = 86;
+    const int panelH = 20;
+    const int panelX = CenterConsoleX(panelW, CONSOLE_COLS);
+    const int panelY = 8;
+    const int fieldW = 28;
+    const int buttonW = 16;
+    const bool valid = CanSubmitNames(p1, p2, isBotMode);
+    const bool duplicate = !isBotMode && !p1.empty() && p1 == p2;
+
+    static bool cacheReady = false;
+    static string lastP1;
+    static string lastP2;
+    static int lastFocus = -1;
+    static int lastTurnSeconds = -1;
+    static bool lastBotMode = false;
+    static bool lastValid = false;
+    static bool lastDuplicate = false;
+
+    bool forceDraw = fullRedraw || !cacheReady || lastBotMode != isBotMode;
+
+    if (fullRedraw) {
+        system("cls");
+        DrawMenuBackground();
+        DrawMenuTitle("CARO", 1, CONSOLE_COLS);
+        DrawFrame(panelX, panelY, panelW, panelH);
+
+        string title = (GetLanguage() == GameLanguage::Vietnamese) ? u8"THI\u1EBET L\u1EACP NG\u01AF\u1EDCI CH\u01A0I" : "PLAYER SETUP";
+        PrintTextWithBg(CenterConsoleX(TextDisplayWidth(title), CONSOLE_COLS), panelY + 2, title, 14);
+
+        string help = (GetLanguage() == GameLanguage::Vietnamese)
+            ? u8"M\u0168I T\u00CAN/TAB: CHUY\u1EC2N \u00D4  |  A/D: CH\u1EC8NH TH\u1EDCI GIAN"
+            : "ARROWS/TAB: MOVE  |  A/D: CHANGE TIME";
+        PrintTextWithBg(CenterConsoleX(TextDisplayWidth(help), CONSOLE_COLS), panelY + 18, help, 11);
+    }
+
+    string p1Label = (GetLanguage() == GameLanguage::Vietnamese) ? u8"NG\u01AF\u1EDCI CH\u01A0I 1 (X):" : "PLAYER 1 (X):";
+    string p2Label = isBotMode
+        ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"NG\u01AF\u1EDCI CH\u01A0I 2 (O):" : "PLAYER 2 (O):")
+        : ((GetLanguage() == GameLanguage::Vietnamese) ? u8"NG\u01AF\u1EDCI CH\u01A0I 2 (O):" : "PLAYER 2 (O):");
+
+    if (forceDraw || p1 != lastP1 || focus == 0 || lastFocus == 0) {
+        DrawNameSetupField(panelX + 8, panelY + 5, fieldW, p1Label, p1, focus == 0, false);
+    }
+    if (forceDraw || p2 != lastP2 || focus == 1 || lastFocus == 1) {
+        DrawNameSetupField(panelX + 8, panelY + 7, fieldW, p2Label, p2, focus == 1, isBotMode);
+    }
+    if (forceDraw || turnSeconds != lastTurnSeconds || focus == 2 || lastFocus == 2) {
+        DrawNameSetupTimeField(panelX + 8, panelY + 9, fieldW, turnSeconds, focus == 2);
+    }
+
+    if (forceDraw || duplicate != lastDuplicate) {
+        FillConsoleRect(panelX + 4, panelY + 11, panelW - 8, 1, 0);
+
+        if (duplicate) {
+            string msg = (GetLanguage() == GameLanguage::Vietnamese) ? u8"T\u00CAN KH\u00D4NG \u0110\u01AF\u1EE2C TR\u00D9NG" : "NAMES MUST BE UNIQUE";
+            PrintTextWithBg(CenterConsoleX(TextDisplayWidth(msg), CONSOLE_COLS), panelY + 11, msg, 12);
+        }
+    }
+
+    int buttonX = CenterConsoleX(buttonW, CONSOLE_COLS);
+    if (forceDraw || valid != lastValid || focus == 3 || lastFocus == 3) {
+        DrawNameSetupButton(buttonX, panelY + 14, buttonW, "NEXT", focus == 3, valid);
+    }
+    if (forceDraw || focus == 4 || lastFocus == 4) {
+        DrawNameSetupButton(buttonX, panelY + 16, buttonW, L(TextId::Back), focus == 4, true);
+    }
+
+    if ((focus == 0) || (focus == 1 && !isBotMode)) {
+        const string& value = (focus == 0) ? p1 : p2;
+        int cursorX = panelX + 8 + 28 + 1 + min(TextDisplayWidth(value), fieldW - 2);
+        int cursorY = panelY + ((focus == 0) ? 5 : 7);
+        UnhideCursor();
+        GotoXY(cursorX, cursorY);
+    }
+    else {
+        HideCursor();
+    }
+
+    cacheReady = true;
+    lastP1 = p1;
+    lastP2 = p2;
+    lastFocus = focus;
+    lastTurnSeconds = turnSeconds;
+    lastBotMode = isBotMode;
+    lastValid = valid;
+    lastDuplicate = duplicate;
+}
+
+static bool InputPlayerNamesSetup(bool isBotMode) {
+    string p1 = "";
+    string p2 = isBotMode ? BotDisplayName() : "";
+    int setupTurnTime = ClampTurnTime(turnTimeLimit);
+    int focus = 0;
+
+    DrawNameSetupScreen(p1, p2, isBotMode, focus, setupTurnTime, true);
+
+    while (true) {
+        int key = _getch();
+        bool redraw = true;
+        bool playSound = false;
+
+        if (key == 0 || key == 224) {
+            key = _getch();
+            if (key == 72) {
+                focus = NextNameFocus(focus, -1, isBotMode);
+                playSound = true;
+            }
+            else if (key == 80) {
+                focus = NextNameFocus(focus, 1, isBotMode);
+                playSound = true;
+            }
+            else if ((key == 75 || key == 77) && focus == 2) {
+                int delta = (key == 75) ? -TURN_TIME_STEP : TURN_TIME_STEP;
+                setupTurnTime = ClampTurnTime(setupTurnTime + delta);
+                playSound = true;
+            }
+            else {
+                redraw = false;
+            }
+            if (playSound) PlayMenuSound();
+            if (redraw) DrawNameSetupScreen(p1, p2, isBotMode, focus, setupTurnTime, false);
+            continue;
+        }
+
+        if (key == 27) {
+            HideCursor();
+            return false;
+        }
+        if (key == 9) {
+            focus = NextNameFocus(focus, 1, isBotMode);
+            playSound = true;
+        }
+        else if (key == 13) {
+            if (focus == 3 && CanSubmitNames(p1, p2, isBotMode)) {
+                _PLAYER1_NAME = p1;
+                _PLAYER2_NAME = isBotMode ? BotDisplayName() : p2;
+                turnTimeLimit = setupTurnTime;
+                timeLeft = turnTimeLimit;
+                HideCursor();
+                PlayMenuSound();
+                CharacterASelect = CharacterSelectionMenu(-1, L(TextId::ChooseCharacterP1));
+                if (isBotMode) {
+                    CharacterBSelect = (CharacterASelect == 4) ? 0 : 4;
+                }
+                else {
+                    CharacterBSelect = CharacterSelectionMenu(CharacterASelect, L(TextId::ChooseCharacterP2));
+                }
+                return true;
+            }
+            if (focus == 4) {
+                HideCursor();
+                PlayMenuSound();
+                return false;
+            }
+            focus = NextNameFocus(focus, 1, isBotMode);
+            playSound = true;
+        }
+        else if (focus == 2 && (toupper((unsigned char)key) == 'A' || toupper((unsigned char)key) == 'D')) {
+            int delta = (toupper((unsigned char)key) == 'A') ? -TURN_TIME_STEP : TURN_TIME_STEP;
+            setupTurnTime = ClampTurnTime(setupTurnTime + delta);
+            playSound = true;
+        }
+        else {
+            string* target = nullptr;
+            if (focus == 0) target = &p1;
+            else if (focus == 1 && !isBotMode) target = &p2;
+
+            if (target != nullptr) {
+                if (key == 8) {
+                    if (!target->empty()) target->pop_back();
+                }
+                else if ((isalnum((unsigned char)key) || key == ' ' || key == '_' || key == '-') && TextDisplayWidth(*target) < 15) {
+                    target->push_back(static_cast<char>(key));
+                }
+            }
+            else {
+                redraw = false;
+            }
+        }
+
+        if (playSound) PlayMenuSound();
+        if (redraw) DrawNameSetupScreen(p1, p2, isBotMode, focus, setupTurnTime, false);
+    }
+}
+
+bool InputPlayerNames(bool isBotMode) {
+    return InputPlayerNamesSetup(isBotMode);
+#if 0
     system("cls");
     DrawMenuBackground(); // Nền xịn từ Menu cũ
     DrawMenuTitle("GAME CARO", 1, CONSOLE_COLS);
@@ -629,6 +996,7 @@ void InputPlayerNames(bool isBotMode) {
     else {
         CharacterBSelect = CharacterSelectionMenu(CharacterASelect, L(TextId::ChooseCharacterP2));
     }
+#endif
 }
 
 static int NextEnabledCharacter(int current, int delta, int size, int disabledOption) {

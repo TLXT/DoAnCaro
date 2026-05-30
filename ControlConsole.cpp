@@ -73,10 +73,45 @@ void FixConsoleWindow() {
 }
 
 void SetConsoleWindow(int width, int height) {
+    (void)width;
+    (void)height;
+
     HWND consoleWindow = GetConsoleWindow();
+    if (consoleWindow == NULL) return;
+
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    CONSOLE_FONT_INFOEX cfi;
+    cfi.cbSize = sizeof(cfi);
+
+    int cols = 0;
+    int lines = 0;
+    int cellW = 12;
+    int cellH = 16;
+
+    if (GetConsoleScreenBufferInfo(hOut, &csbi)) {
+        cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        lines = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+        if (cols <= 0) cols = csbi.dwSize.X;
+        if (lines <= 0) lines = csbi.dwSize.Y;
+    }
+
+    if (GetCurrentConsoleFontEx(hOut, FALSE, &cfi)) {
+        if (cfi.dwFontSize.X > 0) cellW = cfi.dwFontSize.X;
+        if (cfi.dwFontSize.Y > 0) cellH = cfi.dwFontSize.Y;
+    }
+
     RECT r;
+    RECT client;
     GetWindowRect(consoleWindow, &r);
-    MoveWindow(consoleWindow, r.left, r.top, width, height, TRUE);
+    GetClientRect(consoleWindow, &client);
+
+    int frameW = (r.right - r.left) - (client.right - client.left);
+    int frameH = (r.bottom - r.top) - (client.bottom - client.top);
+    int targetW = (cols > 0 ? cols * cellW + frameW : width);
+    int targetH = (lines > 0 ? lines * cellH + frameH : height);
+
+    MoveWindow(consoleWindow, r.left, r.top, targetW, targetH, TRUE);
     FixConsoleWindow();
 }
 

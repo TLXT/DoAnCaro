@@ -46,7 +46,7 @@ void StartGame() {
     system("color 0F");
     system("cls");
     ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
-    SetConsoleWindow(1460, 730);
+    SetConsoleWindow(CONSOLE_COLS * 12, CONSOLE_LINES * 16);
     HideCursor();
     ResetData();
 
@@ -131,7 +131,7 @@ void ProcessMove(int _COMMAND, bool validEnter, bool& isPlaying) {
         }
 
         if (validEnter == true) {
-            timeLeft = TURN_TIME_LIMIT;
+            timeLeft = turnTimeLimit;
             switch (ProcessFinish(TestBoard())) {
             case -1: case 1: case 0:
                 if (AskContinue() != 'Y') {
@@ -139,7 +139,7 @@ void ProcessMove(int _COMMAND, bool validEnter, bool& isPlaying) {
                 }
                 else {
                     StartGame();
-                    timeLeft = TURN_TIME_LIMIT;
+                    timeLeft = turnTimeLimit;
                 }
             }
         }

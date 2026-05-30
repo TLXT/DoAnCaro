@@ -28,7 +28,7 @@ int GameMenu();
 int MusicMenu();
 int CharacterSelectionMenu(int disabledOption = -1, string chooserTitle = "");
 void VolumeMenu();
-void InputPlayerNames(bool isBotMode);
+bool InputPlayerNames(bool isBotMode);
 
 template <size_t W>
 void DrawSolidImage(const int sprite[][W], int w, int h, int startX, int startY) {

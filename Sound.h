@@ -15,6 +15,7 @@ bool MusicStatus();
 
 void PlayMenuSound();
 void PlayWinSound();
+void PlayCountdownBeep();
 void setSFXVolume(int volume);
 
 extern int volumeLevel;

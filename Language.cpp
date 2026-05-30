@@ -22,13 +22,13 @@ std::string L(TextId id) {
     const bool vi = (gLanguage == GameLanguage::Vietnamese);
 
     switch (id) {
-    case TextId::MainPlayGame: return vi ? u8"CH\u01A0I GAME" : "PLAY GAME";
-    case TextId::MainLoadGame: return vi ? u8"T\u1EA2I GAME" : "LOAD GAME";
+    case TextId::MainPlayGame: return vi ? u8"CH\u01A0I" : "PLAY GAME";
+    case TextId::MainLoadGame: return vi ? u8"T\u1EA2I V\u00C1N" : "LOAD GAME";
     case TextId::MainSettings: return vi ? u8"C\u00C0I \u0110\u1EB6T" : "SETTINGS";
     case TextId::MainExit: return vi ? u8"THO\u00C1T" : "EXIT";
     case TextId::ModeTitle: return vi ? u8"CH\u1ECCN CH\u1EBE \u0110\u1ED8" : "SELECT MODE";
-    case TextId::ModePvp: return vi ? u8"NG\u01AF\u1EDCI VS NG\u01AF\u1EDCI" : "PLAYER VS PLAYER";
-    case TextId::ModePvb: return vi ? u8"NG\u01AF\u1EDCI VS BOT" : "PLAYER VS BOT";
+    case TextId::ModePvp: return vi ? u8"NG\u01AF\u1EDCI \u0110\u1EA4U NG\u01AF\u1EDCI" : "PLAYER VS PLAYER";
+    case TextId::ModePvb: return vi ? u8"NG\u01AF\u1EDCI \u0110\u1EA4U BOT" : "PLAYER VS BOT";
     case TextId::Back: return vi ? u8"QUAY L\u1EA0I" : "BACK";
     case TextId::DifficultyTitle: return vi ? u8"CH\u1ECCN \u0110\u1ED8 KH\u00D3" : "SELECT DIFFICULTY";
     case TextId::DifficultyEasy: return vi ? u8"D\u1EC4" : "EASY";
@@ -38,9 +38,9 @@ std::string L(TextId id) {
     case TextId::SettingsClearData: return vi ? u8"X\u00D3A D\u1EEE LI\u1EC6U" : "CLEAR DATA";
     case TextId::SettingsMusic: return vi ? u8"C\u00C0I \u0110\u1EB6T NH\u1EA0C" : "MUSIC SETTINGS";
     case TextId::SettingsLanguage: return vi ? u8"NG\u00D4N NG\u1EEE: " : "LANGUAGE: ";
-    case TextId::PauseExitGame: return vi ? u8"THO\u00C1T GAME" : "EXIT GAME";
-    case TextId::PauseSaveGame: return vi ? u8"L\u01AFU GAME" : "SAVE GAME";
-    case TextId::PauseLoadGame: return vi ? u8"T\u1EA2I GAME" : "LOAD GAME";
+    case TextId::PauseExitGame: return vi ? u8"THO\u00C1T TR\u00D2 CH\u01A0I" : "EXIT GAME";
+    case TextId::PauseSaveGame: return vi ? u8"L\u01AFU V\u00C1N" : "SAVE GAME";
+    case TextId::PauseLoadGame: return vi ? u8"T\u1EA2I V\u00C1N" : "LOAD GAME";
     case TextId::PauseExitMenu: return vi ? u8"THO\u00C1T MENU" : "CLOSE MENU";
     case TextId::MusicOff: return vi ? u8"T\u1EAET NH\u1EA0C" : "MUSIC OFF";
     case TextId::MusicVolume: return vi ? u8"THAY \u0110\u1ED4I \u00C2M L\u01AF\u1EE2NG" : "CHANGE VOLUME";
@@ -78,19 +78,27 @@ std::string L(TextId id) {
     case TextId::ReplayHelpForward: return vi ? u8"-> / D : TUA T\u1EDAI 5S" : "-> / D : FORWARD 5S";
     case TextId::ReplayHelpPause: return vi ? u8"SPACE/P: D\u1EEANG/PH\u00C1T" : "SPACE/P: PAUSE/PLAY";
     case TextId::ReplayHelpExit: return vi ? u8"ESC    : THO\u00C1T" : "ESC    : EXIT";
-    case TextId::SavePrompt: return vi ? u8"NH\u1EACP T\u00CAN FILE \u0110\u1EC2 L\u01AFU: " : "ENTER SAVE FILE NAME: ";
-    case TextId::SaveDuplicate: return vi ? u8"T\u00CAN FILE \u0110\u00C3 T\u1ED2N T\u1EA0I! VUI L\u00D2NG NH\u1EACP T\u00CAN KH\u00C1C... (NH\u1EA4N PH\u00CDM B\u1EA4T K\u1EF2)" : "FILE ALREADY EXISTS! ENTER ANOTHER NAME... (PRESS ANY KEY)";
-    case TextId::SaveSuccess: return vi ? u8"L\u01AFU TH\u00C0NH C\u00D4NG! NH\u1EA4N PH\u00CDM B\u1EA4T K\u1EF2 \u0110\u1EC2 TI\u1EBEP T\u1EE4C..." : "SAVED! PRESS ANY KEY TO CONTINUE...";
-    case TextId::SaveCreateError: return vi ? u8"L\u1ED6I T\u1EA0O FILE! NH\u1EA4N PH\u00CDM B\u1EA4T K\u1EF2..." : "CANNOT CREATE FILE! PRESS ANY KEY...";
-    case TextId::LoadReadError: return vi ? u8"L\u1ED6I \u0110\u1ECCC FILE! NH\u1EA4N PH\u00CDM B\u1EA4T K\u1EF2 \u0110\u1EC2 THO\u00C1T..." : "CANNOT READ FILE! PRESS ANY KEY TO EXIT...";
-    case TextId::LoadNoData: return vi ? u8"CH\u01AFA C\u00D3 D\u1EEE LI\u1EC6U SAVE! NH\u1EA4N PH\u00CDM B\u1EA4T K\u1EF2 \u0110\u1EC2 QUAY L\u1EA0I..." : "NO SAVE DATA YET! PRESS ANY KEY TO GO BACK...";
-    case TextId::LoadTitle: return vi ? u8"=== DANH S\u00C1CH C\u00C1C V\u00C1N \u0110\u00C3 L\u01AFU ===" : "=== SAVED GAMES ===";
-    case TextId::LoadHelp: return vi ? u8"(W/S: CH\u1ECCN | ENTER: T\u1EA2I GAME | X: X\u00D3A FILE | ESC: H\u1EE6Y)" : "(W/S: SELECT | ENTER: LOAD GAME | X: DELETE FILE | ESC: CANCEL)";
-    case TextId::ClearNoData: return vi ? u8"KH\u00D4NG C\u00D3 D\u1EEE LI\u1EC6U L\u01AFU N\u00C0O \u0110\u1EC2 X\u00D3A!" : "NO SAVE DATA TO DELETE!";
+    case TextId::SavePrompt: return vi ? u8"NH\u1EACP T\u00CAN T\u1EC6P \u0110\u1EC2 L\u01AFU: " : "ENTER SAVE FILE NAME: ";
+    case TextId::SaveDuplicate: return vi ? u8"T\u00CAN T\u1EC6P \u0110\u00C3 T\u1ED2N T\u1EA0I. VUI L\u00D2NG NH\u1EACP T\u00CAN KH\u00C1C." : "FILE ALREADY EXISTS. ENTER ANOTHER NAME.";
+    case TextId::SaveSuccessTitle: return vi ? u8"L\u01AFU TH\u00C0NH C\u00D4NG" : "SAVE COMPLETE";
+    case TextId::SaveSuccess: return vi ? u8"V\u00C1N \u0110\u1EA4U \u0110\u00C3 \u0110\u01AF\u1EE2C L\u01AFU AN TO\u00C0N." : "THE GAME HAS BEEN SAVED.";
+    case TextId::SaveCreateErrorTitle: return vi ? u8"KH\u00D4NG TH\u1EC2 L\u01AFU" : "SAVE FAILED";
+    case TextId::SaveCreateError: return vi ? u8"KH\u00D4NG TH\u1EC2 T\u1EA0O T\u1EC6P L\u01AFU." : "CANNOT CREATE THE SAVE FILE.";
+    case TextId::LoadReadErrorTitle: return vi ? u8"KH\u00D4NG TH\u1EC2 T\u1EA2I" : "LOAD FAILED";
+    case TextId::LoadReadError: return vi ? u8"KH\u00D4NG TH\u1EC2 \u0110\u1ECCC T\u1EC6P L\u01AFU." : "CANNOT READ THE SAVE FILE.";
+    case TextId::LoadNoDataTitle: return vi ? u8"CH\u01AFA C\u00D3 D\u1EEE LI\u1EC6U" : "NO SAVE DATA";
+    case TextId::LoadNoData: return vi ? u8"CH\u01AFA C\u00D3 V\u00C1N \u0110\u1EA4U N\u00C0O \u0110\u01AF\u1EE2C L\u01AFU." : "THERE ARE NO SAVED GAMES YET.";
+    case TextId::LoadTitle: return vi ? u8"DANH S\u00C1CH V\u00C1N \u0110\u00C3 L\u01AFU" : "SAVED GAMES";
+    case TextId::LoadHelp: return vi ? u8"(W/S: CH\u1ECCN | ENTER: T\u1EA2I V\u00C1N | X: X\u00D3A T\u1EC6P | ESC: H\u1EE6Y)" : "(W/S: SELECT | ENTER: LOAD GAME | X: DELETE FILE | ESC: CANCEL)";
+    case TextId::NoticeContinue: return vi ? u8"NH\u1EA4N PH\u00CDM B\u1EA4T K\u1EF2 \u0110\u1EC2 TI\u1EBEP T\u1EE4C" : "PRESS ANY KEY TO CONTINUE";
+    case TextId::ClearNoDataTitle: return vi ? u8"KH\u00D4NG C\u00D3 D\u1EEE LI\u1EC6U" : "NO DATA";
+    case TextId::ClearNoData: return vi ? u8"KH\u00D4NG C\u00D3 V\u00C1N \u0110\u00C3 L\u01AFU N\u00C0O \u0110\u1EC2 X\u00D3A." : "THERE ARE NO SAVED GAMES TO DELETE.";
     case TextId::ClearConfirmPrefix: return vi ? u8"B\u1EA0N C\u00D3 CH\u1EAEC MU\u1ED0N X\u00D3A TO\u00C0N B\u1ED8 " : "DELETE ALL ";
-    case TextId::ClearConfirmSuffix: return vi ? u8" FILE L\u01AFU?" : " SAVE FILES?";
-    case TextId::ClearDone: return vi ? u8"\u0110\u00C3 X\u00D3A TH\u00C0NH C\u00D4NG TO\u00C0N B\u1ED8 D\u1EEE LI\u1EC6U! NH\u1EA4N PH\u00CDM B\u1EA4T K\u1EF2..." : "ALL SAVE DATA DELETED! PRESS ANY KEY...";
-    case TextId::ClearCanceled: return vi ? u8"\u0110\u00C3 H\u1EE6Y THAO T\u00C1C X\u00D3A. NH\u1EA4N PH\u00CDM B\u1EA4T K\u1EF2..." : "DELETE CANCELED. PRESS ANY KEY...";
+    case TextId::ClearConfirmSuffix: return vi ? u8" T\u1EC6P L\u01AFU?" : " SAVE FILES?";
+    case TextId::ClearDoneTitle: return vi ? u8"\u0110\u00C3 X\u00D3A D\u1EEE LI\u1EC6U" : "DATA DELETED";
+    case TextId::ClearDone: return vi ? u8"TO\u00C0N B\u1ED8 D\u1EEE LI\u1EC6U L\u01AFU \u0110\u00C3 \u0110\u01AF\u1EE2C X\u00D3A." : "ALL SAVE DATA HAS BEEN DELETED.";
+    case TextId::ClearCanceledTitle: return vi ? u8"\u0110\u00C3 H\u1EE6Y THAO T\u00C1C" : "ACTION CANCELED";
+    case TextId::ClearCanceled: return vi ? u8"D\u1EEE LI\u1EC6U L\u01AFU V\u1EABN \u0110\u01AF\u1EE2C GI\u1EEF NGUY\u00CAN." : "SAVE DATA WAS KEPT UNCHANGED.";
     }
 
     return "";
