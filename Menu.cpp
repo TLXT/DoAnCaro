@@ -232,7 +232,7 @@ int GenericMenu(string options[], int size, string title) {
         itemW = max(itemW, TextDisplayWidth(options[i]) + 8);
     }
     const int itemX = CenterConsoleX(itemW, CONSOLE_COLS);
-    system("cls");
+    ClearScreenFast();
     DrawMenuBackground();
 
     if (size > 6) {
@@ -379,7 +379,7 @@ static void WaitInfoScreenBack() {
 }
 
 void ShowGuideScreen() {
-    system("cls");
+    ClearScreenFast();
     DrawMenuBackground();
     DrawMenuTitle(L(MainGuide), 1, CONSOLE_COLS);
 
@@ -442,7 +442,7 @@ void ShowGuideScreen() {
 }
 
 void ShowAboutGameScreen() {
-    system("cls");
+    ClearScreenFast();
     DrawMenuBackground();
     DrawMenuTitle(L(SettingsAbout), 1, CONSOLE_COLS);
 
@@ -610,7 +610,7 @@ void VolumeMenu() {
     int currentSelect = volumeLevel;
     int lastPercent = -1;
 
-    system("cls");
+    ClearScreenFast();
     DrawMenuBackground();
     DrawMenuTitle(L(VolumeTitle), 4, CONSOLE_COLS);
 
@@ -676,11 +676,11 @@ void VolumeMenu() {
         else if (key == 13) {
             PlayMenuSound();
             volumeLevel = currentSelect;
-            system("cls");
+            ClearScreenFast();
             return;
         }
         else if (key == 27) {
-            system("cls");
+            ClearScreenFast();
             return;
         }
     }
@@ -823,7 +823,7 @@ static void DrawNameSetupScreen(const string& p1, const string& p2, bool isBotMo
     bool forceDraw = fullRedraw || !cacheReady || lastBotMode != isBotMode;
 
     if (fullRedraw) {
-        system("cls");
+        ClearScreenFast();
         DrawMenuBackground();
         DrawMenuTitle("CARO", 1, CONSOLE_COLS);
         DrawFrame(panelX, panelY, panelW, panelH);
@@ -1043,7 +1043,7 @@ int GenericCharacterMenu(string options[], int size, string title, int disabledO
         currentSelect = NextEnabledCharacter(currentSelect, 1, size, disabledOption);
     }
 
-    system("cls");
+    ClearScreenFast();
     DrawMenuBackground();
     if (!title.empty() && title != "CHARACTER MENU") {
         PrintTextWithBg(CenterConsoleX(TextDisplayWidth(title), CONSOLE_COLS), 1, title, 14);

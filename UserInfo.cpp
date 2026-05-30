@@ -18,6 +18,10 @@ static const int HUD_PANEL_Y = TOP + BOARD_SIZE * 2 + 1;
 static const int HUD_TIMER_Y = HUD_PANEL_Y;
 static const int HUD_ACTION_Y = HUD_PANEL_Y;
 static const int SIDE_TIMER_Y = SPRITE_START_Y + SPRITE_DRAW_H + 2;
+static int gLastTimerSeconds = -1;
+static bool gLastTimerTurn = true;
+static bool gForceTimerDraw = true;
+static bool gForceActionDraw = true;
 
 static void HudTextRgb(int color, int& r, int& g, int& b) {
     r = 235; g = 240; b = 245;
@@ -98,6 +102,24 @@ static void DrawBoxBorder(int x, int y, int w, int h, bool selected) {
     printf("\x1b[0m");
 }
 
+static void FillHudRgbRect(int x, int y, int w, int h) {
+    if (w <= 0 || h <= 0) return;
+
+    int startX = max(0, x);
+    int startY = max(0, y);
+    int endX = min(CONSOLE_COLS - 1, x + w);
+    int endY = min(CONSOLE_LINES, y + h);
+    if (startX >= endX || startY >= endY) return;
+
+    string line(endX - startX, ' ');
+    printf("\x1b[48;2;%d;%d;%dm", HUD_GROUND_R, HUD_GROUND_G, HUD_GROUND_B);
+    for (int row = startY; row < endY; row++) {
+        GotoXY(startX, row);
+        cout << line;
+    }
+    printf("\x1b[0m");
+}
+
 void DrawTimerBox(const string& text, int color) {
     const int w = 32;
     const int h = 3;
@@ -140,12 +162,19 @@ void DrawTurnTimers(int secondsLeft) {
     int safeSeconds = max(0, min(turnTimeLimit, secondsLeft));
     bool xActive = _TURN == true;
     bool oActive = _TURN == false;
+    if (!gForceTimerDraw && safeSeconds == gLastTimerSeconds && _TURN == gLastTimerTurn) {
+        return;
+    }
 
     DrawSideTimerBox(LEFT_SPRITE_X, SIDE_TIMER_Y, SPRITE_DRAW_W, xActive, true, xActive ? safeSeconds : turnTimeLimit);
     DrawSideTimerBox(RIGHT_SPRITE_X, SIDE_TIMER_Y, SPRITE_DRAW_W, oActive, false, oActive ? safeSeconds : turnTimeLimit);
+    gLastTimerSeconds = safeSeconds;
+    gLastTimerTurn = _TURN;
+    gForceTimerDraw = false;
 }
 
 static void DrawActionBox(int x, int y, int w, const string& text, bool selected, int index) {
+    FillHudRgbRect(x, y, w, 3);
     DrawBoxBorder(x, y, w, 3, selected);
 
     int fgR = selected ? 10 : 225;
@@ -163,47 +192,56 @@ static void DrawActionBox(int x, int y, int w, const string& text, bool selected
     printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", fgR, fgG, fgB, bgR, bgG, bgB);
     cout << string(w - 2, ' ');
 
-    int textX = x + (w - TextDisplayWidth(text)) / 2;
+    string shown = text;
+    if (TextDisplayWidth(shown) > w - 2) {
+        shown = ClipText(shown, w - 2);
+    }
+
+    int textX = x + (w - TextDisplayWidth(shown)) / 2;
     if (textX < x + 1) textX = x + 1;
     GotoXY(textX, y + 1);
-    cout << text;
+    cout << shown;
     printf("\x1b[0m");
 }
 
 void DrawActionBar(int selectedAction) {
-    static int lastSelected = -1;
+    lock_guard<mutex> lock(consoleMutex);
+    static int lastSelected = -2;
+
+    int actionCount = GetActionCount();
+    if (selectedAction < -1) selectedAction = -1;
+    if (selectedAction >= actionCount) selectedAction = actionCount - 1;
+    if (!gForceActionDraw && selectedAction == lastSelected) {
+        GotoXY(_X, _Y);
+        return;
+    }
+
+    const int buttonW = 16;
+    const int gap = 3;
+    int widths[8] = {};
+    for (int i = 0; i < actionCount; i++) {
+        widths[i] = max(buttonW, TextDisplayWidth(GetActionLabel(i)) + 4);
+    }
 
     int totalW = 0;
-    int widths[8] = {};
-    for (int i = 0; i < GetActionCount(); i++) {
-        widths[i] = max(12, TextDisplayWidth(GetActionLabel(i)) + 4);
+    for (int i = 0; i < actionCount; i++) {
         totalW += widths[i];
-        if (i + 1 < GetActionCount()) totalW += 2;
+        if (i + 1 < actionCount) totalW += gap;
     }
-
     int x = CenterConsoleX(totalW, CONSOLE_COLS);
     int positions[8] = {};
-    for (int i = 0; i < GetActionCount(); i++) {
+    for (int i = 0; i < actionCount; i++) {
         positions[i] = x;
-        x += widths[i] + 2;
+        x += widths[i] + gap;
     }
 
-    if (selectedAction < 0 || lastSelected < 0) {
-        for (int row = HUD_ACTION_Y; row <= HUD_ACTION_Y + 2; row++) {
-            GotoXY(15, row);
-            printf("\x1b[48;2;%d;%d;%dm", HUD_GROUND_R, HUD_GROUND_G, HUD_GROUND_B);
-            cout << string(CONSOLE_COLS - 30, ' ');
-            printf("\x1b[0m");
-        }
-        for (int i = 0; i < GetActionCount(); i++) {
-            DrawActionBox(positions[i], HUD_ACTION_Y, widths[i], GetActionLabel(i), i == selectedAction, i);
-        }
-    }
-    else if (selectedAction != lastSelected) {
-        DrawActionBox(positions[lastSelected], HUD_ACTION_Y, widths[lastSelected], GetActionLabel(lastSelected), false, lastSelected);
-        DrawActionBox(positions[selectedAction], HUD_ACTION_Y, widths[selectedAction], GetActionLabel(selectedAction), true, selectedAction);
+    FillHudRgbRect(0, HUD_ACTION_Y, CONSOLE_COLS - 1, 3);
+    for (int i = 0; i < actionCount; i++) {
+        DrawActionBox(positions[i], HUD_ACTION_Y, widths[i], GetActionLabel(i), i == selectedAction, i);
     }
     lastSelected = selectedAction;
+    gForceActionDraw = false;
+    GotoXY(_X, _Y);
 }
 
 void DrawPlayerInfo() {
@@ -211,6 +249,8 @@ void DrawPlayerInfo() {
         ClearHudLine(y);
     }
 
+    gForceTimerDraw = true;
+    gForceActionDraw = true;
     DrawTurnTimers(turnTimeLimit);
     DrawActionBar(-1);
 }

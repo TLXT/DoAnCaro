@@ -1,4 +1,4 @@
-﻿#ifndef _GAMETIMER_H_
+#ifndef _GAMETIMER_H_
 #define _GAMETIMER_H_
 
 #include <atomic>

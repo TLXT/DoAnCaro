@@ -78,7 +78,7 @@ template <size_t BtnW>
 int GraphicalMenu(string options[], int size, string title,
     const int btnNormal[][BtnW], const int btnHover[][BtnW], int btnW, int btnH)
 {
-    system("cls");
+    ClearScreenFast();
 
 
     DrawUIBackground();
@@ -185,7 +185,7 @@ bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
     }
 
     if (clearScreen) {
-        system("cls");
+        ClearScreenFast();
         DrawUIBackground();
     }
     else {

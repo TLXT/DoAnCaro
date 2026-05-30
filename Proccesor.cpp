@@ -1,4 +1,4 @@
-﻿#include"Proccesor.h"
+#include"Proccesor.h"
 #include "Language.h"
 
 void loadmusic() {

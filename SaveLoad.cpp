@@ -108,7 +108,7 @@ static void DrawNoticeIcon(int centerX, int y, char type, int r, int g, int b, i
 }
 
 static void ShowSaveNotice(const string& title, const string& message, char iconType, int accentR, int accentG, int accentB) {
-    system("cls");
+    ClearScreenFast();
     DrawLoadgameBackground();
 
     const int panelR = 12;
@@ -170,7 +170,7 @@ static void DrawSaveNamePrompt(const string& slotName, const string& saveTitle, 
     const int inputY = panelY + 4;
 
     if (fullRedraw) {
-        system("cls");
+        ClearScreenFast();
         DrawLoadgameBackground();
 
         string title = (GetLanguage() == Vietnamese) ? u8"\u0110\u1EB6T T\u00CAN B\u1EA2N L\u01AFU" : "SAVE NAME";
@@ -612,7 +612,7 @@ static void DrawPageButton(int x, int y, int w, const string& text, bool selecte
 }
 
 static void DrawSaveSlotScreen(const vector<SaveSlotPreview>& slots, int page, int currentSelect, bool forSaving) {
-    system("cls");
+    ClearScreenFast();
     DrawLoadgameBackground();
 
     string title = forSaving
@@ -856,7 +856,7 @@ bool LoadGame() {
         }
         inFile.close();
 
-        system("cls");
+        ClearScreenFast();
         DrawIngameBackground();
         DrawBoard(BOARD_SIZE);
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -910,7 +910,7 @@ void ClearAllData() {
 }
 
 bool loadPresent() {
-    system("cls");
+    ClearScreenFast();
     DrawIngameBackground();
     DrawBoard(BOARD_SIZE);
     for (int i = 0; i < BOARD_SIZE; i++)

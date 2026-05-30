@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <windows.h>
 #include <mutex>
 #include <string>
@@ -11,6 +11,7 @@ void GotoXY(int x, int y);
 void HideCursor();
 void UnhideCursor();
 void SetColor(int color, int bgColor);
+void ClearScreenFast();
 void FixConsoleWindow();
 void SetConsoleWindow(int width, int height);
 void ConfigureConsoleSize(int cols, int lines);

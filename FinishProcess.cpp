@@ -1,4 +1,4 @@
-﻿#include "FinishProcess.h"
+#include "FinishProcess.h"
 #include "GameStatus.h"
 #include "ControlConsole.h"
 #include "UserInfo.h"
@@ -137,7 +137,7 @@ static void DrawChoiceButton(int x, int y, int w, int h, const string& text, boo
 }
 
 void DrawFinishCelebrationScreen() {
-    system("cls");
+    ClearScreenFast();
     DrawUIBackground();
 
     int panelW = 94;
@@ -311,7 +311,7 @@ void GarbageCollect() {
 }
 
 void ExitGame() {
-    system("cls");
+    ClearScreenFast();
     GarbageCollect();
 }
 

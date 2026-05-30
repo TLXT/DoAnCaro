@@ -1,4 +1,6 @@
-﻿#include "ControlConsole.h"
+#include "ControlConsole.h"
+
+#include <cstdio>
 
 std::mutex consoleMutex;
 
@@ -40,6 +42,25 @@ void SetColor(int color, int bgColor) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     color = bgColor * 16 + color;
     SetConsoleTextAttribute(hConsole, color);
+}
+
+void ClearScreenFast() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (!GetConsoleScreenBufferInfo(hOut, &csbi)) {
+        printf("\x1b[0m\x1b[2J\x1b[H");
+        return;
+    }
+
+    DWORD written = 0;
+    DWORD cellCount = static_cast<DWORD>(csbi.dwSize.X) * static_cast<DWORD>(csbi.dwSize.Y);
+    COORD home = { 0, 0 };
+
+    FillConsoleOutputCharacterA(hOut, ' ', cellCount, home, &written);
+    FillConsoleOutputAttribute(hOut, 0x0F, cellCount, home, &written);
+    SetConsoleCursorPosition(hOut, home);
+    SetConsoleTextAttribute(hOut, 0x0F);
+    printf("\x1b[0m");
 }
 
 void FixConsoleWindow() {

@@ -229,7 +229,7 @@ bool AskForReplay() {
 
 void ChooseReplaySpeed(float& speed, int& delay) {
     int choice = 1;
-    system("cls");
+    ClearScreenFast();
     DrawUIBackground();
 
     int consoleW = CONSOLE_COLS;
@@ -299,7 +299,7 @@ void RedrawBoard(int step) {
         }
     }
 
-    system("cls");
+    ClearScreenFast();
     DrawIngameBackground();
     DrawBoard(BOARD_SIZE);
     InvalidateReplayHud();
@@ -418,13 +418,13 @@ void HandleReplayOption() {
         }
     }
 
-    system("cls");
+    ClearScreenFast();
     while (AskForReplay()) {
         float speed;
         int delay;
         ChooseReplaySpeed(speed, delay);
         PlayReplay(delay);
-        system("cls");
+        ClearScreenFast();
     }
 
     for (int i = 0; i < BOARD_SIZE; i++) {
@@ -433,7 +433,7 @@ void HandleReplayOption() {
         }
     }
 
-    system("cls");
+    ClearScreenFast();
     DrawIngameBackground();
     DrawBoard(BOARD_SIZE);
     DrawPlayerInfo();

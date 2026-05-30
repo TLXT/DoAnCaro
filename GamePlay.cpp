@@ -10,19 +10,23 @@
 
 using namespace std;
 
+static bool BoardIndexFromXY(int x, int y, int& row, int& col) {
+    int dx = x - (LEFT + 2);
+    int dy = y - (TOP + 1);
+    if (dx < 0 || dy < 0 || dx % 4 != 0 || dy % 2 != 0) return false;
+
+    col = dx / 4;
+    row = dy / 2;
+    return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE;
+}
+
 void DrawCell(int x, int y, int bg_color) {
     lock_guard<std::mutex> lock(consoleMutex);
     int c = 0;
-    bool found = false;
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            if (_A[i][j].x == x && _A[i][j].y == y) {
-                c = _A[i][j].c;
-                found = true;
-                break;
-            }
-        }
-        if (found) break;
+    int row = 0;
+    int col = 0;
+    if (BoardIndexFromXY(x, y, row, col)) {
+        c = _A[row][col].c;
     }
 
     GotoXY(x, y);
@@ -43,8 +47,8 @@ void DrawCell(int x, int y, int bg_color) {
 }
 
 void StartGame() {
-    system("color 0F");
-    system("cls");
+    SetColor(15, 0);
+    ClearScreenFast();
     ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
     SetConsoleWindow(CONSOLE_COLS * 12, CONSOLE_LINES * 16);
     HideCursor();

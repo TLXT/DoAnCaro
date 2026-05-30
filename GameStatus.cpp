@@ -1,4 +1,4 @@
-﻿#include "GameStatus.h"
+#include "GameStatus.h"
 
 _POINT _A[BOARD_SIZE][BOARD_SIZE];
 bool _TURN;

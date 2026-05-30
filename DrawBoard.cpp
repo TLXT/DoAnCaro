@@ -1,4 +1,4 @@
-﻿#include "DrawBoard.h"
+#include "DrawBoard.h"
 #include "ControlConsole.h"
 #include "GameStatus.h"
 #include <string>
