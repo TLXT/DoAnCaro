@@ -15,18 +15,18 @@
 
 using namespace std;
 
-// --- CÁC HÀM WRAPPER ĐỂ TEMPLATE TRONG H CÓ THỂ GỌI ĐƯỢC ---
+
 void DrawUIBackground() {
     DrawMenuBackground();
 }
 
 void DrawTitleArtWrapper(int startX, int startY) {
-    // Gọi hàm DrawTitleArt gốc bên dưới
+
     void DrawTitleArt(int, int);
     DrawTitleArt(startX, startY);
 }
 
-// 1. Hàm in chữ có hộp nền tối (Dark Box) để chữ không cắn rách ảnh
+
 void PrintTextWithBg(int startX, int startY, string text, int textColorCode) {
     int tr = 255, tg = 255, tb = 255;
     if (textColorCode == 11) { tr = 0; tg = 255; tb = 255; }
@@ -34,7 +34,7 @@ void PrintTextWithBg(int startX, int startY, string text, int textColorCode) {
     else if (textColorCode == 12) { tr = 255; tg = 0; tb = 0; }
 
     GotoXY(startX, startY);
-    // \x1b[48;2;15;15;20m là màu nền đen tuyền để lót dưới chữ
+
     printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;15;15;20m", tr, tg, tb);
     cout << text;
     printf("\x1b[0m");
@@ -50,42 +50,18 @@ static void FillConsoleRect(int x, int y, int w, int h, int bgColor) {
     SetColor(15, 0);
 }
 
-static void DrawNameInputFrame(int frameX, int y, int frameW, const string& label, const string& value, bool active) {
-    const int inputW = 20;
-    const int inputX = frameX + frameW - inputW - 7;
 
-    DrawFrame(frameX, y, frameW, 3);
-    FillConsoleRect(inputX, y + 1, inputW, 1, active ? 1 : 8);
-
-    PrintTextWithBg(frameX + 4, y + 1, label, active ? 11 : 14);
-
-    if (!active && !value.empty()) {
-        int valueX = inputX;
-        GotoXY(valueX, y + 1);
-        SetColor(15, 8);
-        cout << value.substr(0, inputW);
-        SetColor(15, 0);
-    }
-}
-
-static void BeginNameInput(int inputX, int inputY, int inputW) {
-    FillConsoleRect(inputX, inputY, inputW, 1, 1);
-    GotoXY(inputX, inputY);
-    SetColor(15, 1);
-}
-
-// Gradient màu xanh băng từ trên xuống (7 màu cho 6 dòng ASCII art)
 static const int TITLE_GRAD[7][3] = {
-    {220, 240, 255},  // trắng băng (dòng 0)
-    {140, 220, 255},  // xanh nhạt  (dòng 1)
-    { 80, 200, 255},  // cyan sáng  (dòng 2)
-    { 60, 180, 240},  // cyan       (dòng 3)
-    { 40, 150, 220},  // xanh vừa   (dòng 4)
-    { 20, 120, 200},  // xanh đậm   (dòng 5)
+    {220, 240, 255},
+    {140, 220, 255},
+    { 80, 200, 255},
+    { 60, 180, 240},
+    { 40, 150, 220},
+    { 20, 120, 200},
     { 10,  90, 180},
 };
 
-static const int SHADOW_COL[3] = { 20, 60, 120 }; // Màu outline/shadow
+static const int SHADOW_COL[3] = { 20, 60, 120 };
 
 static const int TITLE_ART_W = 46;
 
@@ -209,7 +185,7 @@ void DrawTitleArt(int startX, int startY) {
     int nLines = 5;
 
     for (int i = 0; i < nLines; i++) {
-        // Vẽ shadow (lệch 1 xuống 1 phải, màu tối)
+
         for (int j = 0; art[i][j] != '\0'; j++) {
             if (art[i][j] == ' ') continue;
 
@@ -219,7 +195,7 @@ void DrawTitleArt(int startX, int startY) {
             printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm%c\x1b[0m",
                 SHADOW_COL[0], SHADOW_COL[1], SHADOW_COL[2], sr, sg, sb, art[i][j]);
 
-        // Vẽ chữ chính với gradient
+
             int br, bg, bb;
             SampleMenuBackground(startX + j, startY + i, br, bg, bb);
             GotoXY(startX + j, startY + i);
@@ -229,7 +205,7 @@ void DrawTitleArt(int startX, int startY) {
     }
 }
 
-// Vẫn giữ lại Menu gốc (GenericMenu) để đảm bảo không mất tính năng nào
+
 static void DrawMenuButton(const string& text, int x, int y, bool selected) {
     const int btnCols = BTN_NORMAL_W * 2;
     int bg = selected ? BTN_HOVER[BTN_HOVER_H / 2][BTN_HOVER_W / 2] : BTN_NORMAL[BTN_NORMAL_H / 2][BTN_NORMAL_W / 2];
@@ -374,7 +350,7 @@ int GenericMenu(string options[], int size, string title) {
             if (currentSelect >= size) currentSelect = 0;
             PlayMenuSound();
         }
-        else if (key == 13) { // Phím Enter
+        else if (key == 13) {
             PlayMenuSound();
             return currentSelect;
         }
@@ -385,7 +361,7 @@ int GenericMenu(string options[], int size, string title) {
     }
 }
 
-// --- Menu dùng Đồ Họa Cải Tiến (GraphicalMenu) ---
+
 static void DrawInfoTextLine(int x, int& y, const string& text, int color = 11) {
     PrintTextWithBg(x, y, text, color);
     y++;
@@ -405,7 +381,7 @@ static void WaitInfoScreenBack() {
 void ShowGuideScreen() {
     system("cls");
     DrawMenuBackground();
-    DrawMenuTitle(L(TextId::MainGuide), 1, CONSOLE_COLS);
+    DrawMenuTitle(L(MainGuide), 1, CONSOLE_COLS);
 
     const int panelW = 112;
     const int panelH = 30;
@@ -413,7 +389,7 @@ void ShowGuideScreen() {
     const int panelY = 7;
     DrawFrame(panelX, panelY, panelW, panelH);
 
-    const bool vi = GetLanguage() == GameLanguage::Vietnamese;
+    const bool vi = GetLanguage() == Vietnamese;
     int leftY = panelY + 2;
     int rightY = panelY + 2;
     const int leftX = panelX + 4;
@@ -468,7 +444,7 @@ void ShowGuideScreen() {
 void ShowAboutGameScreen() {
     system("cls");
     DrawMenuBackground();
-    DrawMenuTitle(L(TextId::SettingsAbout), 1, CONSOLE_COLS);
+    DrawMenuTitle(L(SettingsAbout), 1, CONSOLE_COLS);
 
     const int panelW = 94;
     const int panelH = 29;
@@ -476,7 +452,7 @@ void ShowAboutGameScreen() {
     const int panelY = 7;
     DrawFrame(panelX, panelY, panelW, panelH);
 
-    const bool vi = GetLanguage() == GameLanguage::Vietnamese;
+    const bool vi = GetLanguage() == Vietnamese;
     int y = panelY + 2;
     const int x = panelX + 5;
 
@@ -504,40 +480,40 @@ void ShowAboutGameScreen() {
 }
 
 int MainMenu() {
-    string options[5] = { L(TextId::MainPlayGame), L(TextId::MainLoadGame), L(TextId::MainGuide), L(TextId::MainSettings), L(TextId::MainExit) };
+    string options[5] = { L(MainPlayGame), L(MainLoadGame), L(MainGuide), L(MainSettings), L(MainExit) };
     return GraphicalMenu(options, 5, "GAME CARO", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int PlayGameMenu() {
-    string options[3] = { L(TextId::ModePvp), L(TextId::ModePvb), L(TextId::Back) };
-    return GraphicalMenu(options, 3, L(TextId::ModeTitle), BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
+    string options[3] = { L(ModePvp), L(ModePvb), L(Back) };
+    return GraphicalMenu(options, 3, L(ModeTitle), BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int DifficultyMenu() {
-    string options[4] = { L(TextId::DifficultyEasy), L(TextId::DifficultyMedium), L(TextId::DifficultyHard), L(TextId::Back) };
-    return GraphicalMenu(options, 4, L(TextId::DifficultyTitle), BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
+    string options[4] = { L(DifficultyEasy), L(DifficultyMedium), L(DifficultyHard), L(Back) };
+    return GraphicalMenu(options, 4, L(DifficultyTitle), BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int SettingsMenu() {
     string options[5] = {
-        L(TextId::SettingsClearData),
-        L(TextId::SettingsMusic),
-        L(TextId::SettingsLanguage) + CurrentLanguageName(),
-        L(TextId::SettingsAbout),
-        L(TextId::Back)
+        L(SettingsClearData),
+        L(SettingsMusic),
+        L(SettingsLanguage) + CurrentLanguageName(),
+        L(SettingsAbout),
+        L(Back)
     };
-    return GraphicalMenu(options, 5, L(TextId::SettingsTitle), BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
+    return GraphicalMenu(options, 5, L(SettingsTitle), BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int GameMenu() {
-    string options[5] = { L(TextId::PauseExitGame), L(TextId::PauseSaveGame), L(TextId::PauseLoadGame), L(TextId::MainSettings), L(TextId::PauseExitMenu) };
+    string options[5] = { L(PauseExitGame), L(PauseSaveGame), L(PauseLoadGame), L(MainSettings), L(PauseExitMenu) };
     return GraphicalMenu(options, 5, "MENU TAM DUNG", BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 }
 
 int MusicMenu() {
     string sfxToggle = isSFXOn ? "ON" : "OFF";
-    string musicWord = (GetLanguage() == GameLanguage::Vietnamese) ? u8"NH\u1EA0C " : "MUSIC ";
-    string musicToggle = MusicStatus() ? L(TextId::MusicOff) : L(TextId::MusicOn);
+    string musicWord = (GetLanguage() == Vietnamese) ? u8"NH\u1EA0C " : "MUSIC ";
+    string musicToggle = MusicStatus() ? L(MusicOff) : L(MusicOn);
     string options[9] = {
         "1. " + musicWord + "1",
         "2. " + musicWord + "2",
@@ -545,9 +521,9 @@ int MusicMenu() {
         "4. " + musicWord + "4",
         "5. " + musicWord + "5",
         "6. " + musicToggle,
-        "7. " + L(TextId::MusicVolume),
-        "8. " + L(TextId::MusicSfx) + "[" + sfxToggle + "]",
-        "9. " + L(TextId::MusicExit)
+        "7. " + L(MusicVolume),
+        "8. " + L(MusicSfx) + "[" + sfxToggle + "]",
+        "9. " + L(MusicExit)
     };
     return GenericMenu(options, 9, "");
 }
@@ -636,7 +612,7 @@ void VolumeMenu() {
 
     system("cls");
     DrawMenuBackground();
-    DrawMenuTitle(L(TextId::VolumeTitle), 4, CONSOLE_COLS);
+    DrawMenuTitle(L(VolumeTitle), 4, CONSOLE_COLS);
 
     const int panelR = 12;
     const int panelG = 16;
@@ -654,8 +630,8 @@ void VolumeMenu() {
 
     FillVolumeRgbRect(panelX, panelY, panelW, panelH, panelR, panelG, panelB);
     DrawVolumeRgbFrame(panelX, panelY, panelW, panelH, accentR, accentG, accentB, panelR, panelG, panelB);
-    PrintVolumeCenteredRgb(panelX, panelY + 2, panelW, L(TextId::VolumeTitle), 255, 245, 80, panelR, panelG, panelB);
-    PrintVolumeCenteredRgb(panelX, panelY + 4, panelW, L(TextId::VolumeHelp), 0, 255, 255, panelR, panelG, panelB);
+    PrintVolumeCenteredRgb(panelX, panelY + 2, panelW, L(VolumeTitle), 255, 245, 80, panelR, panelG, panelB);
+    PrintVolumeCenteredRgb(panelX, panelY + 4, panelW, L(VolumeHelp), 0, 255, 255, panelR, panelG, panelB);
 
     int btnW = 18;
     int gap = 4;
@@ -674,7 +650,7 @@ void VolumeMenu() {
 
         if (percent != lastPercent) {
             FillVolumeRgbRect(panelX + 4, panelY + 6, panelW - 8, 5, panelR, panelG, panelB);
-            string label = L(TextId::VolumeLabel) + to_string(percent) + "%";
+            string label = L(VolumeLabel) + to_string(percent) + "%";
             PrintVolumeCenteredRgb(panelX, panelY + 6, panelW, label, 255, 245, 80, panelR, panelG, panelB);
             DrawVolumeProgress(barX, barY, barW, percent);
 
@@ -708,74 +684,12 @@ void VolumeMenu() {
             return;
         }
     }
-    /*
-    while (true) {
-        system("cls");
-        system("color F0");
 
-        SetColor(12, 15);
-        GotoXY(40, 5); cout << "==============================";
-        GotoXY(40, 6); cout << "||       Menu am luong       ||";
-        GotoXY(40, 7); cout << "==============================";
-        GotoXY(10, 17);
-        SetColor(0, 15);
-        for (int i = 0; i < 103; i++) cout << "-";
-        cout << ">";
-        for (int i = 0; i <= 100; i += 5) {
-            GotoXY(10 + i, 18); // Tọa độ X chạy từ 10 đến 110
 
-            if (i == currentSelect/10) {
-                SetColor(0, 11); // Màu nền xanh, chữ đen cho mục đang chọn
-                cout << i;
-                GotoXY(30 + i, 16); cout << "V";
-                SetColor(0, 15); // Reset lại màu cho các số sau
-            }
-            else {
-                cout << i;
-            }
-        }
-        int key = ReadMenuKey();
-		if (key == 'A' || key == 75) {
-			currentSelect -= 50;
-			if (currentSelect < 0) currentSelect = 1000;
-		}
-		else if (key == 'D' || key == 77) {
-			currentSelect += 50;
-			if (currentSelect > 1000) currentSelect = 0;
-		}
-        else if (key == 13) { // Phím Enter
-            volumeLevel = currentSelect;
-            system("cls");
-            return;
-        }
-    }
-}
-    */
-}
-
-string TypeName() {
-    string res = "";
-    while (true) {
-        char c = _getch();
-        if (c == 13 && res.length() > 0) {
-            break;
-        }
-        else if (c == 8) {
-            if (res.length() > 0) {
-                res.pop_back();
-                cout << "\b \b";
-            }
-        }
-        else if ((isalnum((unsigned char)c)) && res.length() < 15) {
-            res += c;
-            cout << c;
-        }
-    }
-    return res;
 }
 
 static string BotDisplayName() {
-    if (GetLanguage() == GameLanguage::Vietnamese) {
+    if (GetLanguage() == Vietnamese) {
         if (_BOT_DIFFICULTY == 1) return u8"M\u00C1Y (D\u1EC4)";
         if (_BOT_DIFFICULTY == 2) return u8"M\u00C1Y (TRUNG B\u00CCNH)";
         return u8"M\u00C1Y (KH\u00D3)";
@@ -867,7 +781,7 @@ static void DrawNameSetupButton(int x, int y, int w, const string& text, bool fo
 }
 
 static void DrawNameSetupTimeField(int x, int y, int w, int seconds, bool focused) {
-    string label = (GetLanguage() == GameLanguage::Vietnamese)
+    string label = (GetLanguage() == Vietnamese)
         ? u8"TH\u1EDCI GIAN M\u1ED6I L\u01AF\u1EE2T:"
         : "TURN TIME:";
     PrintTextWithBg(x, y, label, 11);
@@ -914,19 +828,19 @@ static void DrawNameSetupScreen(const string& p1, const string& p2, bool isBotMo
         DrawMenuTitle("CARO", 1, CONSOLE_COLS);
         DrawFrame(panelX, panelY, panelW, panelH);
 
-        string title = (GetLanguage() == GameLanguage::Vietnamese) ? u8"THI\u1EBET L\u1EACP NG\u01AF\u1EDCI CH\u01A0I" : "PLAYER SETUP";
+        string title = (GetLanguage() == Vietnamese) ? u8"THI\u1EBET L\u1EACP NG\u01AF\u1EDCI CH\u01A0I" : "PLAYER SETUP";
         PrintTextWithBg(CenterConsoleX(TextDisplayWidth(title), CONSOLE_COLS), panelY + 2, title, 14);
 
-        string help = (GetLanguage() == GameLanguage::Vietnamese)
+        string help = (GetLanguage() == Vietnamese)
             ? u8"M\u0168I T\u00CAN/TAB: CHUY\u1EC2N \u00D4  |  A/D: CH\u1EC8NH TH\u1EDCI GIAN"
             : "ARROWS/TAB: MOVE  |  A/D: CHANGE TIME";
         PrintTextWithBg(CenterConsoleX(TextDisplayWidth(help), CONSOLE_COLS), panelY + 18, help, 11);
     }
 
-    string p1Label = (GetLanguage() == GameLanguage::Vietnamese) ? u8"NG\u01AF\u1EDCI CH\u01A0I 1 (X):" : "PLAYER 1 (X):";
+    string p1Label = (GetLanguage() == Vietnamese) ? u8"NG\u01AF\u1EDCI CH\u01A0I 1 (X):" : "PLAYER 1 (X):";
     string p2Label = isBotMode
-        ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"M\u00C1Y (O):" : "BOT (O):")
-        : ((GetLanguage() == GameLanguage::Vietnamese) ? u8"NG\u01AF\u1EDCI CH\u01A0I 2 (O):" : "PLAYER 2 (O):");
+        ? ((GetLanguage() == Vietnamese) ? u8"M\u00C1Y (O):" : "BOT (O):")
+        : ((GetLanguage() == Vietnamese) ? u8"NG\u01AF\u1EDCI CH\u01A0I 2 (O):" : "PLAYER 2 (O):");
 
     if (forceDraw || p1 != lastP1 || focus == 0 || lastFocus == 0) {
         DrawNameSetupField(panelX + 8, panelY + 5, fieldW, p1Label, p1, focus == 0, false);
@@ -942,18 +856,18 @@ static void DrawNameSetupScreen(const string& p1, const string& p2, bool isBotMo
         FillConsoleRect(panelX + 4, panelY + 11, panelW - 8, 1, 0);
 
         if (duplicate) {
-            string msg = (GetLanguage() == GameLanguage::Vietnamese) ? u8"T\u00CAN KH\u00D4NG \u0110\u01AF\u1EE2C TR\u00D9NG" : "NAMES MUST BE UNIQUE";
+            string msg = (GetLanguage() == Vietnamese) ? u8"T\u00CAN KH\u00D4NG \u0110\u01AF\u1EE2C TR\u00D9NG" : "NAMES MUST BE UNIQUE";
             PrintTextWithBg(CenterConsoleX(TextDisplayWidth(msg), CONSOLE_COLS), panelY + 11, msg, 12);
         }
     }
 
     int buttonX = CenterConsoleX(buttonW, CONSOLE_COLS);
     if (forceDraw || valid != lastValid || focus == 3 || lastFocus == 3) {
-        string continueLabel = (GetLanguage() == GameLanguage::Vietnamese) ? u8"TI\u1EBEP T\u1EE4C" : "NEXT";
+        string continueLabel = (GetLanguage() == Vietnamese) ? u8"TI\u1EBEP T\u1EE4C" : "NEXT";
         DrawNameSetupButton(buttonX, panelY + 14, buttonW, continueLabel, focus == 3, valid);
     }
     if (forceDraw || focus == 4 || lastFocus == 4) {
-        DrawNameSetupButton(buttonX, panelY + 16, buttonW, L(TextId::Back), focus == 4, true);
+        DrawNameSetupButton(buttonX, panelY + 16, buttonW, L(Back), focus == 4, true);
     }
 
     if ((focus == 0) || (focus == 1 && !isBotMode)) {
@@ -1029,12 +943,12 @@ static bool InputPlayerNamesSetup(bool isBotMode) {
                 timeLeft = turnTimeLimit;
                 HideCursor();
                 PlayMenuSound();
-                CharacterASelect = CharacterSelectionMenu(-1, L(TextId::ChooseCharacterP1));
+                CharacterASelect = CharacterSelectionMenu(-1, L(ChooseCharacterP1));
                 if (isBotMode) {
                     CharacterBSelect = (CharacterASelect == 4) ? 0 : 4;
                 }
                 else {
-                    CharacterBSelect = CharacterSelectionMenu(CharacterASelect, L(TextId::ChooseCharacterP2));
+                    CharacterBSelect = CharacterSelectionMenu(CharacterASelect, L(ChooseCharacterP2));
                 }
                 return true;
             }
@@ -1076,80 +990,6 @@ static bool InputPlayerNamesSetup(bool isBotMode) {
 
 bool InputPlayerNames(bool isBotMode) {
     return InputPlayerNamesSetup(isBotMode);
-#if 0
-    system("cls");
-    DrawMenuBackground(); // Nền xịn từ Menu cũ
-    DrawMenuTitle("GAME CARO", 1, CONSOLE_COLS);
-
-    int consoleW = CONSOLE_COLS;
-    int frameW = 72;
-    int frameX = CenterConsoleX(frameW, consoleW);
-    int inputW = 20;
-    int inputX = frameX + frameW - inputW - 7;
-    int p1Y = 11;
-    int p2Y = 17;
-
-    // Frame Nhập Tên Player 1
-    DrawNameInputFrame(frameX, p1Y, frameW, L(TextId::EnterPlayerX), "", true);
-    UnhideCursor();
-    BeginNameInput(inputX, p1Y + 1, inputW);
-
-    // Tích hợp hệ thống quét pixel nền thông minh
-    _PLAYER1_NAME = TypeName();
-    printf("\x1b[0m");
-    HideCursor();
-    
-    // Xóa màn hình và vẽ lại background sau khi nhập xong Player 1
-    system("cls");
-    DrawMenuBackground();
-    DrawMenuTitle("GAME CARO", 1, consoleW);
-    DrawNameInputFrame(frameX, p1Y, frameW, L(TextId::EnterPlayerX), _PLAYER1_NAME, false);
-
-    // Frame Nhập Tên Player 2 (Hoặc Bot)
-    if (isBotMode) {
-        if (_BOT_DIFFICULTY == 1) _PLAYER2_NAME = "Bot (De)";
-        else if (_BOT_DIFFICULTY == 2) _PLAYER2_NAME = "Bot (Trung Binh)";
-        else _PLAYER2_NAME = "Bot (Kho)";
-
-        DrawNameInputFrame(frameX, p2Y, frameW, L(TextId::EnterPlayerBot), _PLAYER2_NAME, false);
-        Sleep(1000);
-    }
-    else {
-        while (true) {
-            DrawNameInputFrame(frameX, p2Y, frameW, L(TextId::EnterPlayerO), "", true);
-
-            // Xóa vùng text nhập tên bên trong Frame
-            UnhideCursor();
-            BeginNameInput(inputX, p2Y + 1, inputW);
-
-            _PLAYER2_NAME = TypeName();
-            printf("\x1b[0m");
-            HideCursor();
-
-            if (_PLAYER1_NAME == _PLAYER2_NAME) {
-                string errorMsg = L(TextId::DuplicateName);
-                int errorX = CenterConsoleX(TextDisplayWidth(errorMsg), consoleW);
-                PrintTextWithBg(errorX, p2Y + 4, errorMsg, 12);
-                _getch();
-
-                // Tẩy xóa dòng báo lỗi
-                PrintTextWithBg(errorX, p2Y + 4, string(TextDisplayWidth(errorMsg), ' '), 15);
-            }
-            else {
-                break;
-            }
-        }
-    }
-
-    CharacterASelect = CharacterSelectionMenu(-1, L(TextId::ChooseCharacterP1));
-
-    if (isBotMode) {
-        CharacterBSelect = (CharacterASelect == 4) ? 0 : 4;
-    }
-    else {
-        CharacterBSelect = CharacterSelectionMenu(CharacterASelect, L(TextId::ChooseCharacterP2));
-    }
-#endif
 }
 
 static int NextEnabledCharacter(int current, int delta, int size, int disabledOption) {
@@ -1196,138 +1036,49 @@ static void DrawCharacterGridItem(int index, bool selected, int disabledOption) 
 }
 
 int GenericCharacterMenu(string options[], int size, string title, int disabledOption) {
-    {
-        int currentSelect = 0;
-        int lastSelect = -1;
-
-        if (disabledOption >= 0 && disabledOption < size && currentSelect == disabledOption) {
-            currentSelect = NextEnabledCharacter(currentSelect, 1, size, disabledOption);
-        }
-
-        system("cls");
-        DrawMenuBackground();
-        if (!title.empty() && title != "CHARACTER MENU") {
-            PrintTextWithBg(CenterConsoleX(TextDisplayWidth(title), CONSOLE_COLS), 1, title, 14);
-        }
-
-        while (true) {
-            if (currentSelect != lastSelect) {
-                if (lastSelect == -1) {
-                    DrawCharacterGrid(currentSelect, size, disabledOption);
-                }
-                else {
-                    DrawCharacterGridItem(lastSelect, false, disabledOption);
-                    DrawCharacterGridItem(currentSelect, true, disabledOption);
-                }
-                lastSelect = currentSelect;
-            }
-
-            int key = ReadMenuKey();
-            if (key == 'A' || key == 75) {
-                currentSelect = NextEnabledCharacter(currentSelect, -1, size, disabledOption);
-                PlayMenuSound();
-            }
-            else if (key == 'D' || key == 77) {
-                currentSelect = NextEnabledCharacter(currentSelect, 1, size, disabledOption);
-                PlayMenuSound();
-            }
-            else if (key == 'W' || key == 72) {
-                currentSelect = NextEnabledCharacter(currentSelect, -3, size, disabledOption);
-                PlayMenuSound();
-            }
-            else if (key == 'S' || key == 80) {
-                currentSelect = NextEnabledCharacter(currentSelect, 3, size, disabledOption);
-                PlayMenuSound();
-            }
-            else if (key == 13) {
-                PlayMenuSound();
-                return currentSelect;
-            }
-            else if (key == 27) {
-                PlayMenuSound();
-                return currentSelect;
-            }
-        }
-    }
-
     int currentSelect = 0;
-    int marginX = 78;
     int lastSelect = -1;
 
     if (disabledOption >= 0 && disabledOption < size && currentSelect == disabledOption) {
-        currentSelect = (currentSelect + 1) % size;
+        currentSelect = NextEnabledCharacter(currentSelect, 1, size, disabledOption);
     }
 
     system("cls");
     DrawMenuBackground();
+    if (!title.empty() && title != "CHARACTER MENU") {
+        PrintTextWithBg(CenterConsoleX(TextDisplayWidth(title), CONSOLE_COLS), 1, title, 14);
+    }
 
     while (true) {
         if (currentSelect != lastSelect) {
-            // Xóa vùng vẽ nhân vật cũ bằng background
-            system("cls");
-            DrawMenuBackground();
-            /*
-            char pixel[64];
-            for (int i = 2; i < 20; i++) {
-                GotoXY(24, i);
-                string row_buf = "";
-                for (int j = 4; j < 60; j++) {
-                    int r_top = BG_MENU[i * 2][j][0], g_top = BG_MENU[i * 2][j][1], b_top = BG_MENU[i * 2][j][2];
-                    int r_bot = BG_MENU[i * 2 + 1][j][0], g_bot = BG_MENU[i * 2 + 1][j][1], b_bot = BG_MENU[i * 2 + 1][j][2];
-                    snprintf(pixel, sizeof(pixel), "\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm\xE2\x96\x80", r_top, g_top, b_top, r_bot, g_bot, b_bot);
-                    row_buf += pixel;
-                }
-                cout << row_buf;
+            if (lastSelect == -1) {
+                DrawCharacterGrid(currentSelect, size, disabledOption);
             }
-            printf("\x1b[0m");
-            */
-
-            outsidedisplay(currentSelect);
+            else {
+                DrawCharacterGridItem(lastSelect, false, disabledOption);
+                DrawCharacterGridItem(currentSelect, true, disabledOption);
+            }
             lastSelect = currentSelect;
         }
 
-        // Vẽ nhân vật trước khi đợi nhập phím
-        // Vẽ Menu ở phía bên phải
-        SetColor(12, 15);
-
-        for (int i = 0; i < size; i++) {
-            if (i == disabledOption) {
-                SetColor(8, 0);
-                GotoXY(marginX + 5, 12 + i * 2);
-                cout << "   " << options[i] << " - " << L(TextId::Chosen) << "   ";
-            }
-            else if (i == currentSelect) {
-                SetColor(0, 11); // Nền Cyan cho mục đang chọn
-                GotoXY(marginX + 5, 12 + i * 2);
-                cout << ">> " << options[i] << " <<";
-            }
-            else {
-                SetColor(0, 15); // Nền trắng cho các mục khác
-                GotoXY(marginX + 5, 12 + i * 2);
-                cout << "   " << options[i] << "   ";
-            }
-        }
-        SetColor(0, 15);
-
-        // Đợi người dùng nhấn phím
         int key = ReadMenuKey();
-
-        // Xử lý logic phím bấm
-        if (key == 'W' || key == 72) {
-            do {
-                currentSelect--;
-                if (currentSelect < 0) currentSelect = size - 1;
-            } while (currentSelect == disabledOption);
+        if (key == 'A' || key == 75) {
+            currentSelect = NextEnabledCharacter(currentSelect, -1, size, disabledOption);
+            PlayMenuSound();
+        }
+        else if (key == 'D' || key == 77) {
+            currentSelect = NextEnabledCharacter(currentSelect, 1, size, disabledOption);
+            PlayMenuSound();
+        }
+        else if (key == 'W' || key == 72) {
+            currentSelect = NextEnabledCharacter(currentSelect, -3, size, disabledOption);
             PlayMenuSound();
         }
         else if (key == 'S' || key == 80) {
-            do {
-                currentSelect++;
-                if (currentSelect >= size) currentSelect = 0;
-            } while (currentSelect == disabledOption);
+            currentSelect = NextEnabledCharacter(currentSelect, 3, size, disabledOption);
             PlayMenuSound();
         }
-        else if (key == 13) { // Phím Enter
+        else if (key == 13) {
             PlayMenuSound();
             return currentSelect;
         }

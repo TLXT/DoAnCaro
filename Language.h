@@ -1,12 +1,12 @@
 #pragma once
 #include <string>
 
-enum class GameLanguage {
+enum GameLanguage {
     Vietnamese,
     English
 };
 
-enum class TextId {
+enum TextId {
     MainPlayGame,
     MainLoadGame,
     MainGuide,

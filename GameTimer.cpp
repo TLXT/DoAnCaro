@@ -18,7 +18,7 @@ std::string _PLAYER2_NAME = "Player 2";
 
 void TimerLogic() {
     while (isTimerRunning) {
-        // Chia nhỏ 1 giây thành 10 lần 100ms
+
         for (int i = 0; i < 10; i++) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             if (!isTimerRunning) return;
@@ -42,7 +42,7 @@ void TimerLogic() {
                 DrawStatusInfo(false);
             }
 
-            GotoXY(curX, curY); // Trả lại con trỏ cho người chơi
+            GotoXY(curX, curY);
         }
     }
 }
@@ -51,7 +51,7 @@ static std::thread timerThread;
 
 void StartTimerThread() {
     if (isTimerRunning) return;
-    // Join any old thread first
+
     if (timerThread.joinable()) timerThread.join();
     isTimerRunning = true;
     timeLeft = turnTimeLimit;

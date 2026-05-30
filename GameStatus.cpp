@@ -12,7 +12,7 @@ vector<MoveNode> moveHistory;
 int currentStep = 0;
 
 void ResetData() {
-    //xóa lịch sử khi bắt đầu ván mới
+
     moveHistory.clear();
     currentStep = 0;
 

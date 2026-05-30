@@ -6,7 +6,7 @@
 #include "UserInfo.h"
 #include "Character.h"
 
-// Tích hợp cả thư viện vẽ background (từ bản 1) và nút bấm (từ bản 2)
+
 #include "DrawBackground.hpp"
 #include "Menu.h"
 #include "btn_normal.h"
@@ -124,7 +124,7 @@ static void ShowSaveNotice(const string& title, const string& message, char icon
     DrawNoticeIcon(panelX + panelW / 2, panelY + 2, iconType, accentR, accentG, accentB, panelR, panelG, panelB);
     PrintNoticeCentered(panelX, panelY + 8, panelW, title, 255, 245, 80, panelR, panelG, panelB);
     PrintNoticeCentered(panelX, panelY + 10, panelW, message, 225, 245, 255, panelR, panelG, panelB);
-    PrintNoticeCentered(panelX, panelY + 12, panelW, L(TextId::NoticeContinue), 0, 255, 255, panelR, panelG, panelB);
+    PrintNoticeCentered(panelX, panelY + 12, panelW, L(NoticeContinue), 0, 255, 255, panelR, panelG, panelB);
     _getch();
     SetColor(15, 0);
 }
@@ -173,15 +173,15 @@ static void DrawSaveNamePrompt(const string& slotName, const string& saveTitle, 
         system("cls");
         DrawLoadgameBackground();
 
-        string title = (GetLanguage() == GameLanguage::Vietnamese) ? u8"\u0110\u1EB6T T\u00CAN B\u1EA2N L\u01AFU" : "SAVE NAME";
+        string title = (GetLanguage() == Vietnamese) ? u8"\u0110\u1EB6T T\u00CAN B\u1EA2N L\u01AFU" : "SAVE NAME";
         DrawMenuTitle(title, 2, CONSOLE_COLS);
         DrawFrame(panelX, panelY, panelW, panelH);
 
-        string slotLabel = (GetLanguage() == GameLanguage::Vietnamese) ? u8"\u00D4 L\u01AFU: " : "SLOT: ";
+        string slotLabel = (GetLanguage() == Vietnamese) ? u8"\u00D4 L\u01AFU: " : "SLOT: ";
         PrintTextWithBg(panelX + 5, panelY + 2, slotLabel + slotName, 14);
-        PrintTextWithBg(panelX + 5, inputY, (GetLanguage() == GameLanguage::Vietnamese) ? u8"T\u00CAN B\u1EA2N L\u01AFU:" : "SAVE TITLE:", 11);
+        PrintTextWithBg(panelX + 5, inputY, (GetLanguage() == Vietnamese) ? u8"T\u00CAN B\u1EA2N L\u01AFU:" : "SAVE TITLE:", 11);
 
-        string help = (GetLanguage() == GameLanguage::Vietnamese)
+        string help = (GetLanguage() == Vietnamese)
             ? u8"ENTER: L\u01AFU | ESC: H\u1EE6Y"
             : "ENTER: SAVE | ESC: CANCEL";
         PrintTextWithBg(CenterConsoleX(TextDisplayWidth(help), CONSOLE_COLS), panelY + 7, help, 11);
@@ -199,7 +199,7 @@ static void DrawSaveNamePrompt(const string& slotName, const string& saveTitle, 
     FillNoticeRect(panelX + 2, panelY + 9, panelW - 4, 1, 15, 15, 20);
 
     if (showError) {
-        string error = (GetLanguage() == GameLanguage::Vietnamese)
+        string error = (GetLanguage() == Vietnamese)
             ? u8"T\u00CAN B\u1EA2N L\u01AFU KH\u00D4NG \u0110\u01AF\u1EE2C TR\u1ED0NG"
             : "SAVE TITLE CANNOT BE EMPTY";
         PrintTextWithBg(CenterConsoleX(TextDisplayWidth(error), CONSOLE_COLS), panelY + 9, error, 12);
@@ -245,31 +245,6 @@ static string PromptSaveDisplayName(const string& slotName) {
     }
 }
 
-string TypeFileName() {
-    string res = "";
-    while (true) {
-        char c = _getch();
-
-        if (c == 27) { // BẤM ESC
-            return "";
-        }
-        else if (c == 13 && res.length() > 0) {
-            break;
-        }
-        else if (c == 8) { // Bấm Backspace
-            if (res.length() > 0) {
-                res.pop_back();
-                cout << "\b \b";
-            }
-        }
-        else if (isalnum((unsigned char)c) || c == '-' || c == '_') {
-            res += c;
-            cout << c;
-        }
-    }
-    return res;
-}
-
 string SaveGame() {
     {
         string selectedFile = ChooseSaveSlotMenu(true);
@@ -309,103 +284,18 @@ string SaveGame() {
             outFile << savedAt << endl;
             outFile.close();
 
-            ShowSaveNotice(L(TextId::SaveSuccessTitle), L(TextId::SaveSuccess), 'v', 60, 230, 120);
+            ShowSaveNotice(L(SaveSuccessTitle), L(SaveSuccess), 'v', 60, 230, 120);
             SetColor(15, 0);
             return selectedFile;
         }
 
-        ShowSaveNotice(L(TextId::SaveCreateErrorTitle), L(TextId::SaveCreateError), '!', 255, 80, 80);
+        ShowSaveNotice(L(SaveCreateErrorTitle), L(SaveCreateError), '!', 255, 80, 80);
         SetColor(15, 0);
         return "";
     }
-
-#if 0
-    string filename;
-
-    system("cls");
-    DrawLoadgameBackground();   // [Merged] Vẽ nền xịn từ file gốc
-
-    while (true) {
-        GotoXY(30, 27);
-        cout << "                                                                    ";
-
-        GotoXY(30, 27);
-        // [Merged] Dùng ANSI code để màu chữ đỏ sắc nét đè trên nền game
-        printf("\x1b[38;2;255;50;50m\x1b[48;2;20;20;20m");
-        cout << L(TextId::SavePrompt);
-
-        UnhideCursor();
-        filename = TypeFileName();
-        HideCursor();
-
-        if (filename == "") {
-            GotoXY(30, 27); cout << "                                                                    ";
-            GotoXY(30, 28); cout << "                                                                    ";
-            SetColor(0, 15);
-            GotoXY(_X, _Y);
-            return"";
-        }
-
-        ifstream checkFile(filename + ".caro");
-        if (checkFile.is_open()) {
-            checkFile.close();
-
-            GotoXY(30, 28);
-            SetColor(12, 15); // Màu đỏ
-            cout << L(TextId::SaveDuplicate);
-            _getch();
-
-            GotoXY(30, 28);
-            cout << "                                                                    ";
-        }
-        else {
-            break;
-        }
-    }
-
-    ofstream outFile(filename + ".caro");
-    if (outFile.is_open()) {
-        outFile << _TURN << " " << _X << " " << _Y << endl;
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                outFile << _A[i][j].c << " ";
-            }
-            outFile << endl;
-        }
-        outFile << currentStep << endl; //lưu số bước hiện tại
-        for (int i = 0; i < currentStep; i++) {
-            outFile << moveHistory[i].row << " " << moveHistory[i].col << " " << moveHistory[i].c << endl;
-        }
-        // Save character selection and game mode
-        outFile << CharacterASelect << " " << CharacterBSelect << endl;
-        outFile << (_BOT_MODE ? 1 : 0) << " " << _BOT_DIFFICULTY << endl;
-        outFile << _PLAYER1_NAME << endl;
-        outFile << _PLAYER2_NAME << endl;
-        outFile.close();
-
-        GotoXY(30, 28);
-        SetColor(10, 15);
-        cout << L(TextId::SaveSuccess);
-        _getch();
-        return filename;
-    }
-    else {
-        GotoXY(30, 28);
-        SetColor(12, 15);
-        cout << L(TextId::SaveCreateError);
-    }
-
-    _getch();
-
-    GotoXY(30, 27); cout << "                                                                    ";
-    GotoXY(30, 28); cout << "                                                                    ";
-    SetColor(0, 15);
-    GotoXY(_X, _Y);
-    return "";
-#endif
 }
 
-// [Merged] Logic lấy file mới nhất bằng Struct từ bản thứ 2
+
 vector<string> GetSaveFiles() {
     vector<SaveFileInfo> files;
     WIN32_FIND_DATAA findFileData;
@@ -416,7 +306,7 @@ vector<string> GetSaveFiles() {
             string fileName = findFileData.cFileName;
             fileName = fileName.substr(0, fileName.find_last_of("."));
 
-            // Lấy thời gian file được lưu cuối cùng
+
             ULARGE_INTEGER fileTime;
             fileTime.LowPart = findFileData.ftLastWriteTime.dwLowDateTime;
             fileTime.HighPart = findFileData.ftLastWriteTime.dwHighDateTime;
@@ -426,7 +316,7 @@ vector<string> GetSaveFiles() {
         FindClose(hFind);
     }
 
-    // Sắp xếp file theo thời gian lưu (Giảm dần: Mới nhất lên đầu)
+
     sort(files.begin(), files.end(), [](const SaveFileInfo& a, const SaveFileInfo& b) {
         return a.time.QuadPart > b.time.QuadPart;
         });
@@ -689,27 +579,27 @@ static void DrawSaveSlotCard(const SaveSlotPreview& slot, int x, int y, int w, i
     FillSlotArea(x, y, w, h, bg);
     DrawSlotBorder(x, y, w, h, selected, bg);
 
-    string slotWord = (GetLanguage() == GameLanguage::Vietnamese) ? u8"\u00D4 L\u01AFU " : "SLOT ";
+    string slotWord = (GetLanguage() == Vietnamese) ? u8"\u00D4 L\u01AFU " : "SLOT ";
     string title = slotWord + to_string(slot.slotNumber);
     if (selected) title = "> " + title + " <";
 
     PrintSlotText(x + 2, y + 1, title, 22, selected ? 12 : 1, bg);
     if (slot.occupied) {
         PrintSlotText(x + 2, y + 2, FitText(slot.saveTitle, 24), 24, 9, bg);
-        string versus = (GetLanguage() == GameLanguage::Vietnamese) ? u8" \u0110\u1EA4U " : " VS ";
-        string moveLabel = (GetLanguage() == GameLanguage::Vietnamese) ? u8"N\u01AF\u1EDAC: " : "MOVES: ";
+        string versus = (GetLanguage() == Vietnamese) ? u8" \u0110\u1EA4U " : " VS ";
+        string moveLabel = (GetLanguage() == Vietnamese) ? u8"N\u01AF\u1EDAC: " : "MOVES: ";
         PrintSlotText(x + 2, y + 3, FitText(slot.player1, 8) + versus + FitText(slot.player2, 8), 24, 9, bg);
         PrintSlotText(x + 2, y + 4, slot.savedAt.empty() ? (moveLabel + to_string(slot.moves)) : slot.savedAt, 24, 8, bg);
         DrawFlowerIcon(x + w - 15, y + 1, bg);
     }
     else {
-        string emptyText = (GetLanguage() == GameLanguage::Vietnamese) ? u8"<TR\u1ED0NG>" : "<EMPTY>";
+        string emptyText = (GetLanguage() == Vietnamese) ? u8"<TR\u1ED0NG>" : "<EMPTY>";
         string actionText = forSaving
-            ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"ENTER \u0110\u1EC2 L\u01AFU" : "ENTER TO SAVE")
-            : ((GetLanguage() == GameLanguage::Vietnamese) ? u8"CH\u01AFA C\u00D3 D\u1EEE LI\u1EC6U" : "NO DATA");
+            ? ((GetLanguage() == Vietnamese) ? u8"ENTER \u0110\u1EC2 L\u01AFU" : "ENTER TO SAVE")
+            : ((GetLanguage() == Vietnamese) ? u8"CH\u01AFA C\u00D3 D\u1EEE LI\u1EC6U" : "NO DATA");
         PrintSlotText(x + 2, y + 2, emptyText, 24, 8, bg);
         PrintSlotText(x + 2, y + 3, actionText, 24, 8, bg);
-        string fileLabel = (GetLanguage() == GameLanguage::Vietnamese) ? u8"T\u1EC6P: " : "FILE: ";
+        string fileLabel = (GetLanguage() == Vietnamese) ? u8"T\u1EC6P: " : "FILE: ";
         PrintSlotText(x + 2, y + 4, fileLabel + SaveSlotBaseName(slot.slotNumber - 1), 24, 8, bg);
         DrawSaplingIcon(x + w - 15, y + 1, bg);
     }
@@ -726,8 +616,8 @@ static void DrawSaveSlotScreen(const vector<SaveSlotPreview>& slots, int page, i
     DrawLoadgameBackground();
 
     string title = forSaving
-        ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"L\u01AFU V\u00C1N" : "SAVE GAME")
-        : L(TextId::LoadTitle);
+        ? ((GetLanguage() == Vietnamese) ? u8"L\u01AFU V\u00C1N" : "SAVE GAME")
+        : L(LoadTitle);
     DrawMenuTitle(title, 1, CONSOLE_COLS);
 
     const int cols = 2;
@@ -753,23 +643,23 @@ static void DrawSaveSlotScreen(const vector<SaveSlotPreview>& slots, int page, i
     }
 
     string help = forSaving
-        ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"WASD: CH\u1ECCN | ENTER: L\u01AFU/GHI \u0110\u00C8 | X: X\u00D3A T\u1EC6P | ESC: QUAY L\u1EA0I" : "WASD: SELECT | ENTER: SAVE/OVERWRITE | X: DELETE FILE | ESC: BACK")
-        : L(TextId::LoadHelp);
+        ? ((GetLanguage() == Vietnamese) ? u8"WASD: CH\u1ECCN | ENTER: L\u01AFU/GHI \u0110\u00C8 | X: X\u00D3A T\u1EC6P | ESC: QUAY L\u1EA0I" : "WASD: SELECT | ENTER: SAVE/OVERWRITE | X: DELETE FILE | ESC: BACK")
+        : L(LoadHelp);
     int helpY = startY + 3 * (slotH + gapY);
     PrintSlotText(CenterConsoleX(TextDisplayWidth(help), CONSOLE_COLS), helpY, help, TextDisplayWidth(help), 11, 0);
 
-    string pageText = ((GetLanguage() == GameLanguage::Vietnamese) ? u8"TRANG " : "PAGE ")
+    string pageText = ((GetLanguage() == Vietnamese) ? u8"TRANG " : "PAGE ")
         + to_string(page + 1) + "/" + to_string(pageCount);
     PrintSlotText(CenterConsoleX(TextDisplayWidth(pageText), CONSOLE_COLS), helpY + 1, pageText, TextDisplayWidth(pageText), 14, 0);
 
     if (page > 0) {
         DrawPageButton(startX, helpY + 2, 22,
-            (GetLanguage() == GameLanguage::Vietnamese) ? u8"<< TRANG TR\u01AF\u1EDAC" : "<< PREV PAGE",
+            (GetLanguage() == Vietnamese) ? u8"<< TRANG TR\u01AF\u1EDAC" : "<< PREV PAGE",
             currentSelect == 6);
     }
     if (page < pageCount - 1) {
         DrawPageButton(startX + totalW - 22, helpY + 2, 22,
-            (GetLanguage() == GameLanguage::Vietnamese) ? u8"TRANG SAU >>" : "NEXT PAGE >>",
+            (GetLanguage() == Vietnamese) ? u8"TRANG SAU >>" : "NEXT PAGE >>",
             currentSelect == 7);
     }
 }
@@ -798,17 +688,18 @@ static void DrawSaveSlotSelectionItem(const vector<SaveSlotPreview>& slots, int 
     }
     else if (select == 6 && page > 0) {
         DrawPageButton(startX, helpY + 2, 22,
-            (GetLanguage() == GameLanguage::Vietnamese) ? u8"<< TRANG TR\u01AF\u1EDAC" : "<< PREV PAGE",
+            (GetLanguage() == Vietnamese) ? u8"<< TRANG TR\u01AF\u1EDAC" : "<< PREV PAGE",
             selected);
     }
     else if (select == 7 && page < pageCount - 1) {
         DrawPageButton(startX + totalW - 22, helpY + 2, 22,
-            (GetLanguage() == GameLanguage::Vietnamese) ? u8"TRANG SAU >>" : "NEXT PAGE >>",
+            (GetLanguage() == Vietnamese) ? u8"TRANG SAU >>" : "NEXT PAGE >>",
             selected);
     }
 }
 
 static string ChooseSaveSlotMenu(bool forSaving) {
+    // Man hinh chon slot dung chung cho luu va tai van.
     vector<SaveSlotPreview> slots = BuildSaveSlots(forSaving);
     int page = 0;
     int currentSelect = 0;
@@ -945,7 +836,7 @@ bool LoadGame() {
         else {
             currentStep = 0;
         }
-        // Load character selection and game mode (backward compatible)
+
         int charA = 0, charB = 4;
         if (inFile >> charA >> charB) {
             CharacterASelect = (charA >= 0 && charA <= 4) ? charA : 0;
@@ -955,7 +846,7 @@ bool LoadGame() {
                 _BOT_MODE = (botMode != 0);
                 _BOT_DIFFICULTY = botDiff;
             }
-            inFile.ignore(1000, '\n'); // skip rest of line
+            inFile.ignore(1000, '\n');
             string p1, p2;
             if (getline(inFile, p1) && !p1.empty()) _PLAYER1_NAME = p1;
             if (getline(inFile, p2) && !p2.empty()) _PLAYER2_NAME = p2;
@@ -966,11 +857,11 @@ bool LoadGame() {
         inFile.close();
 
         system("cls");
-        DrawIngameBackground(); // [Merged] Vẽ background ingame từ bản gốc
+        DrawIngameBackground();
         DrawBoard(BOARD_SIZE);
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
-                // [Merged] Fix lỗi hiển thị: Chỉ vẽ các ô đã có quân
+
                 if (_A[i][j].c != 0) {
                     DrawCell(_A[i][j].x, _A[i][j].y, BOARD_BG_COLOR);
                 }
@@ -985,137 +876,25 @@ bool LoadGame() {
         return true;
     }
     else {
-        ShowSaveNotice(L(TextId::LoadReadErrorTitle), L(TextId::LoadReadError), '!', 255, 80, 80);
+        ShowSaveNotice(L(LoadReadErrorTitle), L(LoadReadError), '!', 255, 80, 80);
         return false;
     }
 }
 
-// [Merged] UI Menu Nút Cuộn Kết Hợp Background
+
 string ChooseFileMenu() {
     return ChooseSaveSlotMenu(false);
-
-    while (true) {
-        vector<string> files = GetSaveFiles();
-        if (files.empty()) {
-            system("cls");
-            DrawLoadgameBackground(); // [Merged] Phủ nền khi báo lỗi trống file
-
-            // Dùng ANSI in đè nền xám viền đỏ để báo lỗi đẹp hơn
-            GotoXY(40, 15);
-            printf("\x1b[38;2;255;50;50m\x1b[48;2;20;20;20m");
-            cout << L(TextId::LoadNoData);
-            _getch();
-            return "";
-        }
-
-        int currentSelect = 0;
-        int maxDisplay = 5; // Chỉ hiển thị tối đa 5 file cùng lúc để không vỡ khung
-        int startIndex = 0; // Vị trí file bắt đầu hiển thị (dùng để cuộn)
-
-        int lastSelect = -1;
-        int lastStartIndex = -1;
-        bool isLooping = true;
-
-        int consoleW = CONSOLE_COLS;
-        string title = L(TextId::LoadTitle);
-        int frameW = static_cast<int>(title.length()) + 8;
-        int btnCols = BTN_NORMAL_W * 2;
-        int startX = CenterConsoleX(btnCols, consoleW);
-        int startY_Base = 10;
-
-        int bgNorm = BTN_NORMAL[BTN_NORMAL_H / 2][BTN_NORMAL_W / 2];
-        int bgHov = BTN_HOVER[BTN_HOVER_H / 2][BTN_HOVER_W / 2];
-
-        while (isLooping) {
-            // NẾU BỊ CUỘN TRANG (thay đổi startIndex): Xóa và vẽ lại toàn bộ khung và nền
-            if (startIndex != lastStartIndex) {
-                system("cls");
-                DrawLoadgameBackground(); // Vẽ lại nền sau khi clean
-
-                // Vẽ Title bằng text ANSI để tiệp với không gian nền
-                GotoXY(CenterConsoleX(TextDisplayWidth(title), consoleW), 5);
-                printf("\x1b[38;2;255;50;50m\x1b[48;2;30;30;30m");
-                cout << title;
-
-                string help = L(TextId::LoadHelp);
-                GotoXY(CenterConsoleX(TextDisplayWidth(help), consoleW), startY_Base + maxDisplay * (BTN_NORMAL_H + 1) + 2);
-                printf("\x1b[38;2;150;150;150m\x1b[48;2;20;20;20m");
-                cout << help;
-
-                lastStartIndex = startIndex;
-                lastSelect = -1; // Ép vẽ lại toàn bộ nút
-            }
-
-            // NẾU CÓ SỰ DỊCH CHUYỂN NÚT BẤM (Cập nhật hiển thị Hover)
-            if (currentSelect != lastSelect) {
-                int endIdx = min(startIndex + maxDisplay, (int)files.size());
-
-                for (int i = startIndex; i < endIdx; i++) {
-                    int rowOffset = i - startIndex; // Tính toán xem nút sẽ nằm ở dòng thứ mấy trên màn hình
-                    int startY = startY_Base + rowOffset * (BTN_NORMAL_H + 1);
-
-                    if (i == currentSelect) {
-                        DrawSolidImage(BTN_HOVER, BTN_HOVER_W, BTN_HOVER_H, startX, startY);
-                        GotoXY(startX + (btnCols - static_cast<int>(files[i].length())) / 2, startY + BTN_HOVER_H / 2);
-                        SetColor(0, bgHov); cout << files[i];
-                    }
-                    else {
-                        DrawSolidImage(BTN_NORMAL, BTN_NORMAL_W, BTN_NORMAL_H, startX, startY);
-                        GotoXY(startX + (btnCols - static_cast<int>(files[i].length())) / 2, startY + BTN_NORMAL_H / 2);
-                        SetColor(0, bgNorm); cout << files[i];
-                    }
-                }
-                lastSelect = currentSelect;
-            }
-
-            // Xử lý phím
-            SetColor(0, 15);
-            int key = ReadMenuKey();
-
-            if (key == 27) return ""; // ESC
-            else if (key == 'W' || key == 72) {
-                currentSelect--;
-                if (currentSelect < 0) currentSelect = static_cast<int>(files.size()) - 1;
-                PlayMenuSound();
-            }
-            else if (key == 'S' || key == 80) {
-                currentSelect++;
-                if (currentSelect >= static_cast<int>(files.size())) currentSelect = 0;
-                PlayMenuSound();
-            }
-            else if (key == 13) {
-                PlayMenuSound();
-                return files[currentSelect];
-            }
-            else if (key == 'X') {
-                string fileToDelete = files[currentSelect] + ".caro";
-                DeleteFileA(fileToDelete.c_str());
-                PlayMenuSound();
-                isLooping = false; // Bấm xóa sẽ kích hoạt reset lại file
-            }
-
-            // LOGIC CUỘN TRANG
-            // Nếu con trỏ chuột nhảy lên trên khỏi giới hạn hiển thị
-            if (currentSelect < startIndex) {
-                startIndex = currentSelect;
-            }
-            // Nếu con trỏ chuột nhảy xuống dưới khỏi giới hạn hiển thị
-            else if (currentSelect >= startIndex + maxDisplay) {
-                startIndex = currentSelect - maxDisplay + 1;
-            }
-        }
-    }
 }
 
 void ClearAllData() {
     vector<string> files = GetSaveFiles();
     if (files.empty()) {
-        ShowSaveNotice(L(TextId::ClearNoDataTitle), L(TextId::ClearNoData), '!', 255, 220, 80);
+        ShowSaveNotice(L(ClearNoDataTitle), L(ClearNoData), '!', 255, 220, 80);
         return;
     }
 
-    // [Merged] Gọi Graphic Yes No từ bản 2
-    string prompt = L(TextId::ClearConfirmPrefix) + to_string(files.size()) + L(TextId::ClearConfirmSuffix);
+
+    string prompt = L(ClearConfirmPrefix) + to_string(files.size()) + L(ClearConfirmSuffix);
     bool confirm = GraphicalYesNo(prompt, 10, true, BTN_NORMAL, BTN_HOVER, BTN_NORMAL_W, BTN_NORMAL_H);
 
     if (confirm) {
@@ -1123,10 +902,10 @@ void ClearAllData() {
             string fullPath = file + ".caro";
             DeleteFileA(fullPath.c_str());
         }
-        ShowSaveNotice(L(TextId::ClearDoneTitle), L(TextId::ClearDone), 'v', 60, 230, 120);
+        ShowSaveNotice(L(ClearDoneTitle), L(ClearDone), 'v', 60, 230, 120);
     }
     else {
-        ShowSaveNotice(L(TextId::ClearCanceledTitle), L(TextId::ClearCanceled), 'x', 180, 190, 210);
+        ShowSaveNotice(L(ClearCanceledTitle), L(ClearCanceled), 'x', 180, 190, 210);
     }
 }
 
@@ -1136,7 +915,7 @@ bool loadPresent() {
     DrawBoard(BOARD_SIZE);
     for (int i = 0; i < BOARD_SIZE; i++)
         for (int j = 0; j < BOARD_SIZE; j++)
-            if (_A[i][j].c != 0) { // [Merged] Chỉ vẽ lên ô có quân
+            if (_A[i][j].c != 0) {
                 DrawCell(_A[i][j].x, _A[i][j].y, BOARD_BG_COLOR);
             }
     DrawCell(_X, _Y, BOARD_CURSOR_COLOR);

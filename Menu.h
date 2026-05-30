@@ -5,19 +5,19 @@
 #include <string>
 #include <algorithm>
 #include "Character.h"
-#include "ControlConsole.h" 
+#include "ControlConsole.h"
 #include "GameStatus.h"
 #include "Sound.h"
 #include "Language.h"
 
 using namespace std;
 
-// --- Khai báo các hàm liên kết (Wrappers) để dùng đồ họa trong Template ---
+
 void DrawUIBackground();
 void DrawTitleArtWrapper(int startX, int startY);
 void DrawMenuTitle(const string& title, int y, int consoleW);
 
-// --- Khai báo các hàm Menu chính ---
+
 int GenericMenu(string options[], int size, string title);
 int GenericCharacterMenu(string options[], int size, string title, int disabledOption = -1);
 int MainMenu();
@@ -73,7 +73,6 @@ inline int TextDisplayWidth(const string& text) {
     return width;
 }
 
-// --- CÁC HÀM GIAO DIỆN CHUNG (Định nghĩa trực tiếp dùng Template) ---
 
 template <size_t BtnW>
 int GraphicalMenu(string options[], int size, string title,
@@ -81,7 +80,7 @@ int GraphicalMenu(string options[], int size, string title,
 {
     system("cls");
 
-    // [Merged Feature]: Vẽ Background đồ họa xịn xò từ Menu gốc
+
     DrawUIBackground();
 
     int consoleW = CONSOLE_COLS;
@@ -117,7 +116,7 @@ int GraphicalMenu(string options[], int size, string title,
     int currentSelect = 0;
     int lastSelect = -1;
 
-    // Lấy màu nền ở giữa nút để đổ màu cho chữ
+
     int bgNormal = btnNormal[btnH / 2][btnW / 2];
     int bgHover = btnHover[btnH / 2][btnW / 2];
 
@@ -130,7 +129,7 @@ int GraphicalMenu(string options[], int size, string title,
                     DrawSolidImage(btnHover, btnW, btnH, startX, startY);
                     int textLen = TextDisplayWidth(options[i]);
                     GotoXY(startX + (btnCols - textLen) / 2, startY + btnH / 2);
-                    SetColor(0, bgHover); // Chữ đen, nền theo màu nút
+                    SetColor(0, bgHover);
                     cout << options[i];
                 }
                 else {
@@ -180,17 +179,17 @@ bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
     int consoleW = CONSOLE_COLS;
     int consoleH = CONSOLE_LINES;
 
-    // --- BẢO VỆ CHỐNG TRÀN MÀN HÌNH (Fix lỗi xéo khung) ---
+
     if (startY + 7 + btnH >= consoleH) {
         startY = consoleH - 8 - btnH;
     }
 
     if (clearScreen) {
         system("cls");
-        DrawUIBackground(); // Vẽ lại Background nếu có xóa màn hình
+        DrawUIBackground();
     }
     else {
-        // Tẩy trắng khu vực sẽ chứa Menu để đè gọn gàng lên bàn cờ cũ
+
         SetColor(0, 15);
         for (int i = 0; i <= 7 + btnH; i++) {
             GotoXY(0, startY + i);
@@ -201,7 +200,7 @@ bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
     int frameW = min(consoleW - 4, TextDisplayWidth(prompt) + 12);
     int frameX = CenterConsoleX(frameW, consoleW);
 
-    DrawFrame(frameX, startY, frameW, 5); // Khung này sẽ tự xóa rác bên trong
+    DrawFrame(frameX, startY, frameW, 5);
     GotoXY(frameX + 6, startY + 2);
     SetColor(12, 15);
     cout << prompt;
@@ -219,10 +218,10 @@ bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
 
     while (true) {
         if (choice != lastChoice) {
-            // Nút YES
+
             int yesX = startX;
-            string yesText = L(TextId::Yes);
-            string noText = L(TextId::No);
+            string yesText = L(Yes);
+            string noText = L(No);
             if (choice == 0) {
                 DrawSolidImage(btnHover, btnW, btnH, yesX, btnY);
                 GotoXY(yesX + (btnCols - TextDisplayWidth(yesText)) / 2, btnY + btnH / 2);
@@ -234,7 +233,7 @@ bool GraphicalYesNo(string prompt, int startY, bool clearScreen,
                 SetColor(0, bgNormal); cout << yesText;
             }
 
-            // Nút NO
+
             int noX = startX + btnCols + 10;
             if (choice == 1) {
                 DrawSolidImage(btnHover, btnW, btnH, noX, btnY);

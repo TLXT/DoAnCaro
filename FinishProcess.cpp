@@ -150,14 +150,14 @@ void DrawFinishCelebrationScreen() {
         int character = FinishWinnerCharacter();
         DrawCharacterPreview(character, CenterConsoleX(34, CONSOLE_COLS), panelY + 2, 34, 14, true, false);
 
-        string winner = L(TextId::Winner) + FinishWinnerName();
+        string winner = L(Winner) + FinishWinnerName();
 
-        PrintPlainText(CenterConsoleX(TextDisplayWidth(L(TextId::Victory)), CONSOLE_COLS), panelY + 17, L(TextId::Victory), 14);
+        PrintPlainText(CenterConsoleX(TextDisplayWidth(L(Victory)), CONSOLE_COLS), panelY + 17, L(Victory), 14);
         PrintPlainText(CenterConsoleX(TextDisplayWidth(winner), CONSOLE_COLS), panelY + 19, winner, 14);
     }
     else {
-        string drawText = L(TextId::DrawMessage);
-        PrintPlainText(CenterConsoleX(TextDisplayWidth(L(TextId::Draw)), CONSOLE_COLS), panelY + 10, L(TextId::Draw), 14);
+        string drawText = L(DrawMessage);
+        PrintPlainText(CenterConsoleX(TextDisplayWidth(L(Draw)), CONSOLE_COLS), panelY + 10, L(Draw), 14);
         PrintPlainText(CenterConsoleX(TextDisplayWidth(drawText), CONSOLE_COLS), panelY + 13, drawText, 11);
     }
 }
@@ -187,8 +187,8 @@ bool DrawFinishQuestion(const string& prompt) {
             int yesX = startX;
             int noX = startX + btnW + 12;
 
-            DrawChoiceButton(yesX, btnY, btnW, btnH, L(TextId::Yes), choice == 0);
-            DrawChoiceButton(noX, btnY, btnW, btnH, L(TextId::No), choice == 1);
+            DrawChoiceButton(yesX, btnY, btnW, btnH, L(Yes), choice == 0);
+            DrawChoiceButton(noX, btnY, btnW, btnH, L(No), choice == 1);
 
             SetColor(0, 15);
             lastChoice = choice;
@@ -326,11 +326,11 @@ int ProcessFinish(int pWhoWin) {
     cout << string(80, ' ');
     GotoXY(RESULT_X, RESULT_Y);
 
-    SetColor(1, 15);  // Chữ xanh dương, nền trắng
+    SetColor(1, 15);
 
     switch (pWhoWin) {
     case -1:
-        if (GetLanguage() == GameLanguage::Vietnamese) {
+        if (GetLanguage() == Vietnamese) {
             cout << _PLAYER1_NAME << " (X) da THANG va " << _PLAYER2_NAME << " (O) da THUA!          ";
         }
         else {
@@ -338,7 +338,7 @@ int ProcessFinish(int pWhoWin) {
         }
         break;
     case  1:
-        if (GetLanguage() == GameLanguage::Vietnamese) {
+        if (GetLanguage() == Vietnamese) {
             cout << _PLAYER2_NAME << " (O) da THANG va " << _PLAYER1_NAME << " (X) da THUA!          ";
         }
         else {
@@ -346,7 +346,7 @@ int ProcessFinish(int pWhoWin) {
         }
         break;
     case  0:
-        if (GetLanguage() == GameLanguage::Vietnamese) {
+        if (GetLanguage() == Vietnamese) {
             cout << "Tran dau HOA! Ban co da het o trong.                          ";
         }
         else {
@@ -365,12 +365,12 @@ int ProcessFinish(int pWhoWin) {
 }
 
 int AskContinue() {
-    bool yes = DrawFinishQuestion(L(TextId::PlayAgainQuestion));
+    bool yes = DrawFinishQuestion(L(PlayAgainQuestion));
     return yes ? 'Y' : 'N';
 }
 
 int TestBoard() {
-    // 1. Kiểm tra người thắng
+
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
             if (_A[i][j].c != 0) {
@@ -391,10 +391,10 @@ int TestBoard() {
         }
     }
 
-    // 2. Kiểm tra hòa (đầy bàn)
+
     for (int i = 0; i < BOARD_SIZE; i++)
         for (int j = 0; j < BOARD_SIZE; j++)
-            if (_A[i][j].c == 0) return 2;  // Vẫn còn ô trống → chưa kết thúc
+            if (_A[i][j].c == 0) return 2;
 
-    return 0;  // Hòa
+    return 0;
 }

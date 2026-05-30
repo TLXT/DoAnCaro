@@ -31,11 +31,11 @@ void DrawCell(int x, int y, int bg_color) {
         cout << " ";
     }
     else if (c == -1) {
-        SetColor(12, bg_color);  // X màu đỏ
+        SetColor(12, bg_color);
         cout << "X";
     }
     else if (c == 1) {
-        SetColor(10, bg_color);  // O màu xanh lá
+        SetColor(10, bg_color);
         cout << "O";
     }
 
@@ -51,8 +51,8 @@ void StartGame() {
     ResetData();
 
     DrawIngameBackground();
-    DrawBoard(BOARD_SIZE);         // Vẽ bàn cờ (giữa màn hình, LEFT=38)
-    DrawPlayerInfo();              // Vẽ panel thông tin (bên phải)
+    DrawBoard(BOARD_SIZE);
+    DrawPlayerInfo();
     ingamedisplay(CharacterASelect, true);
     ingamedisplay(CharacterBSelect, false);
     UpdateTurnInfo();
@@ -147,7 +147,7 @@ void ProcessMove(int _COMMAND, bool validEnter, bool& isPlaying) {
     }
 }
 
-// Đánh ngẫu nhiên khi hết thời gian
+
 void PlayRandomMove() {
     vector<pair<int, int>> emptyCells;
     for (int i = 0; i < BOARD_SIZE; i++)

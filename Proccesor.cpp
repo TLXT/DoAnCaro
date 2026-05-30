@@ -20,7 +20,7 @@ void loadmusic() {
             setVolume();
         }
         else if (choice == 7) {
-            // 8. Sound Effect: [ON/OFF]
+
             isSFXOn = !isSFXOn;
         }
         else if (choice == 8) {
@@ -54,7 +54,7 @@ void loadBotMove(bool& isPlaying){
     isPaused = true;
     {
         lock_guard<mutex>lock(consoleMutex);
-        PrintHudTextWithBg(BOT_MSG_X, BOT_MSG_Y, L(TextId::BotThinking) + "              ", 12);
+        PrintHudTextWithBg(BOT_MSG_X, BOT_MSG_Y, L(BotThinking) + "              ", 12);
     }
 
     _POINT botMove = FindBotMove(1, _BOT_DIFFICULTY);
@@ -64,13 +64,13 @@ void loadBotMove(bool& isPlaying){
         _X = botMove.x;
         _Y = botMove.y;
 
-        int checkRes = CheckBoard(_X, _Y); //lưu giá trị c
+        int checkRes = CheckBoard(_X, _Y);
         DrawCell(_X, _Y, BOARD_CURSOR_COLOR);
-        int finishStatus; // Biến tạm lưu kết quả kiểm tra thắng thua
+        int finishStatus;
         {
             lock_guard<mutex>lock(consoleMutex);
 
-            //lưu lịch sử di chuyển của bot
+
             int r = (_Y - TOP - 1) / 2;
             int c = (_X - LEFT - 2) / 4;
             if (currentStep < (int)moveHistory.size())
@@ -79,7 +79,7 @@ void loadBotMove(bool& isPlaying){
             currentStep++;
 
             PrintHudTextWithBg(BOT_MSG_X, BOT_MSG_Y, "                                  ", 15);
-        } // <-- GIẢI PHÓNG MUTEX TẠI ĐÂY
+        }
 
         finishStatus = ProcessFinish(TestBoard());
         if (finishStatus != 2) {
@@ -88,9 +88,9 @@ void loadBotMove(bool& isPlaying){
             PrintHudTextWithBg(TIMER_X, TIMER_Y + 1, string(40, ' '), 15);
         }
 
-            // Xử lý Replay bên ngoài khóa mutex
+
         switch (finishStatus) {
-		case -1: case 1: case 0: // Ván cờ kết thúc, hỏi người chơi có muốn xem lại không
+		case -1: case 1: case 0:
             isPaused = true;
             PrintHudTextWithBg(TIMER_X, TIMER_Y, string(40, ' '), 15);
             PrintHudTextWithBg(TIMER_X, TIMER_Y + 1, string(40, ' '), 15);
@@ -104,8 +104,8 @@ void loadBotMove(bool& isPlaying){
                 timeLeft = turnTimeLimit;
             }
             break;
-        case 2: // Ván cờ vẫn tiếp tục, chuyển lượt
-            timeLeft = turnTimeLimit; // Đặt lại đồng hồ cho người tiếp theo
+        case 2:
+            timeLeft = turnTimeLimit;
             break;
         }
 

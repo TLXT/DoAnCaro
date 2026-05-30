@@ -7,15 +7,14 @@
 
 using namespace std;
 
-// FIX: Dùng GotoXY cho từng dòng thay vì \x1b[E]
-// → Không bao giờ bị sọc đen, không bao giờ bị scroll
+
 inline void DrawBackground() {
     char pixel[64];
-    
+
     for (int i = 0; i < BG_FOREST_H / 2; i++) {
-        // Nhảy đến đúng dòng console trước khi vẽ
+
         GotoXY(0, i);
-        
+
         string row_buf = "";
         for (int j = 0; j < BG_FOREST_W; j++) {
             int r_top = BG_FOREST[i * 2][j][0];
@@ -30,7 +29,7 @@ inline void DrawBackground() {
                     r_top, g_top, b_top, r_bot, g_bot, b_bot);
             row_buf += pixel;
         }
-        // In cả dòng 1 lần (nhanh), KHÔNG xuống dòng bằng escape
+
         cout << row_buf;
     }
     cout << "\x1b[0m";

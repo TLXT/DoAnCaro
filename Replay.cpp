@@ -55,26 +55,16 @@ static int ReadReplayKey() {
 
 static string ReplayStatusText(bool paused) {
     return paused
-        ? ((GetLanguage() == GameLanguage::Vietnamese) ? u8"T\u1EA0M D\u1EEANG" : "PAUSED")
-        : ((GetLanguage() == GameLanguage::Vietnamese) ? u8"\u0110ANG PH\u00C1T" : "PLAYING");
+        ? ((GetLanguage() == Vietnamese) ? u8"T\u1EA0M D\u1EEANG" : "PAUSED")
+        : ((GetLanguage() == Vietnamese) ? u8"\u0110ANG PH\u00C1T" : "PLAYING");
 }
 
 static string ReplayDoneText() {
-    return (GetLanguage() == GameLanguage::Vietnamese) ? u8"\u0110\u00C3 PH\u00C1T XONG" : "FINISHED";
+    return (GetLanguage() == Vietnamese) ? u8"\u0110\u00C3 PH\u00C1T XONG" : "FINISHED";
 }
 
 static string ReplayStepLabel() {
-    return (GetLanguage() == GameLanguage::Vietnamese) ? u8"B\u01AF\u1EDAC: " : "STEP: ";
-}
-
-static string ReplayProgressLabel() {
-    return (GetLanguage() == GameLanguage::Vietnamese) ? u8"TI\u1EBEN TR\u00CCNH" : "PROGRESS";
-}
-
-static string ReplayControlsText() {
-    return (GetLanguage() == GameLanguage::Vietnamese)
-        ? u8"A: TUA L\u00D9I   D: TUA T\u1EDAI   SPACE/P: T\u1EA0M D\u1EEANG   ESC: THO\u00C1T"
-        : "A: REWIND   D: FAST FORWARD   SPACE/P: PAUSE   ESC: EXIT";
+    return (GetLanguage() == Vietnamese) ? u8"B\u01AF\u1EDAC: " : "STEP: ";
 }
 
 static void PrintRgbText(int x, int y, const string& text, int r, int g, int b, int bgR, int bgG, int bgB) {
@@ -234,7 +224,7 @@ static void DrawReplayHud(int step, int totalMoves, bool paused, const string& m
 }
 
 bool AskForReplay() {
-    return DrawFinishQuestion(L(TextId::ReplayQuestion));
+    return DrawFinishQuestion(L(ReplayQuestion));
 }
 
 void ChooseReplaySpeed(float& speed, int& delay) {
@@ -243,10 +233,10 @@ void ChooseReplaySpeed(float& speed, int& delay) {
     DrawUIBackground();
 
     int consoleW = CONSOLE_COLS;
-    string prompt = (GetLanguage() == GameLanguage::Vietnamese)
+    string prompt = (GetLanguage() == Vietnamese)
         ? u8"CH\u1ECCN T\u1ED0C \u0110\u1ED8 PH\u00C1T L\u1EA0I"
         : "SELECT REPLAY SPEED";
-    string help = (GetLanguage() == GameLanguage::Vietnamese)
+    string help = (GetLanguage() == Vietnamese)
         ? u8"A/D HO\u1EB6C M\u0168I T\u00CAN \u0110\u1EC2 CH\u1ECCN, ENTER \u0110\u1EC2 B\u1EAET \u0110\u1EA6U"
         : "A/D OR ARROWS TO SELECT, ENTER TO START";
     int panelW = 76;

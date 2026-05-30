@@ -18,17 +18,14 @@
 #include "Proccesor.h"
 
 
-
 using namespace std;
 
-// =========================================================
-// CÁC HÀM CẤU HÌNH CONSOLE TỪ MAIN CŨ (RẤT QUAN TRỌNG ĐỂ VẼ MÀU)
-// =========================================================
+
 void EnableRGBColor() {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwMode = 0;
     GetConsoleMode(hOut, &dwMode);
-    dwMode |= 0x0004; // ENABLE_VIRTUAL_TERMINAL_PROCESSING
+    dwMode |= 0x0004;
     SetConsoleMode(hOut, dwMode);
 }
 
@@ -36,26 +33,25 @@ void SetConsoleFontSize(int width, int height) {
     CONSOLE_FONT_INFOEX cfi;
     cfi.cbSize = sizeof(cfi);
     cfi.nFont = 0;
-    cfi.dwFontSize.X = width;  // Chiều rộng pixel của 1 ký tự
-    cfi.dwFontSize.Y = height; // Chiều cao pixel của 1 ký tự
+    cfi.dwFontSize.X = width;
+    cfi.dwFontSize.Y = height;
     cfi.FontFamily = FF_DONTCARE;
     cfi.FontWeight = FW_NORMAL;
-    wcscpy_s(cfi.FaceName, L"Consolas"); // Font Consolas hỗ trợ UTF-8 tốt
+    wcscpy_s(cfi.FaceName, L"Consolas");
     SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
 }
 
-// =========================================================
-// HÀM MAIN CHÍNH
-// =========================================================
+
 int main() {
-    // 1. Khởi tạo môi trường đồ họa cho Console
+
+    // Khoi tao console va am thanh.
     EnableRGBColor();
-    SetConsoleOutputCP(CP_UTF8); // Bật Font UTF-8 để vẽ box và text tiếng Việt
+    SetConsoleOutputCP(CP_UTF8);
     SetConsoleFontSize(12, 16);
 
     FixConsoleWindow();
 
-    // Đảm bảo lưới Console đủ 120 cột và 50 dòng để chứa được giao diện mới (800px)
+
     system("MODE CON COLS=120 LINES=40");
     ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
     SetConsoleWindow(CONSOLE_COLS * 12, CONSOLE_LINES * 16);
@@ -66,16 +62,16 @@ int main() {
         int choice = MainMenu();
         bool isPlaying = false;
 
-        if (choice == 0) {  // CHỌN: PLAY GAME
+        if (choice == 0) {
             int mode = PlayGameMenu();
 
-            if (mode == 0) {  // Player vs Player
+            if (mode == 0) {
                 _BOT_MODE = false;
                 if (!InputPlayerNames(false)) continue;
                 StartGame();
                 isPlaying = true;
             }
-            else if (mode == 1) {  // Player vs Bot
+            else if (mode == 1) {
                 int diff = DifficultyMenu();
                 if (diff == 3) continue;
 
@@ -89,7 +85,7 @@ int main() {
                 continue;
             }
         }
-        else if (choice == 1) {  // CHỌN: LOAD GAME
+        else if (choice == 1) {
             if (LoadGame() == true) {
                 ingamedisplay(CharacterASelect, true);
                 ingamedisplay(CharacterBSelect, false);
@@ -107,10 +103,9 @@ int main() {
             return 0;
         }
 
-        // ============================================================
-        //  VÒNG LẶP CHÍNH - GAMEPLAY
-        // ============================================================
+
         if (isPlaying) {
+            // Vong lap gameplay chinh.
             bool validEnter = true;
             bool actionBarActive = false;
             int actionSelect = 0;
@@ -124,13 +119,11 @@ int main() {
                 actionSelect = 0;
                 isPaused = false;
             };
-            StartTimerThread();  // Kích hoạt luồng đếm ngược
+            StartTimerThread();
 
             while (isPlaying) {
 
-                // --------------------------------------------------------
-                // 1. XỬ LÝ TIMEOUT (HẾT GIỜ)
-                // --------------------------------------------------------
+
                 if (timeLeft <= 0) {
                     PlayRandomMove();
                     int finish = ProcessFinish(TestBoard());
@@ -160,17 +153,13 @@ int main() {
                     continue;
                 }
 
-                // --------------------------------------------------------
-                // 2. LƯỢT CỦA BOT
-                // --------------------------------------------------------
+
                 if (_BOT_MODE == true && _TURN == false) {
                     loadBotMove(isPlaying);
                     continue;
                 }
 
-                // --------------------------------------------------------
-                // 3. XỬ LÝ PHÍM BẤM CỦA NGƯỜI CHƠI
-                // --------------------------------------------------------
+
                 if (_kbhit()) {
                     int ch = _getch();
                     if (ch == 0 || ch == 224) {
@@ -224,7 +213,7 @@ int main() {
                         }
                     }
 
-                    // --- MỞ MENU PHỤ (M hoặc ESC) ---
+
                     if (_COMMAND == 'R') {
                         RestartCurrentMatch();
                         continue;
@@ -271,8 +260,7 @@ int main() {
                         isPaused = false;
                     }
 
-                    // --- TẠM DỪNG / TIẾP TỤC (P) ---
-                    // --- CÁC PHÍM DI CHUYỂN / ĐÁNH CỜ (chỉ khi đang chơi) ---
+
                     else if (!isPaused) {
                         if (_COMMAND == 'Y') {
                             if (!_BOT_MODE || _TURN) { UndoMove(); timeLeft = turnTimeLimit; }
@@ -295,7 +283,7 @@ int main() {
                         }
                         else if (_COMMAND == 'D' || _COMMAND == 77) MoveRight();
 
-                        else if (_COMMAND == 13) {  // ENTER: Đánh cờ
+                        else if (_COMMAND == 13) {
                             int checkRes = CheckBoard(_X, _Y);
                             switch (checkRes) {
                             case -1: DrawCell(_X, _Y, BOARD_CURSOR_COLOR); break;
@@ -304,7 +292,7 @@ int main() {
                             }
 
                             if (validEnter == true) {
-                                // Lưu lịch sử nước đi người chơi
+
                                 int r = (_Y - TOP - 1) / 2;
                                 int c = (_X - LEFT - 2) / 4;
                                 if (currentStep < (int)moveHistory.size())
@@ -333,7 +321,7 @@ int main() {
                                     }
                                     break;
 
-                                case 2:  // Ván cờ tiếp tục
+                                case 2:
                                     timeLeft = turnTimeLimit;
                                     break;
                                 }
@@ -343,7 +331,7 @@ int main() {
                     }
                 }
 
-                // Giải phóng CPU - tránh vòng lặp nuốt 100% CPU
+
                 Sleep(10);
             }
 

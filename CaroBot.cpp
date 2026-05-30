@@ -244,7 +244,7 @@ pair<int, int> FindImmediateThreat(int aiPiece, int playerPiece) {
     vector<pair<int, int>> moves = GetValidMoves();
     for (auto move : moves) { _A[move.first][move.second].c = aiPiece; if (CheckWin(aiPiece)) { _A[move.first][move.second].c = 0; return move; } _A[move.first][move.second].c = 0; }
     for (auto move : moves) { _A[move.first][move.second].c = playerPiece; if (CheckWin(playerPiece)) { _A[move.first][move.second].c = 0; return move; } _A[move.first][move.second].c = 0; }
-    // Tìm đòn chặn và tấn công nhanh (Lấy từ code gốc của bạn, rút gọn lại)
+
     pair<int, int> bestDef = { -1, -1 }, bestAtt = { -1, -1 };
     int maxDef = 0, maxAtt = 0;
     for (auto m : moves) { int s = CountThreat(m.first, m.second, playerPiece); if (s >= 10000 && s > maxDef) { maxDef = s; bestDef = m; } } if (bestDef.first != -1) return bestDef;
@@ -290,7 +290,7 @@ int Minimax(int depth, int alpha, int beta, bool isMaximizing, int aiPiece, int 
         uint64_t newHash = UpdateHash(boardHash, move.first, move.second, _A[move.first][move.second].c);
 
         int eval = Minimax(depth - 1, alpha, beta, !isMaximizing, aiPiece, playerPiece, newHash);
-        _A[move.first][move.second].c = 0; // Trả lại bảng cờ (Backtracking)
+        _A[move.first][move.second].c = 0;
 
         if (isMaximizing) { bestScore = max(bestScore, eval); alpha = max(alpha, eval); }
         else { bestScore = min(bestScore, eval); beta = min(beta, eval); }

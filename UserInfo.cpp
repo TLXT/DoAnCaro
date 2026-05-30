@@ -46,7 +46,7 @@ static string GetActionLabel(int index) {
     case 0: return "UNDO";
     case 1: return "REDO";
     case 2: return "RESTART";
-    case 3: return L(TextId::HudPause);
+    case 3: return L(HudPause);
     default: return "";
     }
 }
@@ -217,9 +217,9 @@ void DrawPlayerInfo() {
 
 void UpdateTurnInfo() {
     lock_guard<mutex> lock(consoleMutex);
-    
+
     DrawIngameTurnBadges();
     DrawTurnTimers(turnTimeLimit);
-    
-    GotoXY(_X, _Y); // Trả con trỏ về bàn cờ
+
+    GotoXY(_X, _Y);
 }

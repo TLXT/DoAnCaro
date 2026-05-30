@@ -10,6 +10,149 @@
 int CharacterASelect = -1;
 int CharacterBSelect = -1;
 
+// Du lieu pixel cua 5 nhan vat.
+static const vector<vector<int>> CHARACTER_PIXELS_0 = {
+			{15, 15, 15, 15, 15, 15, 15,  7,  0,  0,  0,  0,  0,  0,  0,  0,  7, 15, 15, 15},
+			{15, 15, 15, 15, 15, 15,  7,  0,  8,  8,  8,  8,  8,  8,  8,  0,  0,  7, 15, 15},
+			{15, 15, 15, 15, 15,  7,  0,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  7, 15},
+			{15, 15, 15, 15, 7,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8, 15},
+			{15, 15, 15, 15, 7,  8,  8,  8,  8,  6,  6,  6,  6,  6,  6,  6,  6,  6,  8,  7},
+			{15, 15, 15, 15, 7,  8,  8,  8,  8,  8,  6,  6,  8,  8,  8,  8,  8,  6,  8,  7},
+			{15, 15, 15, 15, 7,  8,  8,  8,  8, 14,  6,  6,  6,  6,  6,  6,  6,  6,  6,  7},
+			{15, 15, 15, 15, 7,  8,  8,  8,  8, 14,  8,  8,  0,  8,  8,  8,  0,  8,  6,  7},
+			{15, 15, 15, 15, 7,  8,  8,  8,  8, 14, 14, 14,  6,  8,  8,  8,  6,  6, 14,  7},
+			{15, 15, 15, 15, 15,  8,  8,  8,  8,  8,  8,  8, 14,  7,  7,  7, 14, 14,  6,  7},
+			{15, 15, 15, 15, 15,  8,  8,  8,  8,  8,  8,  8, 14,  7,  7,  7, 14, 14,  8,  7},
+			{15, 15, 15, 15,  8,  8,  8,  8,  8,  8,  8,  8, 14,  14,  14, 14, 14, 14,  8,  7},
+			{15, 15, 15,  7,  4,  4,  8,  8,  8,  8,  8,  6,  6,  6,  6,  6,  6,  6,  8, 15},
+			{15, 15,  7,  4, 12,  4,  4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,  4,  8, 15},
+			{15, 15,  7,  4, 12,  4,  4,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  4,  7, 15},
+			{15, 15,  7,  4, 12,  4,  0,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  0, 7, 15},
+			{15, 15,  7,  4, 12,  4,  0,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  0, 7, 15},
+			{15,  7,  4,  4,  4,  4,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8, 7, 15},
+			{ 7,  4,  4,  4,  4,  4,  7,  8,  0,  0,  8,  8,  8,  8,  8,  0,  0,  7, 15, 15},
+			{ 7,  4,  4,  4, 15,  7, 15, 15,  7,  0, 15, 15, 15, 15, 15,  7,  0, 15, 15, 15}
+		};
+
+static const vector<vector<int>> CHARACTER_PIXELS_1 = {
+		{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15, 15,  0,  0,  0,  0,  0,  0,  0,  0, 15, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15,  0,  0,  0,  0,  0,  0,  0,  4,  0,  0,  0, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15,  0,  0,  0,  0,  0,  0,  0,  4,  4,  0,  0,  0, 15, 15, 15, 15},
+		{15, 15, 15, 15,  0,  0,  0,  0,  0,  0,  0,  0,  4,  0,  0,  0, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15,  0,  0,  0,  0,  4,  4,  4,  4,  4,  4,  0, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15,  0,  0,  0,  4,  4,  6,  0,  0,  6,  4,  0, 15, 15, 15, 15},
+		{15, 15, 15,  0,  0,  0,  0,  4,  0,  0,  0,  0,  0,  0,  0,  4, 15, 15, 15, 15},
+		{15, 15, 15,  0,  0,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4, 15, 15, 15, 15, 15},
+		{15, 15, 15,  0,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4, 15, 15, 15, 15, 15},
+		{15, 15, 15,  0,  4,  0,  0,  0,  0,  0,  0,  4,  0,  0,  0, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15, 15,  0,  0,  0,  0,  0,  4,  0,  0, 15, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15, 15, 15,  0,  0,  0,  0,  4,  0,  0, 15, 15, 15, 15, 15, 15},
+		{15, 15, 15, 15, 15, 15, 15,  0, 15, 15, 15, 15,  0, 15, 15, 15, 15, 15, 15, 15}
+		};
+
+static const vector<vector<int>> CHARACTER_PIXELS_2 = {
+	{15, 15, 15, 15, 15, 15, 15, 15, 15,  0,  0, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15, 15, 15, 15,  0,  0,  0,  0, 15, 15, 15, 15, 15, 15},
+	{15,  0, 15, 15, 15, 15, 15, 15,  0,  0,  0,  0,  0,  0,  0,  0, 15,  0,  0, 15},
+	{15,  0,  0,  0, 15, 15,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15},
+	{15,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15},
+	{15,  0,  0,  0,  0,  0,  0,  0,  0,  8,  0,  0,  0,  0,  8,  8,  0,  0,  0, 15},
+	{15, 15,  0,  0,  0,  0,  8,  8,  8,  8,  8,  8,  0,  8,  8,  8,  8,  0,  0, 15},
+	{15, 15,  0,  0,  0,  0,  8,  8,  0,  0,  0,  8,  8,  8,  0,  0,  8,  0,  0, 15},
+	{15, 15, 15,  0,  0,  0,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  0,  0, 15},
+	{15,  4,  4,  0,  0,  0,  8,  8,  8,  0,  8,  8,  8,  8,  8,  0,  8,  0,  0,  0},
+	{15,  4,  4,  0,  0,  0,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  0,  4,  0},
+	{15, 15,  4,  4,  0,  0,  0,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  4,  4,  0},
+	{15, 15,  4,  4,  4,  0,  0,  0,  0,  8,  8,  8,  8,  8,  8,  8,  4,  4,  4, 15},
+	{15, 15,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4, 15, 15},
+	{15, 15,  4,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15, 15, 15},
+	{15, 15,  4,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15, 15, 15},
+	{15,  4,  4,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15, 15, 15},
+	{15,  4,  4,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15, 15, 15},
+	{ 15,  4,  4,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15, 15, 15},
+	{ 15,  4,  4, 15, 15, 15,  0,  0, 15, 15, 15, 15, 15,  0,  0,  15, 15, 15, 15, 15}
+		};
+
+static const vector<vector<int>> CHARACTER_PIXELS_3 = {
+	{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15, 15, 15, 15,  6,  6,  0, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15, 15, 15,  7,  6,   6,  0, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15,  0,  8,  8,  8,  6,  0,  0, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15,  0,  8,  8,  8,  8,  6,  8,  8,  0, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15,  0,  8,  8,  8,  8,  8,  6,  8,  8,  0, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15,  0,  8,  8,  6,  6,  6, 6,  6,  6,  6, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15,  0,  8,  8,  6,  8,  8,  6,  8,  8,  6, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15,  0,  8,  8,  6,  1,  0,  0,  0,  1,  6, 15, 15, 15, 15, 15},
+	{15, 15, 15,  0,  0,  8,  8,  8,  6,  0,  0,  0,  0,  0,  6,  0, 15, 15, 15, 15},
+	{15, 15,  0,  6,  8,  8,  8,  0,  8,  8,  8,  8,  8,  8,  0,  8,  0, 15, 15, 15},
+	{15, 15,  0,  8,  6,  6,  6,  0,  8,  8,  8,  8,  8,  8,  8,  6,  0, 15, 15, 15},
+	{15, 15, 15,  0,  0,  0,  0,  8,  8,  8,  8,  8,  8,  8,  8,  0,  0, 15, 15, 15},
+	{15, 15, 15, 15, 15,  0,  0,  6,  8,  8,  8,  8,  8,  8,  0, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15,  0,  0,  0,  0,  6,  6,  6,  6,  6,  0, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15,  0,  0, 15, 15, 15, 15,  0,  0, 15, 15, 15, 15, 15, 15}
+		};
+
+static const vector<vector<int>> CHARACTER_PIXELS_4 = {
+	{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15,  0,  4,  4,  4,  0,  0,  0, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15,  0,  0,  4,  7,  7,  7,  7,  7,  7,  0, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15,  0,  7,  7,  4,  7,  7,  7,  7,  7,  7,  4,  0, 15, 15, 15, 15},
+	{15, 15, 15, 15,  0,  7,  7,  7,  7,  4,  4,  4,  4,  4,  7,  7,  0, 15, 15, 15},
+	{15, 15, 15, 15,  0,  4,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  4, 15, 15, 15},
+	{15, 15, 15, 15, 15,  0,  0,  7,  7,  7,  7,  7,  7,  7,  7,  4,  0, 15, 15, 15},
+	{15, 15, 15, 15, 15,  0,  0,  8,  8,  4,  0,  0,  0,  4,  4, 15, 15, 14, 15, 15},
+	{15, 15,  0,  0,  0,  0,  0,  8,  8,  4,  0,  0,  0,  6,  6, 14, 14, 14, 15, 15},
+	{15, 15,  0,  0,  4,  4,  4,  4,  8,  4,  0,  0,  0,  4,  8, 15, 15, 15, 15, 15},
+	{15, 15,  0,  0,  4,  4,  4,  4,  4,  4,  4,  4,  4,  8,  8, 15, 15, 15, 15, 15},
+	{15, 15,  0,  4,  4,  4,  4,  4,  4,  4,  4,  4, 12,  4,  0, 15, 15, 15, 15, 15},
+	{15, 15, 15,  0,  0,  4,  4,  4,  4,  4,  4,  4,  4,  4,  0, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15,  0,  0,  0,  0,  0,  0,  0, 15, 15, 15, 15, 15, 15},
+	{15, 15, 15, 15, 15, 15, 15,  0,  0, 15, 15, 15,  0,  0, 15, 15, 15, 15, 15, 15}
+		};
+
+static const char* CHARACTER_NAMES[] = {
+    "Knight",
+    "Assassin",
+    "Vampire",
+    "Paladin",
+    "Officer"
+};
+
+static int ClampCharacterOption(int option) {
+    if (option < 0) return 0;
+    if (option > 4) return 4;
+    return option;
+}
+
+const vector<vector<int>>& GetCharacterPixels(int option) {
+    switch (ClampCharacterOption(option)) {
+    case 0: return CHARACTER_PIXELS_0;
+    case 1: return CHARACTER_PIXELS_1;
+    case 2: return CHARACTER_PIXELS_2;
+    case 3: return CHARACTER_PIXELS_3;
+    default: return CHARACTER_PIXELS_4;
+    }
+}
+
+string GetCharacterName(int option) {
+    return CHARACTER_NAMES[ClampCharacterOption(option)];
+}
+
 static bool IsCharacterPixel(int color) {
     return color >= 0 && color < 15;
 }
@@ -234,89 +377,39 @@ static void DrawPreviewFrame(int x, int y, int w, int h, bool selected, bool dis
     SetColor(0, 15);
 }
 
-static void DrawCharacterPreviewBox(Character& character, int x, int y, int boxW, int boxH, bool selected, bool disabled) {
+// Ve nhan vat trong menu chon va trong tran dau.
+static void DrawCharacterPreviewBox(const vector<vector<int>>& pixels, const string& name, int x, int y, int boxW, int boxH, bool selected, bool disabled) {
     DrawPreviewFrame(x, y, boxW, boxH, selected, disabled);
 
     int spriteW = min(20, boxW - 6);
     int spriteH = min(9, boxH - 4);
     int spriteX = x + (boxW - spriteW) / 2;
     int spriteY = y + 1;
-    DrawCharacterPixelsScaled(character.GetDisplay(), spriteX, spriteY, spriteW, spriteH, false);
+    DrawCharacterPixelsScaled(pixels, spriteX, spriteY, spriteW, spriteH, false);
 
-    string label = disabled ? "DA CHON" : UpperAscii(character.GetName());
+    string label = disabled ? "DA CHON" : UpperAscii(name);
     if (selected && !disabled) label = "> " + label + " <";
     DrawCharacterName(label, x + 1, y + boxH - 2, boxW - 2);
 }
 
 void DrawCharacterPreview(int option, int x, int y, int boxW, int boxH, bool selected, bool disabled) {
-    if (option == 0) {
-        Knight character;
-        DrawCharacterPreviewBox(character, x, y, boxW, boxH, selected, disabled);
-    }
-    else if (option == 1) {
-        Assassin character;
-        DrawCharacterPreviewBox(character, x, y, boxW, boxH, selected, disabled);
-    }
-    else if (option == 2) {
-        Vampire character;
-        DrawCharacterPreviewBox(character, x, y, boxW, boxH, selected, disabled);
-    }
-    else if (option == 3) {
-        Paladin character;
-        DrawCharacterPreviewBox(character, x, y, boxW, boxH, selected, disabled);
-    }
-    else {
-        Officer character;
-        DrawCharacterPreviewBox(character, x, y, boxW, boxH, selected, disabled);
-    }
+    DrawCharacterPreviewBox(GetCharacterPixels(option), GetCharacterName(option), x, y, boxW, boxH, selected, disabled);
 }
 
 void outsidedisplay(int option) {
-    if (option == 0) {
-        Knight a;
-        a.DrawOnChoosingMenu();
-    }
-    else if (option == 1) {
-        Assassin a;
-        a.DrawOnChoosingMenu();
-    }
-    else if (option == 2) {
-        Vampire a;
-        a.DrawOnChoosingMenu();
-    }
-    else if (option == 3) {
-        Paladin a;
-        a.DrawOnChoosingMenu();
-    }
-    else if (option == 4) {
-        Officer a;
-        a.DrawOnChoosingMenu();
-    }
+    DrawCharacterPixels(GetCharacterPixels(option), 18, 5, 2);
+    DrawCharacterName(GetCharacterName(option), 18, 26, 40);
 }
 
 void ingamedisplay(int option, bool isPlayer1) {
-    string name = isPlayer1 ? _PLAYER1_NAME : _PLAYER2_NAME;
+    string playerName = isPlayer1 ? _PLAYER1_NAME : _PLAYER2_NAME;
+    int x = isPlayer1 ? LEFT_SPRITE_X : RIGHT_SPRITE_X;
+    bool flip = !isPlayer1;
 
-    if (option == 0) {
-        Knight character(name);
-        isPlayer1 ? character.DrawLeftSizeInGame() : character.DrawRightSizeInGame();
-    }
-    else if (option == 1) {
-        Assassin character(name);
-        isPlayer1 ? character.DrawLeftSizeInGame() : character.DrawRightSizeInGame();
-    }
-    else if (option == 2) {
-        Vampire character(name);
-        isPlayer1 ? character.DrawLeftSizeInGame() : character.DrawRightSizeInGame();
-    }
-    else if (option == 3) {
-        Paladin character(name);
-        isPlayer1 ? character.DrawLeftSizeInGame() : character.DrawRightSizeInGame();
-    }
-    else {
-        Officer character(name);
-        isPlayer1 ? character.DrawLeftSizeInGame() : character.DrawRightSizeInGame();
-    }
+    RestoreGameBackgroundRect(x, 0, SPRITE_DRAW_W, SPRITE_START_Y + SPRITE_DRAW_H + 2);
+    DrawTurnBadge(x, isPlayer1 ? 'X' : 'O', isPlayer1 ? (_TURN == true) : (_TURN == false));
+    DrawCharacterPixelsScaled(GetCharacterPixels(option), x, SPRITE_START_Y, SPRITE_DRAW_W, SPRITE_DRAW_H, flip);
+    DrawIngameCharacterName(playerName, x, SPRITE_START_Y + SPRITE_DRAW_H + 1, SPRITE_DRAW_W);
 }
 
 void DrawBothSprites() {
@@ -324,21 +417,4 @@ void DrawBothSprites() {
     if (CharacterBSelect < 0) CharacterBSelect = 1;
     ingamedisplay(CharacterASelect, true);
     ingamedisplay(CharacterBSelect, false);
-}
-
-void Character::DrawOnChoosingMenu() {
-    DrawCharacterPixels(GetDisplay(), 18, 5, 2);
-    DrawCharacterName(GetName(), 18, 26, 40);
-}
-void Character::DrawLeftSizeInGame() {
-    RestoreGameBackgroundRect(LEFT_SPRITE_X, 0, SPRITE_DRAW_W, SPRITE_START_Y + SPRITE_DRAW_H + 2);
-    DrawTurnBadge(LEFT_SPRITE_X, 'X', _TURN == true);
-    DrawCharacterPixelsScaled(GetDisplay(), LEFT_SPRITE_X, SPRITE_START_Y, SPRITE_DRAW_W, SPRITE_DRAW_H, false);
-    DrawIngameCharacterName(GetName(), LEFT_SPRITE_X, SPRITE_START_Y + SPRITE_DRAW_H + 1, SPRITE_DRAW_W);
-}
-void Character::DrawRightSizeInGame() {
-    RestoreGameBackgroundRect(RIGHT_SPRITE_X, 0, SPRITE_DRAW_W, SPRITE_START_Y + SPRITE_DRAW_H + 2);
-    DrawTurnBadge(RIGHT_SPRITE_X, 'O', _TURN == false);
-    DrawCharacterPixelsScaled(GetDisplay(), RIGHT_SPRITE_X, SPRITE_START_Y, SPRITE_DRAW_W, SPRITE_DRAW_H, true);
-    DrawIngameCharacterName(GetName(), RIGHT_SPRITE_X, SPRITE_START_Y + SPRITE_DRAW_H + 1, SPRITE_DRAW_W);
 }
