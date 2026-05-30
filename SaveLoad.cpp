@@ -839,8 +839,8 @@ bool LoadGame() {
 
         int charA = 0, charB = 4;
         if (inFile >> charA >> charB) {
-            CharacterASelect = (charA >= 0 && charA <= 4) ? charA : 0;
-            CharacterBSelect = (charB >= 0 && charB <= 4) ? charB : 4;
+            CharacterASelect = (charA >= 0 && charA < GetCharacterCount()) ? charA : 0;
+            CharacterBSelect = (charB >= 0 && charB < GetCharacterCount()) ? charB : 4;
             int botMode = 0, botDiff = 2;
             if (inFile >> botMode >> botDiff) {
                 _BOT_MODE = (botMode != 0);

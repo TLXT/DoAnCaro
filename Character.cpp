@@ -10,7 +10,7 @@
 int CharacterASelect = -1;
 int CharacterBSelect = -1;
 
-// Du lieu pixel cua 5 nhan vat.
+// Du lieu pixel nhan vat.
 static const vector<vector<int>> CHARACTER_PIXELS_0 = {
 			{15, 15, 15, 15, 15, 15, 15,  7,  0,  0,  0,  0,  0,  0,  0,  0,  7, 15, 15, 15},
 			{15, 15, 15, 15, 15, 15,  7,  0,  8,  8,  8,  8,  8,  8,  8,  0,  0,  7, 15, 15},
@@ -125,17 +125,45 @@ static const vector<vector<int>> CHARACTER_PIXELS_4 = {
 	{15, 15, 15, 15, 15, 15, 15,  0,  0, 15, 15, 15,  0,  0, 15, 15, 15, 15, 15, 15}
 		};
 
+static const vector<vector<int>> CHARACTER_PIXELS_5 = {
+    {15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+    {15, 15, 15, 15, 15,  0,  0,  0, 15, 15, 15, 15,  0,  0,  0, 15, 15, 15, 15, 15},
+    {15, 15, 15, 15,  0,  0,  0,  0,  0, 15, 15,  0,  0,  0,  0,  0, 15, 15, 15, 15},
+    {15, 15, 15,  0,  0,  0,  7,  0,  0,  0,  0,  0,  0,  7,  0,  0,  0, 15, 15, 15},
+    {15, 15,  0,  0,  0,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  0,  0,  0, 15, 15},
+    {15, 15,  0,  0,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  0,  0, 15, 15},
+    {15,  0,  0,  7,  7,  7,  0,  0,  7,  7,  7,  7,  0,  0,  7,  7,  7,  0,  0, 15},
+    {15,  0,  7,  7,  7,  0,  0,  0,  7,  7,  7,  7,  0,  0,  0,  7,  7,  7,  0, 15},
+    {15,  0,  7,  7,  7,  0,  7,  0,  7,  7,  7,  7,  0,  7,  0,  7,  7,  7,  0, 15},
+    {15,  0,  7,  7,  7,  0,  0,  0,  7,  7,  7,  7,  0,  0,  0,  7,  7,  7,  0, 15},
+    {15, 15,  0,  7,  7,  7,  7,  7,  7,  0,  0,  7,  7,  7,  7,  7,  7,  0, 15, 15},
+    {15, 15, 15,  0,  7,  7,  7,  7,  0, 12, 12,  0,  7,  7,  7,  7,  0, 15, 15, 15},
+    {15, 15, 15, 15,  0,  7,  7,  7,  7,  0,  0,  7,  7,  7,  7,  0, 15, 15, 15, 15},
+    {15, 15, 15, 15,  0,  0,  7,  7,  7,  7,  7,  7,  7,  7,  0,  0, 15, 15, 15, 15},
+    {15, 15, 15,  0,  0,  7,  7,  7,  8,  8,  8,  8,  7,  7,  7,  0,  0, 15, 15, 15},
+    {15, 15,  0,  0,  7,  7,  7,  8,  8,  8,  8,  8,  8,  7,  7,  7,  0,  0, 15, 15},
+    {15, 15,  0,  0,  7,  7,  8,  8,  8,  8,  8,  8,  8,  8,  7,  7,  0,  0, 15, 15},
+    {15, 15, 15,  0,  0,  0,  8,  8,  8,  8,  8,  8,  8,  8,  0,  0,  0, 15, 15, 15},
+    {15, 15, 15, 15, 15,  0,  0, 15, 15, 15, 15, 15, 15,  0,  0, 15, 15, 15, 15, 15},
+    {15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15}
+};
+
 static const char* CHARACTER_NAMES[] = {
     "Knight",
     "Assassin",
     "Vampire",
     "Paladin",
-    "Officer"
+    "Officer",
+    "Panda"
 };
+
+int GetCharacterCount() {
+    return static_cast<int>(sizeof(CHARACTER_NAMES) / sizeof(CHARACTER_NAMES[0]));
+}
 
 static int ClampCharacterOption(int option) {
     if (option < 0) return 0;
-    if (option > 4) return 4;
+    if (option >= GetCharacterCount()) return GetCharacterCount() - 1;
     return option;
 }
 
@@ -145,7 +173,8 @@ const vector<vector<int>>& GetCharacterPixels(int option) {
     case 1: return CHARACTER_PIXELS_1;
     case 2: return CHARACTER_PIXELS_2;
     case 3: return CHARACTER_PIXELS_3;
-    default: return CHARACTER_PIXELS_4;
+    case 4: return CHARACTER_PIXELS_4;
+    default: return CHARACTER_PIXELS_5;
     }
 }
 
@@ -155,6 +184,24 @@ string GetCharacterName(int option) {
 
 static bool IsCharacterPixel(int color) {
     return color >= 0 && color < 15;
+}
+
+static int CharacterPixelAt(const vector<vector<int>>& pixels, int row, int col) {
+    if (row < 0 || row >= (int)pixels.size()) return 15;
+    if (col < 0 || col >= (int)pixels[row].size()) return 15;
+    return pixels[row][col];
+}
+
+static bool HasCharacterNeighbor(const vector<vector<int>>& pixels, int row, int col) {
+    for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+            if (dx == 0 && dy == 0) continue;
+            if (IsCharacterPixel(CharacterPixelAt(pixels, row + dy, col + dx))) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 static void RestoreGameBackgroundRect(int startX, int startY, int width, int height) {
@@ -192,6 +239,19 @@ static void RestoreGameBackgroundRect(int startX, int startY, int width, int hei
 static void DrawCharacterPixels(const vector<vector<int>>& pixels, int startX, int startY, int cellWidth) {
     for (int row = 0; row < (int)pixels.size(); row++) {
         int currentX = startX;
+        for (int col = 0; col < (int)pixels[row].size(); col++) {
+            int color = pixels[row][col];
+            if (!IsCharacterPixel(color) && HasCharacterNeighbor(pixels, row, col)) {
+                GotoXY(currentX, startY + row);
+                SetColor(0, 0);
+                for (int i = 0; i < cellWidth; i++) cout << ' ';
+            }
+            currentX += cellWidth;
+        }
+    }
+
+    for (int row = 0; row < (int)pixels.size(); row++) {
+        int currentX = startX;
         for (int color : pixels[row]) {
             if (color < 0 || color >= 15) {
                 currentX += cellWidth;
@@ -211,8 +271,10 @@ static void DrawCharacterPixelsScaled(const vector<vector<int>>& pixels, int sta
     int bottom = -1;
     int left = 100000;
     int right = -1;
+    int maxCols = 0;
 
     for (int row = 0; row < (int)pixels.size(); row++) {
+        maxCols = max(maxCols, (int)pixels[row].size());
         for (int col = 0; col < (int)pixels[row].size(); col++) {
             if (IsCharacterPixel(pixels[row][col])) {
                 top = min(top, row);
@@ -225,6 +287,11 @@ static void DrawCharacterPixelsScaled(const vector<vector<int>>& pixels, int sta
 
     if (bottom < top || right < left) return;
 
+    top = max(0, top - 1);
+    bottom = min((int)pixels.size() - 1, bottom + 1);
+    left = max(0, left - 1);
+    right = min(maxCols - 1, right + 1);
+
     int srcW = right - left + 1;
     int srcH = bottom - top + 1;
 
@@ -235,10 +302,24 @@ static void DrawCharacterPixelsScaled(const vector<vector<int>>& pixels, int sta
         for (int col = 0; col < targetW; col++) {
             int srcOffset = (col * srcW) / targetW;
             int srcCol = flipHorizontal ? right - srcOffset : left + srcOffset;
-            int color = 15;
-            if (srcCol >= 0 && srcCol < (int)pixels[srcRow].size()) {
-                color = pixels[srcRow][srcCol];
+            int color = CharacterPixelAt(pixels, srcRow, srcCol);
+
+            if (!IsCharacterPixel(color) && HasCharacterNeighbor(pixels, srcRow, srcCol)) {
+                GotoXY(startX + col, startY + row);
+                SetColor(0, 0);
+                cout << ' ';
             }
+        }
+    }
+
+    for (int row = 0; row < targetH; row++) {
+        int srcRow = top + (row * srcH) / targetH;
+        if (srcRow > bottom) srcRow = bottom;
+
+        for (int col = 0; col < targetW; col++) {
+            int srcOffset = (col * srcW) / targetW;
+            int srcCol = flipHorizontal ? right - srcOffset : left + srcOffset;
+            int color = CharacterPixelAt(pixels, srcRow, srcCol);
 
             if (IsCharacterPixel(color)) {
                 GotoXY(startX + col, startY + row);
@@ -394,6 +475,19 @@ static void DrawCharacterPreviewBox(const vector<vector<int>>& pixels, const str
 
 void DrawCharacterPreview(int option, int x, int y, int boxW, int boxH, bool selected, bool disabled) {
     DrawCharacterPreviewBox(GetCharacterPixels(option), GetCharacterName(option), x, y, boxW, boxH, selected, disabled);
+}
+
+void DrawCharacterVictoryCard(int option, int x, int y, int boxW, int boxH) {
+    DrawPreviewFrame(x, y, boxW, boxH, true, false);
+
+    int spriteW = min(28, boxW - 6);
+    int spriteH = min(14, boxH - 4);
+    int spriteX = x + (boxW - spriteW) / 2;
+    int spriteY = y + 1;
+    DrawCharacterPixelsScaled(GetCharacterPixels(option), spriteX, spriteY, spriteW, spriteH, false);
+
+    string label = "> " + UpperAscii(GetCharacterName(option)) + " <";
+    DrawCharacterName(label, x + 1, y + boxH - 2, boxW - 2);
 }
 
 void outsidedisplay(int option) {

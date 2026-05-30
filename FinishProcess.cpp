@@ -4,6 +4,7 @@
 #include "UserInfo.h"
 #include "Sound.h"
 #include "Language.h"
+#include "Character.h"
 
 #include "Menu.h"
 #include "btn_normal.h"
@@ -26,16 +27,6 @@ static int FinishWinnerCharacter() {
     if (gLastFinishResult == -1) return CharacterASelect;
     if (gLastFinishResult == 1) return CharacterBSelect;
     return -1;
-}
-
-static string CharacterNameFromOption(int option) {
-    switch (option) {
-    case 0: return "KNIGHT";
-    case 1: return "ASSASSIN";
-    case 2: return "VAMPIRE";
-    case 3: return "PALADIN";
-    default: return "OFFICER";
-    }
 }
 
 int GetLastFinishResult() {
@@ -148,12 +139,12 @@ void DrawFinishCelebrationScreen() {
 
     if (gLastFinishResult == -1 || gLastFinishResult == 1) {
         int character = FinishWinnerCharacter();
-        DrawCharacterPreview(character, CenterConsoleX(34, CONSOLE_COLS), panelY + 2, 34, 14, true, false);
+        DrawCharacterVictoryCard(character, CenterConsoleX(38, CONSOLE_COLS), panelY + 2, 38, 16);
 
         string winner = L(Winner) + FinishWinnerName();
 
-        PrintPlainText(CenterConsoleX(TextDisplayWidth(L(Victory)), CONSOLE_COLS), panelY + 17, L(Victory), 14);
-        PrintPlainText(CenterConsoleX(TextDisplayWidth(winner), CONSOLE_COLS), panelY + 19, winner, 14);
+        PrintPlainText(CenterConsoleX(TextDisplayWidth(L(Victory)), CONSOLE_COLS), panelY + 18, L(Victory), 14);
+        PrintPlainText(CenterConsoleX(TextDisplayWidth(winner), CONSOLE_COLS), panelY + 20, winner, 14);
     }
     else {
         string drawText = L(DrawMessage);

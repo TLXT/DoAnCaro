@@ -945,7 +945,8 @@ static bool InputPlayerNamesSetup(bool isBotMode) {
                 PlayMenuSound();
                 CharacterASelect = CharacterSelectionMenu(-1, L(ChooseCharacterP1));
                 if (isBotMode) {
-                    CharacterBSelect = (CharacterASelect == 4) ? 0 : 4;
+                    int botCharacter = max(0, GetCharacterCount() - 2);
+                    CharacterBSelect = (CharacterASelect == botCharacter) ? 0 : botCharacter;
                 }
                 else {
                     CharacterBSelect = CharacterSelectionMenu(CharacterASelect, L(ChooseCharacterP2));
@@ -1090,8 +1091,8 @@ int GenericCharacterMenu(string options[], int size, string title, int disabledO
 }
 
 int CharacterSelectionMenu(int disabledOption, string chooserTitle) {
-    string options[5] = { "1. KNIGHT", "2. ASSASSIN", "3. VAMPIRE", "4. PALADIN", "5. OFFICER" };
-    return GenericCharacterMenu(options, 5, chooserTitle.empty() ? "CHARACTER MENU" : chooserTitle, disabledOption);
+    string options[6] = { "1. KNIGHT", "2. ASSASSIN", "3. VAMPIRE", "4. PALADIN", "5. OFFICER", "6. PANDA" };
+    return GenericCharacterMenu(options, GetCharacterCount(), chooserTitle.empty() ? "CHARACTER MENU" : chooserTitle, disabledOption);
 }
 
 void DrawFrame(int x, int y, int w, int h) {
