@@ -251,21 +251,12 @@ static void DrawWinningCell(int r, int c) {
 static void RestoreWinningCell(int r, int c) {
     int x = _A[r][c].x;
     int y = _A[r][c].y;
+    char mark = (_A[r][c].c == -1) ? 'X' : 'O';
+    int color = (_A[r][c].c == -1) ? 12 : 10;
 
     GotoXY(x - 1, y);
-    SetColor(0, BOARD_BG_COLOR);
-    cout << "   ";
-
-    if (_A[r][c].c == -1) {
-        GotoXY(x, y);
-        SetColor(12, BOARD_BG_COLOR);
-        cout << "X";
-    }
-    else if (_A[r][c].c == 1) {
-        GotoXY(x, y);
-        SetColor(10, BOARD_BG_COLOR);
-        cout << "O";
-    }
+    SetColor(color, BOARD_BG_COLOR);
+    cout << " " << mark << " ";
 
     SetColor(0, 15);
 }

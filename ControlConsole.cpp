@@ -1,4 +1,5 @@
 #include "ControlConsole.h"
+#include "GameStatus.h"
 
 #include <cstdio>
 
@@ -78,6 +79,42 @@ void FixConsoleWindow() {
 
     SetWindowPos(consoleWindow, NULL, 0, 0, 0, 0,
         SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+}
+
+bool IsWindowsTerminal() {
+    return GetEnvironmentVariableA("WT_SESSION", nullptr, 0) > 0;
+}
+
+void SyncConsoleLayoutToCurrentWindow() {
+    CONSOLE_COLS = BASE_CONSOLE_COLS;
+    CONSOLE_LINES = BASE_CONSOLE_LINES;
+
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (!GetConsoleScreenBufferInfo(hOut, &csbi)) {
+        return;
+    }
+
+    int cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    int lines = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+    if (cols <= 0) cols = csbi.dwSize.X;
+    if (lines <= 0) lines = csbi.dwSize.Y;
+
+    CONSOLE_COLS = (cols > BASE_CONSOLE_COLS) ? cols : BASE_CONSOLE_COLS;
+    CONSOLE_LINES = (lines > BASE_CONSOLE_LINES) ? lines : BASE_CONSOLE_LINES;
+}
+
+void SetupConsoleForCurrentHost() {
+    if (IsWindowsTerminal()) {
+        SyncConsoleLayoutToCurrentWindow();
+        ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
+        return;
+    }
+
+    CONSOLE_COLS = BASE_CONSOLE_COLS;
+    CONSOLE_LINES = BASE_CONSOLE_LINES;
+    ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
+    SetConsoleWindow(CONSOLE_COLS * 12, CONSOLE_LINES * 16);
 }
 
 void SetConsoleWindow(int width, int height) {

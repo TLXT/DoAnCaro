@@ -13,5 +13,8 @@ void UnhideCursor();
 void SetColor(int color, int bgColor);
 void ClearScreenFast();
 void FixConsoleWindow();
+bool IsWindowsTerminal();
+void SyncConsoleLayoutToCurrentWindow();
+void SetupConsoleForCurrentHost();
 void SetConsoleWindow(int width, int height);
 void ConfigureConsoleSize(int cols, int lines);

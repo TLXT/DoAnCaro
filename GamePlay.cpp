@@ -29,18 +29,20 @@ void DrawCell(int x, int y, int bg_color) {
         c = _A[row][col].c;
     }
 
-    GotoXY(x, y);
     if (c == 0) {
+        GotoXY(x - 1, y);
         SetColor(0, bg_color);
-        cout << " ";
+        cout << "   ";
     }
     else if (c == -1) {
+        GotoXY(x - 1, y);
         SetColor(12, bg_color);
-        cout << "X";
+        cout << " X ";
     }
     else if (c == 1) {
+        GotoXY(x - 1, y);
         SetColor(10, bg_color);
-        cout << "O";
+        cout << " O ";
     }
 
     SetColor(15, 0);
@@ -48,9 +50,8 @@ void DrawCell(int x, int y, int bg_color) {
 
 void StartGame() {
     SetColor(15, 0);
+    SetupConsoleForCurrentHost();
     ClearScreenFast();
-    ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
-    SetConsoleWindow(CONSOLE_COLS * 12, CONSOLE_LINES * 16);
     HideCursor();
     ResetData();
 

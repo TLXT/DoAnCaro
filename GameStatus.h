@@ -5,8 +5,10 @@ using namespace std;
 
 
 #define BOARD_SIZE 12
-#define CONSOLE_COLS 120
-#define CONSOLE_LINES 40
+#define BASE_CONSOLE_COLS 120
+#define BASE_CONSOLE_LINES 40
+extern int CONSOLE_COLS;
+extern int CONSOLE_LINES;
 #define BOARD_BG_COLOR 7
 #define BOARD_CURSOR_COLOR 11
 

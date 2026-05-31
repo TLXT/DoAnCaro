@@ -48,13 +48,7 @@ int main() {
     EnableRGBColor();
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleFontSize(12, 16);
-
-    FixConsoleWindow();
-
-
-    system("MODE CON COLS=120 LINES=40");
-    ConfigureConsoleSize(CONSOLE_COLS, CONSOLE_LINES);
-    SetConsoleWindow(CONSOLE_COLS * 12, CONSOLE_LINES * 16);
+    SetupConsoleForCurrentHost();
     HideCursor();
     PlayMusic(static_cast<int>(GetTickCount64() % 5), volumeLevel);
 
