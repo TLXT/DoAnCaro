@@ -309,6 +309,13 @@ void ExitGame() {
 int ProcessFinish(int pWhoWin) {
     gLastFinishResult = pWhoWin;
 
+    if (pWhoWin == 2) {
+        _TURN = !_TURN;
+        UpdateTurnInfo();
+        GotoXY(_X, _Y);
+        return pWhoWin;
+    }
+
     if (pWhoWin == -1 || pWhoWin == 1) {
         HighlightWinningLine(pWhoWin);
     }
@@ -343,10 +350,6 @@ int ProcessFinish(int pWhoWin) {
         else {
             cout << "DRAW! The board has no empty cells.                          ";
         }
-        break;
-    case  2:
-        _TURN = !_TURN;
-        UpdateTurnInfo();
         break;
     }
 
